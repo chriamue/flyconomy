@@ -60,7 +60,13 @@ fn load_config_assets(asset_server: Res<AssetServer>, mut config_resource: ResMu
 }
 
 fn update_simulation_system(mut game_resource: ResMut<GameResource>, time: Res<Time>) {
+    if !matches!(game_resource.game_state, GameState::Playing) {
+        return;
+    }
     game_resource.simulation.update(time.delta());
+    if game_resource.simulation.environment.company_finances.cash < 10000.0 {
+        game_resource.game_state = GameState::GameOver;
+    }
 }
 
 #[cfg_attr(target_arch = "wasm32", wasm_bindgen::prelude::wasm_bindgen(start))]
