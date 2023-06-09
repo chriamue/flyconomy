@@ -1,10 +1,11 @@
 use bevy::prelude::*;
 
 mod game_state;
+use bevy_common_assets::yaml::YamlAssetPlugin;
 use bevy_egui::EguiPlugin;
 pub use game_state::GameState;
 
-use crate::{simulation::Simulation, ui};
+use crate::{config::PlanesConfig, simulation::Simulation, ui};
 
 #[derive(Resource)]
 pub struct GameResource {
@@ -16,15 +17,23 @@ impl Default for GameResource {
     fn default() -> Self {
         Self {
             game_state: GameState::Welcome,
-            simulation: Simulation::new(1000_000_000.0),
+            simulation: Simulation::new(1_000_000.0),
         }
     }
 }
 
+#[derive(Default, Resource)]
+pub struct ConfigResource {
+    pub plane_handle: Option<Handle<PlanesConfig>>,
+}
+
 pub fn setup_game(app: &mut App, game_resource: GameResource) {
     app.add_plugin(EguiPlugin)
+        .add_plugin(YamlAssetPlugin::<PlanesConfig>::new(&["yaml"]))
         .insert_resource(game_resource)
+        .insert_resource(ConfigResource::default())
         .add_startup_system(setup)
+        .add_startup_system(load_config_assets)
         .add_system(update_simulation_system);
     ui::add_ui_systems_to_app(app);
 }
@@ -43,6 +52,11 @@ fn setup(mut commands: Commands) {
         },
         ..Default::default()
     });
+}
+
+fn load_config_assets(asset_server: Res<AssetServer>, mut config_resource: ResMut<ConfigResource>) {
+    let handle = asset_server.load("planes.yaml");
+    config_resource.plane_handle = Some(handle);
 }
 
 fn update_simulation_system(mut game_resource: ResMut<GameResource>, time: Res<Time>) {
@@ -68,3 +82,6 @@ pub fn start() {
     setup_game(&mut app, game_resource);
     app.run()
 }
+
+#[derive(Resource)]
+struct PlanesConfigHandle(Handle<PlanesConfig>);

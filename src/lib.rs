@@ -1,3 +1,4 @@
+mod config;
 mod game;
 mod model;
 mod simulation;
