@@ -44,6 +44,22 @@ Flyconomy is a 2D economic simulation game where players manage their own airlin
 3. **Monitor Economy**: Keep an eye on fuel prices. Plan shorter routes when fuel prices are high and vice versa.
 4. **Reinvest**: Use your profits to invest in new planes and expand your routes.
 
+## Web App
+
+1. Compile the code to WASM:
+
+    ```sh
+    wasm-pack build --target web
+    ```
+
+2. Run the Web version in your browser
+
+    ```sh
+    python3 -m http.server
+    ```
+
+3. Open your browser on [Localhost](http://localhost:8000)
+
 ## Contributing 🤝
 
 Contributions are what make the open-source community such an amazing place to learn, inspire, and create. Any contributions you make are greatly appreciated.

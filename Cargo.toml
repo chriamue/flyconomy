@@ -1,0 +1,28 @@
+[package]
+name = "flyconomy"
+version = "0.1.0"
+edition = "2021"
+description = "A simple economic simulation game about managing an airline with real-world data."
+authors = ["Christian <chriamue@gmail.com>"]
+license = "MIT"
+readme = "README.md"
+repository = "https://github.com/chriamue/flyconomy"
+
+[lib]
+crate-type = ["cdylib", "rlib"]
+
+[dependencies]
+bevy = { version = "0.10.1", default-features = false, features = [
+    "bevy_core_pipeline",
+    "bevy_render",
+    "bevy_sprite",
+    "bevy_pbr",
+    "x11",
+] }
+bevy_egui = { version = "0.20.2" }
+serde = { version = "1.0", features = ["derive"] }
+serde_yaml = "0.8"
+
+[target.'cfg(target_arch = "wasm32")'.dependencies]
+wasm-bindgen = "0.2"
+console_error_panic_hook = "0.1"

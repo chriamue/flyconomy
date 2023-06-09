@@ -1,0 +1,22 @@
+<!DOCTYPE html>
+<html lang="en">
+  <head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Flyconomy</title>
+    <link rel="stylesheet" href="index.css">
+  </head>
+  <body>
+    <div id="app" />
+    <script type="module">
+      import init, { start } from "./pkg/flyconomy.js";
+      init().then(async () => {
+        try {
+          start();
+        } catch (e) {
+          console.error(e);
+        }
+      });
+    </script>
+  </body>
+</html>
