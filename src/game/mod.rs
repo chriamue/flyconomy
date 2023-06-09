@@ -4,17 +4,28 @@ mod game_state;
 use bevy_egui::EguiPlugin;
 pub use game_state::GameState;
 
-use crate::ui;
+use crate::{simulation::Simulation, ui};
 
-#[derive(Default, Resource)]
+#[derive(Resource)]
 pub struct GameResource {
     pub game_state: GameState,
+    pub simulation: Simulation,
+}
+
+impl Default for GameResource {
+    fn default() -> Self {
+        Self {
+            game_state: GameState::Welcome,
+            simulation: Simulation::new(1000_000_000.0),
+        }
+    }
 }
 
 pub fn setup_game(app: &mut App, game_resource: GameResource) {
     app.add_plugin(EguiPlugin)
         .insert_resource(game_resource)
-        .add_startup_system(setup);
+        .add_startup_system(setup)
+        .add_system(update_simulation_system);
     ui::add_ui_systems_to_app(app);
 }
 
@@ -32,6 +43,10 @@ fn setup(mut commands: Commands) {
         },
         ..Default::default()
     });
+}
+
+fn update_simulation_system(mut game_resource: ResMut<GameResource>, time: Res<Time>) {
+    game_resource.simulation.update(time.delta());
 }
 
 #[cfg_attr(target_arch = "wasm32", wasm_bindgen::prelude::wasm_bindgen(start))]
