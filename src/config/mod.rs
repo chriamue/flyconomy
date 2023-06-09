@@ -1,4 +1,5 @@
 use serde::{Deserialize, Serialize};
+use serde_json::Value;
 
 use crate::model::PlaneType;
 
@@ -7,3 +8,7 @@ use crate::model::PlaneType;
 pub struct PlanesConfig {
     pub planes: Vec<PlaneType>,
 }
+
+#[derive(Serialize, Deserialize, Debug, bevy::reflect::TypeUuid)]
+#[uuid = "45d4e0f3-c25e-4b19-bfb4-ff278fbad7b0"]
+pub struct AerodromeConfig(pub Value);

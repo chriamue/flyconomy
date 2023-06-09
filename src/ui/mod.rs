@@ -1,18 +1,23 @@
-use bevy::prelude::{App, Assets, Res, ResMut};
+use bevy::prelude::{App, Assets, Res, ResMut, Resource};
 use bevy_egui::{egui, EguiContexts};
 
 use crate::{
-    config::PlanesConfig,
+    config::{AerodromeConfig, PlanesConfig},
     game::{ConfigResource, GameResource, GameState},
-    model::commands::BuyPlaneCommand,
+    model::{commands::BuyPlaneCommand, Aerodrome},
+    overpass_importer::Element,
     simulation::Simulation,
 };
 
 pub fn add_ui_systems_to_app(app: &mut App) {
+    app.insert_resource(UiInput {
+        search_string: String::new(),
+    });
     app.add_system(welcome_screen);
     app.add_system(game_over_screen);
     app.add_system(company_hud);
     app.add_system(planes_purchase_ui);
+    app.add_system(aerodromes_ui);
 }
 
 pub fn welcome_screen(mut contexts: EguiContexts, mut game_resources: ResMut<GameResource>) {
@@ -124,4 +129,49 @@ pub fn planes_purchase_ui(
             });
         }
     }
+}
+
+pub fn aerodromes_ui(
+    mut contexts: EguiContexts,
+    aerodromes_assets: Res<Assets<AerodromeConfig>>,
+    config_resource: Res<ConfigResource>,
+    game_resource: ResMut<GameResource>,
+    mut search_input: ResMut<UiInput>,
+) {
+    if !matches!(game_resource.game_state, GameState::Playing) {
+        return;
+    }
+    if let Some(handle) = &config_resource.aerodrome_handle {
+        if let Some(aerodromes_config) = aerodromes_assets.get(handle) {
+            egui::Window::new("Aerodromes")
+                .default_open(false)
+                .show(contexts.ctx_mut(), |ui| {
+                    ui.label("Available Aerodromes:");
+                    ui.text_edit_singleline(&mut search_input.search_string);
+                    if let Ok(elements) = Element::from_json(&aerodromes_config.0) {
+                        let aerodromes: Vec<Aerodrome> =
+                            elements.into_iter().map(Aerodrome::from).collect();
+
+                        for aerodrome in aerodromes
+                            .iter()
+                            .filter(|a| a.name.contains(&search_input.search_string))
+                        {
+                            ui.horizontal(|ui| {
+                                ui.label(&aerodrome.name);
+                                ui.label(format!("ID: {}", aerodrome.id));
+                                ui.label(format!("Latitude: {:.4}", aerodrome.lat));
+                                ui.label(format!("Longitude: {:.4}", aerodrome.lon));
+                            });
+                        }
+                    } else {
+                        ui.label("Error parsing aerodromes.");
+                    }
+                });
+        }
+    }
+}
+
+#[derive(Resource, Default)]
+pub struct UiInput {
+    pub search_string: String,
 }
