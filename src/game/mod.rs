@@ -1,5 +1,6 @@
 use bevy::prelude::*;
 
+mod earth3d;
 mod game_state;
 use bevy_common_assets::yaml::YamlAssetPlugin;
 use bevy_egui::EguiPlugin;
@@ -36,6 +37,7 @@ pub fn setup_game(app: &mut App, game_resource: GameResource) {
         .add_startup_system(load_config_assets)
         .add_system(update_simulation_system);
     ui::add_ui_systems_to_app(app);
+    earth3d::add_earth3d_systems_to_app(app);
 }
 
 fn setup(mut commands: Commands) {
@@ -75,16 +77,20 @@ pub fn start() {
 
     let mut app = App::new();
 
-    app.add_plugins(DefaultPlugins.set(WindowPlugin {
-        primary_window: Some(Window {
-            title: "Flyconomy".into(),
-            resolution: (1000., 1000.).into(),
-            fit_canvas_to_parent: true,
-            prevent_default_event_handling: false,
-            ..default()
-        }),
-        ..default()
-    }));
+    app.add_plugins(
+        DefaultPlugins
+            .set(WindowPlugin {
+                primary_window: Some(Window {
+                    title: "Flyconomy".into(),
+                    resolution: (1000., 1000.).into(),
+                    fit_canvas_to_parent: true,
+                    prevent_default_event_handling: false,
+                    ..default()
+                }),
+                ..default()
+            })
+            .set(AssetPlugin { ..default() }),
+    );
     setup_game(&mut app, game_resource);
     app.run()
 }

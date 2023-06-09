@@ -13,6 +13,9 @@ crate-type = ["cdylib", "rlib"]
 
 [dependencies]
 bevy = { version = "0.10.1", default-features = false, features = [
+    "bevy_asset",
+    "jpeg",
+    "png",
     "bevy_core_pipeline",
     "bevy_render",
     "bevy_sprite",
@@ -21,6 +24,7 @@ bevy = { version = "0.10.1", default-features = false, features = [
 ] }
 bevy_common_assets = { version = "0.6.0", features = ["yaml"] }
 bevy_egui = { version = "0.20.2" }
+bevy_mod_paramap = { git = "https://github.com/nicopap/bevy_mod_paramap" }
 serde = { version = "1.0", features = ["derive"] }
 serde_yaml = "0.8"
 
