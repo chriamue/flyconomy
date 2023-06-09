@@ -77,3 +77,7 @@ Distributed under the MIT License. See [LICENSE](LICENSE) for more information.
 ## Contact 💌
 
 Project Link: [https://github.com/chriamue/flyconomy](https://github.com/chriamue/flyconomy)
+
+## Notes
+
+The spinning earth, materials and shading come from [bevy_mod_paramap](https://github.com/nicopap/bevy_mod_paramap/blob/main/examples/earth3d.rs).
