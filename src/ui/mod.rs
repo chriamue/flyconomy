@@ -4,11 +4,12 @@ use bevy_egui::{egui, EguiContexts};
 use crate::{
     config::PlanesConfig,
     game::{ConfigResource, GameResource, GameState},
+    model::{commands::BuyPlaneCommand},
 };
 
 pub fn add_ui_systems_to_app(app: &mut App) {
     app.add_system(welcome_screen);
-    app.add_system(finances_hud);
+    app.add_system(company_hud);
     app.add_system(planes_purchase_ui);
 }
 
@@ -32,17 +33,24 @@ pub fn welcome_screen(mut contexts: EguiContexts, mut game_resources: ResMut<Gam
     });
 }
 
-fn finances_hud(mut contexts: EguiContexts, game_resource: Res<GameResource>) {
+fn company_hud(mut contexts: EguiContexts, game_resource: Res<GameResource>) {
     if !matches!(game_resource.game_state, GameState::Playing) {
         return;
     }
 
-    egui::Window::new("Company Finances").show(contexts.ctx_mut(), |ui| {
-        let finances = &game_resource.simulation.company_finances;
+    egui::Window::new("Company").show(contexts.ctx_mut(), |ui| {
+        let environment = &game_resource.simulation.environment;
         ui.horizontal(|ui| {
-            ui.label(format!("Cash: ${:.2}", finances.cash));
-            ui.label(format!("Total Income: ${:.2}", finances.total_income));
-            ui.label(format!("Total Expenses: ${:.2}", finances.total_expenses));
+            ui.label(format!("Cash: ${:.2}", environment.company_finances.cash));
+            ui.label(format!("Planes: {}", environment.planes.len()));
+            ui.label(format!(
+                "Total Income: ${:.2}",
+                environment.company_finances.total_income
+            ));
+            ui.label(format!(
+                "Total Expenses: ${:.2}",
+                environment.company_finances.total_expenses
+            ));
         });
     });
 }
@@ -72,15 +80,10 @@ pub fn planes_purchase_ui(
                         ));
 
                         if ui.button("Buy").clicked() {
-                            // Implement the logic for buying a plane here.
-                            // You can access the game_resource to modify player's finances.
-                            if game_resource.simulation.company_finances.cash >= plane.cost.into() {
-                                game_resource.simulation.company_finances.cash -= plane.cost as f64;
-                                game_resource.simulation.planes.push(plane.clone());
-                                // Add other logic as needed for adding the plane to the player's assets
-                            } else {
-                                // Optionally, display a message that the player doesn't have enough cash
-                            }
+                            let buy_plane = BuyPlaneCommand {
+                                plane_type: plane.clone(),
+                            };
+                            game_resource.simulation.add_command(Box::new(buy_plane));
                         }
                     });
                 }

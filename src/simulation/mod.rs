@@ -1,26 +1,48 @@
-use std::{time::Duration, vec};
+use std::time::Duration;
 
-use crate::model::{CompanyFinances, PlaneType};
+use crate::model::{commands::Command, Environment};
 
 pub struct Simulation {
-    pub company_finances: CompanyFinances,
-    pub plane_types: Vec<PlaneType>,
-    pub planes: Vec<PlaneType>,
+    pub environment: Environment,
     elapsed_time: Duration,
+    commands: Vec<Box<dyn Command>>,
 }
 
 impl Simulation {
     pub fn new(capital: f64) -> Self {
         Self {
-            company_finances: CompanyFinances::new(capital),
-            plane_types: vec![],
+            environment: Environment::new(capital),
             elapsed_time: Duration::from_secs(0),
-            planes: vec![],
+            commands: vec![],
         }
     }
 
     pub fn update(&mut self, delta_time: Duration) {
         self.elapsed_time += delta_time;
-        self.company_finances.cash = self.company_finances.cash - 1.0;
+        let commands = self.commands.drain(..).collect::<Vec<_>>();
+        for command in commands {
+            self.execute_command(command);
+        }
+
+        let profit = self.calculate_profit(delta_time);
+        self.environment.company_finances.cash += profit;
+    }
+
+    pub fn add_command(&mut self, command: Box<dyn Command>) {
+        self.commands.push(command);
+    }
+
+    fn execute_command(&mut self, command: Box<dyn Command>) {
+        if let Some(message) = command.execute(&mut self.environment) {
+            println!("{}", message);
+        }
+    }
+
+    pub fn calculate_profit(&self, delta_time: Duration) -> f64 {
+        let mut profit = 0.0;
+        for plane in &self.environment.planes {
+            profit += plane.monthly_income as f64 * delta_time.as_secs_f64() / 60.0 / 60.0 / 24.0 * 30.0;
+        }
+        profit
     }
 }
