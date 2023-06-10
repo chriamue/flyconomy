@@ -1,6 +1,12 @@
 use bevy::{app::PluginGroupBuilder, core_pipeline::bloom::BloomSettings, prelude::*};
 use bevy_panorbit_camera::{PanOrbitCamera, PanOrbitCameraPlugin};
 
+pub fn add_camera_systems_to_app(app: &mut App) {
+    app.add_plugin(PanOrbitCameraPlugin)
+        .add_startup_system(setup_camera)
+        .add_system(keyboard_controls);
+}
+
 pub fn setup_camera(mut commands: Commands) {
     let mut camera = commands.spawn((
         Camera3dBundle {
@@ -22,6 +28,40 @@ pub fn setup_camera(mut commands: Commands) {
         intensity: 0.1,
         ..default()
     });
+}
+
+fn keyboard_controls(
+    time: Res<Time>,
+    key_input: Res<Input<KeyCode>>,
+    mut pan_orbit_query: Query<(&mut PanOrbitCamera, &mut Transform)>,
+) {
+    for (mut pan_orbit, _transform) in pan_orbit_query.iter_mut() {
+        if key_input.pressed(KeyCode::Right) {
+            pan_orbit.target_alpha += 50f32.to_radians() * time.delta_seconds();
+        }
+        if key_input.pressed(KeyCode::Left) {
+            pan_orbit.target_alpha -= 50f32.to_radians() * time.delta_seconds();
+        }
+        if key_input.pressed(KeyCode::Up) {
+            pan_orbit.target_beta += 50f32.to_radians() * time.delta_seconds();
+        }
+        if key_input.pressed(KeyCode::Down) {
+            pan_orbit.target_beta -= 50f32.to_radians() * time.delta_seconds();
+        }
+
+        // Zoom with Z and X
+        if key_input.pressed(KeyCode::Z) {
+            pan_orbit.radius = pan_orbit
+                .radius
+                .map(|radius| radius - 5.0 * time.delta_seconds());
+        }
+        if key_input.pressed(KeyCode::X) {
+            pan_orbit.radius = pan_orbit
+                .radius
+                .map(|radius| radius + 5.0 * time.delta_seconds());
+        }
+        pan_orbit.force_update = true;
+    }
 }
 
 pub struct CameraPlugins;

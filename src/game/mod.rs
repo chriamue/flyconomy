@@ -2,8 +2,9 @@ use bevy::prelude::*;
 
 mod aerodrome;
 mod camera;
-mod earth3d;
+pub mod earth3d;
 mod game_state;
+pub mod projection;
 
 use bevy_common_assets::yaml::YamlAssetPlugin;
 use bevy_egui::EguiPlugin;
@@ -40,18 +41,17 @@ pub struct ConfigResource {
 
 pub fn setup_game(app: &mut App, game_resource: GameResource) {
     app.add_plugin(EguiPlugin)
-        .add_plugins(camera::CameraPlugins)
         .add_plugin(YamlAssetPlugin::<PlanesConfig>::new(&["yaml"]))
         .add_plugin(YamlAssetPlugin::<AerodromeConfig>::new(&[
             "aerodromes.json",
         ]))
         .insert_resource(game_resource)
         .insert_resource(ConfigResource::default())
-        .add_startup_system(camera::setup_camera)
         .add_startup_system(setup)
         .add_startup_system(load_config_assets)
         .add_system(config_assets_loaded)
         .add_system(update_simulation_system);
+    camera::add_camera_systems_to_app(app);
     ui::add_ui_systems_to_app(app);
     aerodrome::add_aerodrome_systems_to_app(app);
     earth3d::add_earth3d_systems_to_app(app);

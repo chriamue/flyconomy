@@ -1,15 +1,15 @@
 use bevy::prelude::{
     shape, App, Assets, Color, Commands, Component, Mesh, PbrBundle, Res, ResMut, Resource,
-    StandardMaterial, Transform, Vec3,
+    StandardMaterial, Transform,
 };
 
-use crate::{model::Aerodrome, overpass_importer::Element};
+use crate::{
+    game::{earth3d, projection::wgs84_to_xyz},
+    model::Aerodrome,
+    overpass_importer::Element,
+};
 
 use super::ConfigResource;
-
-const EARTH_RADIUS: f64 = 6_371_000.0;
-const SIMULATION_EARTH_RADIUS: f64 = 1.0;
-const SCALE_FACTOR: f64 = SIMULATION_EARTH_RADIUS / EARTH_RADIUS;
 
 pub fn add_aerodrome_systems_to_app(app: &mut App) {
     app.insert_resource(AerodromeSystem { setup_done: false })
@@ -38,10 +38,11 @@ fn setup(
                     elements.into_iter().map(Aerodrome::from).collect();
 
                 for aerodrome in aerodromes {
-                    let position = project(aerodrome.lat, aerodrome.lon);
+                    let position = wgs84_to_xyz(aerodrome.lat, aerodrome.lon, 0.0)
+                        * earth3d::SCALE_FACTOR as f32;
                     let mesh_handle = meshes.add(
                         Mesh::try_from(shape::Icosphere {
-                            radius: 10_000.0 * SCALE_FACTOR as f32,
+                            radius: 10_000.0 * earth3d::SCALE_FACTOR as f32,
                             subdivisions: 4,
                         })
                         .unwrap(),
@@ -67,13 +68,4 @@ fn setup(
             aerodrome_system.setup_done = true;
         }
     }
-}
-
-pub fn project(lon: f64, lat: f64) -> Vec3 {
-    let lat_rad = -lat.to_radians();
-    let lon_rad = lon.to_radians();
-    let x = EARTH_RADIUS * lat_rad.cos() * lon_rad.cos();
-    let y = EARTH_RADIUS * lat_rad.cos() * lon_rad.sin();
-    let z = EARTH_RADIUS * lat_rad.sin();
-    Vec3::new(x as f32, y as f32, z as f32) * SCALE_FACTOR as f32
 }

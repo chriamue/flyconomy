@@ -1,8 +1,9 @@
-use bevy::prelude::{App, Res, ResMut, Resource};
+use bevy::prelude::{App, Query, Res, ResMut, Resource, Transform};
 use bevy_egui::{egui, EguiContexts};
+use bevy_panorbit_camera::PanOrbitCamera;
 
 use crate::{
-    game::{ConfigResource, GameResource, GameState},
+    game::{earth3d, projection::wgs84_to_xyz, ConfigResource, GameResource, GameState},
     model::{commands::BuyPlaneCommand, Aerodrome},
     overpass_importer::Element,
     simulation::Simulation,
@@ -132,6 +133,7 @@ pub fn aerodromes_ui(
     config_resource: Res<ConfigResource>,
     game_resource: ResMut<GameResource>,
     mut search_input: ResMut<UiInput>,
+    mut pan_orbit_query: Query<(&mut PanOrbitCamera, &mut Transform)>,
 ) {
     if !matches!(game_resource.game_state, GameState::Playing) {
         return;
@@ -150,12 +152,14 @@ pub fn aerodromes_ui(
                         .iter()
                         .filter(|a| a.name.contains(&search_input.search_string))
                     {
-                        ui.horizontal(|ui| {
-                            ui.label(&aerodrome.name);
-                            ui.label(format!("ID: {}", aerodrome.id));
-                            ui.label(format!("Latitude: {:.4}", aerodrome.lat));
-                            ui.label(format!("Longitude: {:.4}", aerodrome.lon));
-                        });
+                        if ui.selectable_label(false, &aerodrome.name).clicked() {
+                            let aerodrome_position =
+                                wgs84_to_xyz(aerodrome.lat, aerodrome.lon, 0.0)
+                                    * earth3d::SCALE_FACTOR as f32;
+                            for (mut pan_orbit, _transform) in pan_orbit_query.iter_mut() {
+                                pan_orbit.focus = aerodrome_position;
+                            }
+                        }
                     }
                 } else {
                     ui.label("Error parsing aerodromes.");
