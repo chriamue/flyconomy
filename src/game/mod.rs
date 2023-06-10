@@ -11,7 +11,8 @@ use bevy_egui::EguiPlugin;
 pub use game_state::GameState;
 
 use crate::{
-    config::{AerodromeConfig, PlanesConfig},
+    config::{parse_airport_csv, AerodromeConfig, PlanesConfig},
+    model::Aerodrome,
     simulation::Simulation,
     ui,
 };
@@ -37,6 +38,7 @@ pub struct ConfigResource {
     pub aerodrome_handle: Option<Handle<AerodromeConfig>>,
     pub planes_config: Option<PlanesConfig>,
     pub aerodrome_config: Option<AerodromeConfig>,
+    pub aerodromes: Option<Vec<Aerodrome>>,
 }
 
 pub fn setup_game(app: &mut App, game_resource: GameResource) {
@@ -79,6 +81,9 @@ fn load_config_assets(asset_server: Res<AssetServer>, mut config_resource: ResMu
 
     let handle = asset_server.load("german.aerodromes.json");
     config_resource.aerodrome_handle = Some(handle);
+
+    let aerodromes = parse_airport_csv(include_str!("../../assets/airports.dat"));
+    config_resource.aerodromes = Some(aerodromes);
 
     #[cfg(target_arch = "wasm32")]
     {

@@ -27,6 +27,7 @@ bevy_common_assets = { version = "0.6.0", features = ["yaml", "json"] }
 bevy_egui = { version = "0.20.2" }
 bevy_mod_paramap = { git = "https://github.com/nicopap/bevy_mod_paramap" }
 bevy_panorbit_camera = { version = "0.5.1" }
+csv = "1.2.2"
 serde = { version = "1.0", features = ["derive"] }
 serde_yaml = "0.8"
 serde_json = "1.0"

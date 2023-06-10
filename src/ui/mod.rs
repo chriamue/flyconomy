@@ -138,31 +138,24 @@ pub fn aerodromes_ui(
     if !matches!(game_resource.game_state, GameState::Playing) {
         return;
     }
-    if let Some(aerodromes_config) = config_resource.aerodrome_config.as_ref() {
+    if let Some(aerodromes) = config_resource.aerodromes.as_ref() {
         egui::Window::new("Aerodromes")
             .default_open(false)
             .show(contexts.ctx_mut(), |ui| {
                 ui.label("Available Aerodromes:");
                 ui.text_edit_singleline(&mut search_input.search_string);
-                if let Ok(elements) = Element::from_json(&aerodromes_config.0) {
-                    let aerodromes: Vec<Aerodrome> =
-                        elements.into_iter().map(Aerodrome::from).collect();
 
-                    for aerodrome in aerodromes
-                        .iter()
-                        .filter(|a| a.name.contains(&search_input.search_string))
-                    {
-                        if ui.selectable_label(false, &aerodrome.name).clicked() {
-                            let aerodrome_position =
-                                wgs84_to_xyz(aerodrome.lat, aerodrome.lon, 0.0)
-                                    * earth3d::SCALE_FACTOR as f32;
-                            for (mut pan_orbit, _transform) in pan_orbit_query.iter_mut() {
-                                pan_orbit.focus = aerodrome_position;
-                            }
+                for aerodrome in aerodromes
+                    .iter()
+                    .filter(|a| a.name.contains(&search_input.search_string))
+                {
+                    if ui.selectable_label(false, &aerodrome.name).clicked() {
+                        let aerodrome_position = wgs84_to_xyz(aerodrome.lat, aerodrome.lon, 0.0)
+                            * earth3d::SCALE_FACTOR as f32;
+                        for (mut pan_orbit, _transform) in pan_orbit_query.iter_mut() {
+                            pan_orbit.focus = aerodrome_position;
                         }
                     }
-                } else {
-                    ui.label("Error parsing aerodromes.");
                 }
             });
     }
