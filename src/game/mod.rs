@@ -1,5 +1,6 @@
 use bevy::prelude::*;
 
+mod aerodrome;
 mod earth3d;
 mod game_state;
 use bevy_common_assets::yaml::YamlAssetPlugin;
@@ -31,6 +32,8 @@ impl Default for GameResource {
 pub struct ConfigResource {
     pub plane_handle: Option<Handle<PlanesConfig>>,
     pub aerodrome_handle: Option<Handle<AerodromeConfig>>,
+    pub planes_config: Option<PlanesConfig>,
+    pub aerodrome_config: Option<AerodromeConfig>,
 }
 
 pub fn setup_game(app: &mut App, game_resource: GameResource) {
@@ -43,8 +46,10 @@ pub fn setup_game(app: &mut App, game_resource: GameResource) {
         .insert_resource(ConfigResource::default())
         .add_startup_system(setup)
         .add_startup_system(load_config_assets)
+        .add_system(config_assets_loaded)
         .add_system(update_simulation_system);
     ui::add_ui_systems_to_app(app);
+    aerodrome::add_aerodrome_systems_to_app(app);
     earth3d::add_earth3d_systems_to_app(app);
 }
 
@@ -70,6 +75,28 @@ fn load_config_assets(asset_server: Res<AssetServer>, mut config_resource: ResMu
 
     let handle = asset_server.load("german.aerodromes.json");
     config_resource.aerodrome_handle = Some(handle);
+}
+
+fn config_assets_loaded(
+    mut config_resource: ResMut<ConfigResource>,
+    planes_config_assets: Res<Assets<PlanesConfig>>,
+    aerodrome_config_assets: Res<Assets<AerodromeConfig>>,
+) {
+    if config_resource.plane_handle.is_some() && config_resource.planes_config.is_none() {
+        if let Some(handle) = config_resource.plane_handle.take() {
+            if let Some(config) = planes_config_assets.get(&handle) {
+                config_resource.planes_config = Some(config.clone());
+            }
+        }
+    }
+
+    if config_resource.aerodrome_handle.is_some() && config_resource.aerodrome_config.is_none() {
+        if let Some(handle) = config_resource.aerodrome_handle.take() {
+            if let Some(config) = aerodrome_config_assets.get(&handle) {
+                config_resource.aerodrome_config = Some(config.clone());
+            }
+        }
+    }
 }
 
 fn update_simulation_system(mut game_resource: ResMut<GameResource>, time: Res<Time>) {

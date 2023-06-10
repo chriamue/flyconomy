@@ -1,8 +1,7 @@
-use bevy::prelude::{App, Assets, Res, ResMut, Resource};
+use bevy::prelude::{App, Res, ResMut, Resource};
 use bevy_egui::{egui, EguiContexts};
 
 use crate::{
-    config::{AerodromeConfig, PlanesConfig},
     game::{ConfigResource, GameResource, GameState},
     model::{commands::BuyPlaneCommand, Aerodrome},
     overpass_importer::Element,
@@ -96,44 +95,40 @@ fn company_hud(mut contexts: EguiContexts, game_resource: Res<GameResource>) {
 
 pub fn planes_purchase_ui(
     mut contexts: EguiContexts,
-    planes_assets: Res<Assets<PlanesConfig>>,
     config_resource: Res<ConfigResource>,
     mut game_resource: ResMut<GameResource>,
 ) {
     if !matches!(game_resource.game_state, GameState::Playing) {
         return;
     }
-    if let Some(handle) = &config_resource.plane_handle {
-        if let Some(planes_config) = planes_assets.get(handle) {
-            egui::Window::new("Buy Planes").show(contexts.ctx_mut(), |ui| {
-                ui.label("Available Planes:");
+    if let Some(planes_config) = config_resource.planes_config.as_ref() {
+        egui::Window::new("Buy Planes").show(contexts.ctx_mut(), |ui| {
+            ui.label("Available Planes:");
 
-                for plane in &planes_config.planes {
-                    ui.horizontal(|ui| {
-                        ui.label(&plane.name);
-                        ui.label(format!("Cost: ${:.2}", plane.cost));
-                        ui.label(format!("Monthly Income: ${:.2}", plane.monthly_income));
-                        ui.label(format!(
-                            "Monthly Operating Cost: ${:.2}",
-                            plane.monthly_operating_cost
-                        ));
+            for plane in &planes_config.planes {
+                ui.horizontal(|ui| {
+                    ui.label(&plane.name);
+                    ui.label(format!("Cost: ${:.2}", plane.cost));
+                    ui.label(format!("Monthly Income: ${:.2}", plane.monthly_income));
+                    ui.label(format!(
+                        "Monthly Operating Cost: ${:.2}",
+                        plane.monthly_operating_cost
+                    ));
 
-                        if ui.button("Buy").clicked() {
-                            let buy_plane = BuyPlaneCommand {
-                                plane_type: plane.clone(),
-                            };
-                            game_resource.simulation.add_command(Box::new(buy_plane));
-                        }
-                    });
-                }
-            });
-        }
+                    if ui.button("Buy").clicked() {
+                        let buy_plane = BuyPlaneCommand {
+                            plane_type: plane.clone(),
+                        };
+                        game_resource.simulation.add_command(Box::new(buy_plane));
+                    }
+                });
+            }
+        });
     }
 }
 
 pub fn aerodromes_ui(
     mut contexts: EguiContexts,
-    aerodromes_assets: Res<Assets<AerodromeConfig>>,
     config_resource: Res<ConfigResource>,
     game_resource: ResMut<GameResource>,
     mut search_input: ResMut<UiInput>,
@@ -141,33 +136,31 @@ pub fn aerodromes_ui(
     if !matches!(game_resource.game_state, GameState::Playing) {
         return;
     }
-    if let Some(handle) = &config_resource.aerodrome_handle {
-        if let Some(aerodromes_config) = aerodromes_assets.get(handle) {
-            egui::Window::new("Aerodromes")
-                .default_open(false)
-                .show(contexts.ctx_mut(), |ui| {
-                    ui.label("Available Aerodromes:");
-                    ui.text_edit_singleline(&mut search_input.search_string);
-                    if let Ok(elements) = Element::from_json(&aerodromes_config.0) {
-                        let aerodromes: Vec<Aerodrome> =
-                            elements.into_iter().map(Aerodrome::from).collect();
+    if let Some(aerodromes_config) = config_resource.aerodrome_config.as_ref() {
+        egui::Window::new("Aerodromes")
+            .default_open(false)
+            .show(contexts.ctx_mut(), |ui| {
+                ui.label("Available Aerodromes:");
+                ui.text_edit_singleline(&mut search_input.search_string);
+                if let Ok(elements) = Element::from_json(&aerodromes_config.0) {
+                    let aerodromes: Vec<Aerodrome> =
+                        elements.into_iter().map(Aerodrome::from).collect();
 
-                        for aerodrome in aerodromes
-                            .iter()
-                            .filter(|a| a.name.contains(&search_input.search_string))
-                        {
-                            ui.horizontal(|ui| {
-                                ui.label(&aerodrome.name);
-                                ui.label(format!("ID: {}", aerodrome.id));
-                                ui.label(format!("Latitude: {:.4}", aerodrome.lat));
-                                ui.label(format!("Longitude: {:.4}", aerodrome.lon));
-                            });
-                        }
-                    } else {
-                        ui.label("Error parsing aerodromes.");
+                    for aerodrome in aerodromes
+                        .iter()
+                        .filter(|a| a.name.contains(&search_input.search_string))
+                    {
+                        ui.horizontal(|ui| {
+                            ui.label(&aerodrome.name);
+                            ui.label(format!("ID: {}", aerodrome.id));
+                            ui.label(format!("Latitude: {:.4}", aerodrome.lat));
+                            ui.label(format!("Longitude: {:.4}", aerodrome.lon));
+                        });
                     }
-                });
-        }
+                } else {
+                    ui.label("Error parsing aerodromes.");
+                }
+            });
     }
 }
 

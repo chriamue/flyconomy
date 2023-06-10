@@ -15,6 +15,7 @@ const HEIGHT_MAP: &str = "earth/elevation_surface.jpg";
 const ROUGH_MAP: &str = "earth/metallic_roughness.png";
 const ALBEDO_MAP: &str = "earth/base_color.jpg";
 const EMI_MAP: &str = "earth/emissive.jpg";
+const SPIN: f32 = 0.0;
 
 pub fn add_earth3d_systems_to_app(app: &mut App) {
     app.add_plugin(ParallaxMaterialPlugin)
@@ -73,6 +74,7 @@ fn update_normal(
     }
 }
 
+/// setup earth and point light.
 fn setup(
     mut commands: Commands,
     mut meshes: ResMut<Assets<Mesh>>,
@@ -119,7 +121,7 @@ fn setup(
             }),
             ..default()
         })
-        .insert((Earth, Spin(0.01), Name::new("Earth")));
+        .insert((Earth, Spin(SPIN), Name::new("Earth")));
 
     commands
         .spawn(PointLightBundle {
