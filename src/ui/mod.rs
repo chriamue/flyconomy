@@ -2,10 +2,11 @@ use bevy::prelude::{App, Query, Res, ResMut, Resource, Transform};
 use bevy_egui::{egui, EguiContexts};
 use bevy_panorbit_camera::PanOrbitCamera;
 
+mod scores;
+
 use crate::{
     game::{earth3d, projection::wgs84_to_xyz, ConfigResource, GameResource, GameState},
-    model::{commands::BuyPlaneCommand, Aerodrome},
-    overpass_importer::Element,
+    model::commands::BuyPlaneCommand,
     simulation::Simulation,
 };
 
@@ -18,6 +19,7 @@ pub fn add_ui_systems_to_app(app: &mut App) {
     app.add_system(company_hud);
     app.add_system(planes_purchase_ui);
     app.add_system(aerodromes_ui);
+    scores::add_scores_systems_to_app(app);
 }
 
 pub fn welcome_screen(mut contexts: EguiContexts, mut game_resources: ResMut<GameResource>) {
@@ -77,7 +79,7 @@ fn company_hud(mut contexts: EguiContexts, game_resource: Res<GameResource>) {
         return;
     }
 
-    egui::Window::new("Company").show(contexts.ctx_mut(), |ui| {
+    egui::Window::new("Company").default_open(false).show(contexts.ctx_mut(), |ui| {
         let environment = &game_resource.simulation.environment;
         ui.horizontal(|ui| {
             ui.label(format!("Cash: ${:.2}", environment.company_finances.cash));
