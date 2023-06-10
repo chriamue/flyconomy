@@ -1,8 +1,10 @@
 use bevy::prelude::*;
 
 mod aerodrome;
+mod camera;
 mod earth3d;
 mod game_state;
+
 use bevy_common_assets::yaml::YamlAssetPlugin;
 use bevy_egui::EguiPlugin;
 pub use game_state::GameState;
@@ -38,12 +40,14 @@ pub struct ConfigResource {
 
 pub fn setup_game(app: &mut App, game_resource: GameResource) {
     app.add_plugin(EguiPlugin)
+        .add_plugins(camera::CameraPlugins)
         .add_plugin(YamlAssetPlugin::<PlanesConfig>::new(&["yaml"]))
         .add_plugin(YamlAssetPlugin::<AerodromeConfig>::new(&[
             "aerodromes.json",
         ]))
         .insert_resource(game_resource)
         .insert_resource(ConfigResource::default())
+        .add_startup_system(camera::setup_camera)
         .add_startup_system(setup)
         .add_startup_system(load_config_assets)
         .add_system(config_assets_loaded)
@@ -75,6 +79,17 @@ fn load_config_assets(asset_server: Res<AssetServer>, mut config_resource: ResMu
 
     let handle = asset_server.load("german.aerodromes.json");
     config_resource.aerodrome_handle = Some(handle);
+
+    #[cfg(target_arch = "wasm32")]
+    {
+        let planes_config: PlanesConfig =
+            serde_yaml::from_str(include_str!("../../assets/planes.yaml")).unwrap();
+        config_resource.planes_config = Some(planes_config);
+
+        let aerodrome_config: AerodromeConfig =
+            serde_json::from_str(include_str!("../../assets/german.aerodromes.json")).unwrap();
+        config_resource.aerodrome_config = Some(aerodrome_config);
+    }
 }
 
 fn config_assets_loaded(
@@ -115,6 +130,7 @@ pub fn start() {
 
     let mut app = App::new();
 
+    #[cfg(not(target_arch = "wasm32"))]
     app.add_plugins(
         DefaultPlugins
             .set(WindowPlugin {
@@ -129,6 +145,8 @@ pub fn start() {
             })
             .set(AssetPlugin { ..default() }),
     );
+    #[cfg(target_arch = "wasm32")]
+    app.add_plugins(DefaultPlugins);
     setup_game(&mut app, game_resource);
     app.run()
 }

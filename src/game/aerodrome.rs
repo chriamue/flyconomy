@@ -3,7 +3,7 @@ use bevy::prelude::{
     StandardMaterial, Transform, Vec3,
 };
 
-use crate::{config::AerodromeConfig, model::Aerodrome, overpass_importer::Element};
+use crate::{model::Aerodrome, overpass_importer::Element};
 
 use super::ConfigResource;
 
