@@ -1,6 +1,6 @@
 use std::sync::atomic::{AtomicUsize, Ordering};
 
-use crate::model::Base;
+use crate::model::{Base, LandingRights};
 
 use super::{Aerodrome, AirPlane, Environment, PlaneType};
 
@@ -64,6 +64,30 @@ impl Command for CreateBaseCommand {
             id: base_id.try_into().unwrap(),
             aerodrome: self.aerodrome.clone(),
             airplane_ids: vec![],
+        });
+        None
+    }
+}
+
+static LANDING_RIGHTS_ID_COUNTER: AtomicUsize = AtomicUsize::new(0);
+
+pub struct BuyLandingRightsCommand {
+    pub aerodrome: Aerodrome,
+}
+
+impl Command for BuyLandingRightsCommand {
+    fn execute(&self, environment: &mut Environment) -> Option<String> {
+        const LANDING_RIGHTS_COST: f64 = 100_000.0;
+        if environment.company_finances.cash < LANDING_RIGHTS_COST {
+            return Some(format!("Not enough cash to buy landing rights"));
+        }
+        environment.company_finances.cash -= LANDING_RIGHTS_COST;
+        environment.landing_rights.push(LandingRights {
+            aerodrome_id: self.aerodrome.id,
+            id: LANDING_RIGHTS_ID_COUNTER
+                .fetch_add(1, Ordering::SeqCst)
+                .try_into()
+                .unwrap(),
         });
         None
     }

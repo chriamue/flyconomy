@@ -1,7 +1,7 @@
 use bevy::asset::Handle;
 use bevy::prelude::{
-    shape, App, Assets, Color, Commands, Component, Entity, EventReader, Mesh, PbrBundle, Query,
-    Res, ResMut, Resource, StandardMaterial, Transform, Vec3, With,
+    shape, App, Assets, Color, Commands, Component, Entity, EventReader, EventWriter, Mesh,
+    PbrBundle, Query, Res, ResMut, Resource, StandardMaterial, Transform, Vec3, With,
 };
 use bevy_mod_picking::{
     prelude::{Click, ListenedEvent, OnPointer, RaycastPickTarget},
@@ -19,9 +19,13 @@ pub fn add_aerodrome_systems_to_app(app: &mut App) {
     app.insert_resource(AerodromeSystem { setup_done: false })
         .add_system(setup)
         .add_event::<AerodromeSelectedEvent>()
+        .add_event::<SelectedAerodromeChangeEvent>()
         .insert_resource(SelectedAerodrome::default())
-        .add_system(handle_aerodrome_selected_event);
+        .add_system(handle_aerodrome_selected_event)
+        .add_system(handle_selected_aerodrome_change_event);
 }
+
+pub struct SelectedAerodromeChangeEvent(pub Aerodrome);
 
 #[derive(Resource)]
 struct AerodromeSystem {
@@ -93,12 +97,27 @@ impl From<ListenedEvent<Click>> for AerodromeSelectedEvent {
 fn handle_aerodrome_selected_event(
     mut event: EventReader<AerodromeSelectedEvent>,
     aerodrome_query: Query<(Entity, &AerodromeComponent)>,
+    mut ev_selected_aerodrome_change: EventWriter<SelectedAerodromeChangeEvent>,
+) {
+    for select_event in event.iter() {
+        if let Ok((_entity, aerodrome_component)) = aerodrome_query.get(select_event.0) {
+            ev_selected_aerodrome_change
+                .send(SelectedAerodromeChangeEvent(aerodrome_component.0.clone()));
+        }
+    }
+}
+
+fn handle_selected_aerodrome_change_event(
+    mut event: EventReader<SelectedAerodromeChangeEvent>,
+    aerodrome_query: Query<(Entity, &AerodromeComponent)>,
     mut selected_aerodrome: ResMut<SelectedAerodrome>,
     mut materials: ResMut<Assets<StandardMaterial>>,
     mesh_query: Query<&Handle<StandardMaterial>, With<Handle<StandardMaterial>>>,
     mut transform_query: Query<&mut Transform>,
 ) {
-    for select_event in event.iter() {
+    for event in event.iter() {
+        let aerodrome = &event.0;
+
         if let Some(selected_aerodrome) = selected_aerodrome.aerodrome.as_ref() {
             for (entity, aerodrome_component) in aerodrome_query.iter() {
                 if aerodrome_component.0 == *selected_aerodrome {
@@ -115,19 +134,19 @@ fn handle_aerodrome_selected_event(
             }
         }
 
-        if let Ok((entity, aerodrome_component)) = aerodrome_query.get(select_event.0) {
-            selected_aerodrome.aerodrome = Some(aerodrome_component.0.clone());
-            println!("Aerodrome selected: {:?}", aerodrome_component.0);
-
-            if let Ok(material_handle) = mesh_query.get(entity) {
-                if let Some(mut material) = materials.get_mut(material_handle) {
-                    material.base_color = Color::rgb(1.0, 0.0, 0.0);
+        for (entity, aerodrome_component) in aerodrome_query.iter() {
+            if aerodrome_component.0 == *aerodrome {
+                selected_aerodrome.aerodrome = Some(aerodrome.clone());
+                if let Ok(material_handle) = mesh_query.get(entity) {
+                    if let Some(mut material) = materials.get_mut(material_handle) {
+                        material.base_color = Color::rgb(1.0, 0.0, 0.0);
+                    }
                 }
+                if let Ok(mut transform) = transform_query.get_mut(entity) {
+                    transform.scale = Vec3::splat(3.0);
+                }
+                break;
             }
-            if let Ok(mut transform) = transform_query.get_mut(entity) {
-                transform.scale = Vec3::splat(3.0);
-            }
-            break;
         }
     }
 }

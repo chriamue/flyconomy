@@ -1,6 +1,6 @@
 use super::Aerodrome;
 
-#[derive(Debug)]
+#[derive(Debug, Clone)]
 pub struct Base {
     pub id: u64,
     pub aerodrome: Aerodrome,
