@@ -46,8 +46,11 @@ impl Simulation {
     pub fn calculate_profit(&self, delta_time: Duration) -> f64 {
         let mut profit = 0.0;
         for plane in &self.environment.planes {
-            profit +=
-                plane.plane_type.monthly_income as f64 * delta_time.as_secs_f64() / 60.0 / 60.0 / 24.0 * 30.0;
+            profit += plane.plane_type.monthly_income as f64 * delta_time.as_secs_f64()
+                / 60.0
+                / 60.0
+                / 24.0
+                * 30.0;
         }
         profit
     }

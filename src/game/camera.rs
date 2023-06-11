@@ -1,4 +1,5 @@
 use bevy::{app::PluginGroupBuilder, core_pipeline::bloom::BloomSettings, prelude::*};
+use bevy_mod_picking::prelude::RaycastPickCamera;
 use bevy_panorbit_camera::{PanOrbitCamera, PanOrbitCameraPlugin};
 
 pub fn add_camera_systems_to_app(app: &mut App) {
@@ -23,6 +24,7 @@ pub fn setup_camera(mut commands: Commands) {
             radius: Some(3.0),
             ..default()
         },
+        RaycastPickCamera::default(),
     ));
     #[cfg(not(target_arch = "wasm32"))]
     camera.insert(BloomSettings {

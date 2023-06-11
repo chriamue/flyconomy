@@ -1,6 +1,6 @@
-use crate::model::{CompanyFinances};
+use crate::model::CompanyFinances;
 
-use super::{Base, AirPlane};
+use super::{AirPlane, Base};
 
 pub struct Environment {
     pub company_finances: CompanyFinances,

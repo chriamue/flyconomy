@@ -1,7 +1,8 @@
 use bevy::prelude::{
     shape, App, Assets, Color, Commands, Component, Mesh, PbrBundle, Res, ResMut, Resource,
-    StandardMaterial, Transform,
+    StandardMaterial, Transform, EventReader,
 };
+use bevy_mod_picking::{PickableBundle, prelude::RaycastPickTarget};
 
 use crate::{
     game::{earth3d, projection::wgs84_to_xyz},
@@ -52,12 +53,16 @@ fn setup(
                 println!("Adding aerodrome at: {:?}", position);
 
                 commands
-                    .spawn(PbrBundle {
-                        mesh: mesh_handle,
-                        material: material_handle,
-                        transform: Transform::from_translation(position),
-                        ..Default::default()
-                    })
+                    .spawn((
+                        PbrBundle {
+                            mesh: mesh_handle,
+                            material: material_handle,
+                            transform: Transform::from_translation(position),
+                            ..Default::default()
+                        },
+                        PickableBundle::default(),
+                        RaycastPickTarget::default(),
+                    ))
                     .insert(AerodromeComponent(aerodrome.clone()));
             }
             aerodrome_system.setup_done = true;

@@ -8,6 +8,7 @@ pub mod projection;
 
 use bevy_common_assets::yaml::YamlAssetPlugin;
 use bevy_egui::EguiPlugin;
+use bevy_mod_picking::DefaultPickingPlugins;
 pub use game_state::GameState;
 
 use crate::{
@@ -43,6 +44,7 @@ pub struct ConfigResource {
 
 pub fn setup_game(app: &mut App, game_resource: GameResource) {
     app.add_plugin(EguiPlugin)
+    .add_plugins(DefaultPickingPlugins)
         .add_plugin(YamlAssetPlugin::<PlanesConfig>::new(&["yaml"]))
         .add_plugin(YamlAssetPlugin::<AerodromeConfig>::new(&[
             "aerodromes.json",

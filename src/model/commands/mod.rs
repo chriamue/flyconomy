@@ -2,7 +2,7 @@ use std::sync::atomic::{AtomicUsize, Ordering};
 
 use crate::model::Base;
 
-use super::{Aerodrome, Environment, PlaneType, AirPlane};
+use super::{Aerodrome, AirPlane, Environment, PlaneType};
 
 pub trait Command: Send + Sync {
     fn execute(&self, environment: &mut Environment) -> Option<String>;
@@ -24,14 +24,23 @@ impl Command for BuyPlaneCommand {
             ));
         }
         environment.company_finances.cash -= self.plane_type.cost as f64;
-        let airplane_id: u64 = PLANE_ID_COUNTER.fetch_add(1, Ordering::SeqCst).try_into().unwrap();
+        let airplane_id: u64 = PLANE_ID_COUNTER
+            .fetch_add(1, Ordering::SeqCst)
+            .try_into()
+            .unwrap();
         let airplane = AirPlane {
             id: airplane_id,
             base_id: self.home_base_id,
             plane_type: self.plane_type.clone(),
         };
-        environment.bases.iter_mut().find(|base| base.id == self.home_base_id).unwrap().airplane_ids.push(airplane_id);
-        
+        environment
+            .bases
+            .iter_mut()
+            .find(|base| base.id == self.home_base_id)
+            .unwrap()
+            .airplane_ids
+            .push(airplane_id);
+
         environment.planes.push(airplane);
         None
     }
