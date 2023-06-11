@@ -44,7 +44,7 @@ pub struct ConfigResource {
 
 pub fn setup_game(app: &mut App, game_resource: GameResource) {
     app.add_plugin(EguiPlugin)
-    .add_plugins(DefaultPickingPlugins)
+        .add_plugins(DefaultPickingPlugins)
         .add_plugin(YamlAssetPlugin::<PlanesConfig>::new(&["yaml"]))
         .add_plugin(YamlAssetPlugin::<AerodromeConfig>::new(&[
             "aerodromes.json",
@@ -137,7 +137,6 @@ pub fn start() {
 
     let mut app = App::new();
 
-    #[cfg(not(target_arch = "wasm32"))]
     app.add_plugins(
         DefaultPlugins
             .set(WindowPlugin {
@@ -145,15 +144,13 @@ pub fn start() {
                     title: "Flyconomy".into(),
                     resolution: (1000., 1000.).into(),
                     fit_canvas_to_parent: true,
-                    prevent_default_event_handling: false,
+                    prevent_default_event_handling: true,
                     ..default()
                 }),
                 ..default()
             })
             .set(AssetPlugin { ..default() }),
     );
-    #[cfg(target_arch = "wasm32")]
-    app.add_plugins(DefaultPlugins);
     setup_game(&mut app, game_resource);
     app.run()
 }
