@@ -9,7 +9,7 @@ pub struct OverpassImporter;
 
 #[derive(Serialize, Deserialize, Debug)]
 pub struct Element {
-    pub id: i64,
+    pub id: u64,
     pub tags: Option<HashMap<String, String>>,
     pub lat: Option<f64>,
     pub lon: Option<f64>,

@@ -26,7 +26,7 @@ pub fn parse_airport_csv(input: &str) -> Vec<Aerodrome> {
     while rdr.read_byte_record(&mut record).unwrap() {
         let id = std::str::from_utf8(record.get(0).unwrap())
             .unwrap()
-            .parse::<i64>()
+            .parse::<u64>()
             .unwrap();
         let name = std::str::from_utf8(record.get(1).unwrap())
             .unwrap()

@@ -6,7 +6,7 @@ mod scores;
 
 use crate::{
     game::{ConfigResource, GameResource, GameState},
-    model::commands::BuyPlaneCommand,
+    model::commands::{BuyPlaneCommand, CreateBaseCommand},
     simulation::Simulation,
 };
 
@@ -19,6 +19,7 @@ pub fn add_ui_systems_to_app(app: &mut App) {
     app.add_system(company_hud);
     app.add_system(planes_purchase_ui);
     app.add_system(aerodromes_ui);
+    app.add_system(bases_info_ui);
     scores::add_scores_systems_to_app(app);
 }
 
@@ -50,7 +51,6 @@ pub fn game_over_screen(mut contexts: EguiContexts, mut game_resources: ResMut<G
     egui::CentralPanel::default().show(contexts.ctx_mut(), |ui| {
         ui.label("Game Over");
 
-        // Display the final stats, like score, number of planes, etc.
         ui.label(format!(
             "Final Airline Value: ${:.2}",
             game_resources.simulation.environment.company_finances.cash
@@ -62,7 +62,6 @@ pub fn game_over_screen(mut contexts: EguiContexts, mut game_resources: ResMut<G
 
         ui.label("Thank you for playing Flyconomy!");
 
-        // Give the player the option to restart the game.
         if ui.button("Restart Game").clicked() {
             game_resources.game_state = GameState::Welcome;
             game_resources.simulation = Simulation::new(1_000_000.0);
@@ -123,6 +122,7 @@ pub fn planes_purchase_ui(
                     if ui.button("Buy").clicked() {
                         let buy_plane = BuyPlaneCommand {
                             plane_type: plane.clone(),
+                            home_base_id: 0,
                         };
                         game_resource.simulation.add_command(Box::new(buy_plane));
                     }
@@ -135,7 +135,7 @@ pub fn planes_purchase_ui(
 pub fn aerodromes_ui(
     mut contexts: EguiContexts,
     config_resource: Res<ConfigResource>,
-    game_resource: ResMut<GameResource>,
+    mut game_resource: ResMut<GameResource>,
     mut search_input: ResMut<UiInput>,
     mut pan_orbit_query: Query<(&mut PanOrbitCamera, &mut Transform)>,
 ) {
@@ -163,10 +163,47 @@ pub fn aerodromes_ui(
                             pan_orbit.force_update = true;
                         }
                     }
+                    if ui.button("Create Base").clicked() {
+                        let buy_plane = CreateBaseCommand {
+                            aerodrome: aerodrome.clone(),
+                        };
+                        game_resource.simulation.add_command(Box::new(buy_plane));
+                    }
                 }
             });
     }
 }
+
+pub fn bases_info_ui(mut contexts: EguiContexts, game_resource: Res<GameResource>, 
+    mut pan_orbit_query: Query<(&mut PanOrbitCamera, &mut Transform)>,) {
+    if !matches!(game_resource.game_state, GameState::Playing) {
+        return;
+    }
+
+    egui::Window::new("Bases Info")
+        .default_open(true)
+        .show(contexts.ctx_mut(), |ui| {
+            let environment = &game_resource.simulation.environment;
+            ui.label("Owned Bases:");
+
+            for base in &environment.bases {
+                ui.horizontal(|ui| {
+                    if ui.selectable_label(false, format!("Aerodrome: {}", base.aerodrome.name)).clicked() {
+                        let alpha = (90.0 + base.aerodrome.lon).to_radians();
+                        let beta = base.aerodrome.lat.to_radians();
+                        for (mut pan_orbit, _transform) in pan_orbit_query.iter_mut() {
+                            pan_orbit.target_alpha = alpha as f32;
+                            pan_orbit.target_beta = beta as f32;
+                            pan_orbit.radius = Some(1.5);
+                            pan_orbit.force_update = true;
+                        }
+                    }
+                    ui.label(format!("Number of Airplanes: {}", base.airplane_ids.len()));
+                });
+            }
+        });
+}
+
 
 #[derive(Resource, Default)]
 pub struct UiInput {
