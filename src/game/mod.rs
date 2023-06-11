@@ -1,6 +1,6 @@
 use bevy::prelude::*;
 
-mod aerodrome;
+pub mod aerodrome;
 mod camera;
 pub mod earth3d;
 mod game_state;

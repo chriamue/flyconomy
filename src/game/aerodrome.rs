@@ -1,20 +1,26 @@
+use bevy::asset::Handle;
 use bevy::prelude::{
-    shape, App, Assets, Color, Commands, Component, Mesh, PbrBundle, Res, ResMut, Resource,
-    StandardMaterial, Transform, EventReader,
+    shape, App, Assets, Color, Commands, Component, Entity, EventReader, Mesh, PbrBundle, Query,
+    Res, ResMut, Resource, StandardMaterial, Transform, Vec3, With,
 };
-use bevy_mod_picking::{PickableBundle, prelude::RaycastPickTarget};
+use bevy_mod_picking::{
+    prelude::{Click, ListenedEvent, OnPointer, RaycastPickTarget},
+    PickableBundle,
+};
 
 use crate::{
     game::{earth3d, projection::wgs84_to_xyz},
     model::Aerodrome,
-    overpass_importer::Element,
 };
 
 use super::ConfigResource;
 
 pub fn add_aerodrome_systems_to_app(app: &mut App) {
     app.insert_resource(AerodromeSystem { setup_done: false })
-        .add_system(setup);
+        .add_system(setup)
+        .add_event::<AerodromeSelectedEvent>()
+        .insert_resource(SelectedAerodrome::default())
+        .add_system(handle_aerodrome_selected_event);
 }
 
 #[derive(Resource)]
@@ -22,8 +28,13 @@ struct AerodromeSystem {
     setup_done: bool,
 }
 
-#[derive(Component)]
+#[derive(Default, Component)]
 pub struct AerodromeComponent(pub Aerodrome);
+
+#[derive(Default, Resource, Debug)]
+pub struct SelectedAerodrome {
+    pub aerodrome: Option<Aerodrome>,
+}
 
 fn setup(
     mut commands: Commands,
@@ -49,8 +60,7 @@ fn setup(
                     ..Default::default()
                 });
 
-                println!("Adding aerodrome: {:?}", aerodrome);
-                println!("Adding aerodrome at: {:?}", position);
+                println!("Adding aerodrome: {:?} at {:?}", aerodrome, position);
 
                 commands
                     .spawn((
@@ -62,10 +72,62 @@ fn setup(
                         },
                         PickableBundle::default(),
                         RaycastPickTarget::default(),
+                        OnPointer::<Click>::send_event::<AerodromeSelectedEvent>(),
                     ))
                     .insert(AerodromeComponent(aerodrome.clone()));
             }
             aerodrome_system.setup_done = true;
+        }
+    }
+}
+
+#[derive(Debug, Component)]
+struct AerodromeSelectedEvent(Entity);
+
+impl From<ListenedEvent<Click>> for AerodromeSelectedEvent {
+    fn from(click_event: ListenedEvent<Click>) -> Self {
+        Self(click_event.target)
+    }
+}
+
+fn handle_aerodrome_selected_event(
+    mut event: EventReader<AerodromeSelectedEvent>,
+    aerodrome_query: Query<(Entity, &AerodromeComponent)>,
+    mut selected_aerodrome: ResMut<SelectedAerodrome>,
+    mut materials: ResMut<Assets<StandardMaterial>>,
+    mesh_query: Query<&Handle<StandardMaterial>, With<Handle<StandardMaterial>>>,
+    mut transform_query: Query<&mut Transform>,
+) {
+    for select_event in event.iter() {
+        if let Some(selected_aerodrome) = selected_aerodrome.aerodrome.as_ref() {
+            for (entity, aerodrome_component) in aerodrome_query.iter() {
+                if aerodrome_component.0 == *selected_aerodrome {
+                    if let Ok(material_handle) = mesh_query.get(entity) {
+                        if let Some(mut material) = materials.get_mut(material_handle) {
+                            material.base_color = Color::rgb(0.0, 0.0, 1.0);
+                        }
+                    }
+                    if let Ok(mut transform) = transform_query.get_mut(entity) {
+                        transform.scale = Vec3::splat(1.0);
+                    }
+                    break;
+                }
+            }
+        }
+
+        if let Ok((entity, aerodrome_component)) = aerodrome_query.get(select_event.0) {
+            selected_aerodrome.aerodrome = Some(aerodrome_component.0.clone());
+            println!("Aerodrome selected: {:?}", aerodrome_component.0);
+
+            if let Ok(material_handle) = mesh_query.get(entity) {
+                if let Some(mut material) = materials.get_mut(material_handle) {
+                    material.base_color = Color::rgb(1.0, 0.0, 0.0);
+                }
+            }
+            if let Ok(mut transform) = transform_query.get_mut(entity) {
+                transform.scale = Vec3::splat(3.0);
+            }
+            break;
         }
     }
 }
