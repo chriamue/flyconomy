@@ -14,12 +14,13 @@ pub fn setup_camera(mut commands: Commands) {
                 hdr: !cfg!(target_arch = "wasm32"),
                 ..default()
             },
-            transform: Transform::from_xyz(3.9, 0.0, 0.0).looking_at(Vec3::ZERO, Vec3::Y),
+            transform: Transform::from_xyz(0.0, 0.0, 0.0).looking_at(Vec3::ZERO, Vec3::Y),
             ..default()
         },
         PanOrbitCamera {
             button_orbit: MouseButton::Right,
             button_pan: MouseButton::Left,
+            radius: Some(3.0),
             ..default()
         },
     ));

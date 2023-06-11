@@ -5,7 +5,7 @@ use bevy_panorbit_camera::PanOrbitCamera;
 mod scores;
 
 use crate::{
-    game::{earth3d, projection::wgs84_to_xyz, ConfigResource, GameResource, GameState},
+    game::{ConfigResource, GameResource, GameState},
     model::commands::BuyPlaneCommand,
     simulation::Simulation,
 };
@@ -79,21 +79,23 @@ fn company_hud(mut contexts: EguiContexts, game_resource: Res<GameResource>) {
         return;
     }
 
-    egui::Window::new("Company").default_open(false).show(contexts.ctx_mut(), |ui| {
-        let environment = &game_resource.simulation.environment;
-        ui.horizontal(|ui| {
-            ui.label(format!("Cash: ${:.2}", environment.company_finances.cash));
-            ui.label(format!("Planes: {}", environment.planes.len()));
-            ui.label(format!(
-                "Total Income: ${:.2}",
-                environment.company_finances.total_income
-            ));
-            ui.label(format!(
-                "Total Expenses: ${:.2}",
-                environment.company_finances.total_expenses
-            ));
+    egui::Window::new("Company")
+        .default_open(false)
+        .show(contexts.ctx_mut(), |ui| {
+            let environment = &game_resource.simulation.environment;
+            ui.horizontal(|ui| {
+                ui.label(format!("Cash: ${:.2}", environment.company_finances.cash));
+                ui.label(format!("Planes: {}", environment.planes.len()));
+                ui.label(format!(
+                    "Total Income: ${:.2}",
+                    environment.company_finances.total_income
+                ));
+                ui.label(format!(
+                    "Total Expenses: ${:.2}",
+                    environment.company_finances.total_expenses
+                ));
+            });
         });
-    });
 }
 
 pub fn planes_purchase_ui(
@@ -152,10 +154,13 @@ pub fn aerodromes_ui(
                     .filter(|a| a.name.contains(&search_input.search_string))
                 {
                     if ui.selectable_label(false, &aerodrome.name).clicked() {
-                        let aerodrome_position = wgs84_to_xyz(aerodrome.lat, aerodrome.lon, 0.0)
-                            * earth3d::SCALE_FACTOR as f32;
+                        let alpha = (90.0 + aerodrome.lon).to_radians();
+                        let beta = aerodrome.lat.to_radians();
                         for (mut pan_orbit, _transform) in pan_orbit_query.iter_mut() {
-                            pan_orbit.focus = aerodrome_position;
+                            pan_orbit.target_alpha = alpha as f32;
+                            pan_orbit.target_beta = beta as f32;
+                            pan_orbit.radius = Some(1.5);
+                            pan_orbit.force_update = true;
                         }
                     }
                 }
