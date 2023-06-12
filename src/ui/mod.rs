@@ -10,8 +10,10 @@ use crate::{
         ConfigResource, GameResource, GameState,
     },
     model::{
-        commands::{BuyLandingRightsCommand, BuyPlaneCommand, CreateBaseCommand},
-        Base,
+        commands::{
+            BuyLandingRightsCommand, BuyPlaneCommand, CreateBaseCommand, ScheduleFlightCommand,
+        },
+        Base, Flight,
     },
     simulation::Simulation,
 };
@@ -20,6 +22,7 @@ pub fn add_ui_systems_to_app(app: &mut App) {
     app.insert_resource(UiInput {
         search_string: String::new(),
     });
+    app.insert_resource(FlightPlanningInput::default());
     app.add_system(welcome_screen);
     app.add_system(game_over_screen);
     app.add_system(company_hud);
@@ -27,6 +30,7 @@ pub fn add_ui_systems_to_app(app: &mut App) {
     app.add_system(aerodromes_ui);
     app.add_system(bases_info_ui);
     app.add_system(selected_aerodrome_info_ui);
+    app.add_system(flight_planning_ui);
     scores::add_scores_systems_to_app(app);
 }
 
@@ -298,4 +302,150 @@ fn selected_aerodrome_info_ui(
                 }
             });
     }
+}
+
+pub fn flight_planning_ui(
+    mut contexts: EguiContexts,
+    selected_aerodrome: Res<SelectedAerodrome>,
+    mut game_resource: ResMut<GameResource>,
+    mut flight_planning_input: ResMut<FlightPlanningInput>,
+) {
+    if let Some(selected_aerodrome) = &selected_aerodrome.aerodrome {
+        egui::Window::new("Flight Planning")
+            .default_open(true)
+            .show(contexts.ctx_mut(), |ui| {
+                ui.label(format!("Selected Aerodrome: {}", selected_aerodrome.name));
+
+                ui.label("Select Airplane:");
+                let environment = &game_resource.simulation.environment;
+                let base = environment
+                    .bases
+                    .iter()
+                    .find(|base| base.aerodrome.id == selected_aerodrome.id);
+
+                if let Some(base) = base {
+                    for airplane_id in &base.airplane_ids {
+                        let airplane = environment
+                            .planes
+                            .iter()
+                            .find(|plane| &plane.id == airplane_id);
+
+                        if let Some(airplane) = airplane {
+                            if ui
+                                .selectable_label(
+                                    flight_planning_input.selected_airplane_id == Some(airplane.id),
+                                    format!(
+                                        "Airplane ID: {}, Type: {}",
+                                        airplane.id, airplane.plane_type.name
+                                    ),
+                                )
+                                .clicked()
+                            {
+                                flight_planning_input.selected_airplane_id = Some(airplane.id);
+                            }
+                        }
+                    }
+                } else {
+                    ui.label("No airplanes available at this base.");
+                }
+
+                ui.label("Select Destination Aerodrome:");
+                ui.text_edit_singleline(&mut flight_planning_input.search_string);
+
+                let mut available_aerodromes: Vec<_> = environment
+                    .bases
+                    .iter()
+                    .map(|base| &base.aerodrome)
+                    .collect();
+
+                available_aerodromes.extend(
+                    environment
+                        .landing_rights
+                        .iter()
+                        .map(|landing_rights| &landing_rights.aerodrome),
+                );
+
+                available_aerodromes.sort_by_key(|a| a.id);
+                available_aerodromes.dedup_by_key(|a| a.id);
+
+                let filtered_aerodromes: Vec<_> = available_aerodromes
+                    .iter()
+                    .filter(|a| a.name.contains(&flight_planning_input.search_string))
+                    .collect();
+
+                for aerodrome in filtered_aerodromes.iter() {
+                    if ui
+                        .selectable_label(
+                            flight_planning_input.selected_destination_id == Some(aerodrome.id),
+                            &aerodrome.name,
+                        )
+                        .clicked()
+                    {
+                        flight_planning_input.selected_destination_id = Some(aerodrome.id);
+                    }
+                }
+
+                if let Some(selected_airplane_id) = flight_planning_input.selected_airplane_id {
+                    if let Some(selected_destination_id) =
+                        flight_planning_input.selected_destination_id
+                    {
+                        if let Some(base) = environment
+                            .bases
+                            .iter()
+                            .find(|base| base.aerodrome.id == selected_aerodrome.id)
+                        {
+                            if let Some(airplane) = environment
+                                .planes
+                                .iter()
+                                .find(|plane| plane.id == selected_airplane_id)
+                                .cloned()
+                            {
+                                let origin_aerodrome = base.aerodrome.clone();
+
+                                let destination_aerodrome = available_aerodromes
+                                    .iter()
+                                    .find(|a| a.id == selected_destination_id)
+                                    .cloned();
+
+                                if let Some(destination_aerodrome) = destination_aerodrome {
+                                    let flight = Flight {
+                                        flight_id: 0, // Dummy ID as it is only being used for calculation
+                                        airplane: airplane.clone(),
+                                        origin_aerodrome: origin_aerodrome.clone(),
+                                        destination_aerodrome: destination_aerodrome.clone(),
+                                    };
+
+                                    let profit = flight.calculate_profit();
+
+                                    let distance_in_kilometers = flight.calculate_distance();
+                                    ui.label(format!(
+                                        "Estimated Distance: {:.3} km",
+                                        distance_in_kilometers
+                                    ));
+                                    ui.label(format!("Estimated Profit: ${:.2}", profit));
+
+                                    if ui.button("Plan Flight").clicked() {
+                                        let schedule_flight = ScheduleFlightCommand {
+                                            airplane,
+                                            origin_aerodrome,
+                                            destination_aerodrome: destination_aerodrome.clone(),
+                                        };
+                                        game_resource
+                                            .simulation
+                                            .add_command(Box::new(schedule_flight));
+                                    }
+                                }
+                            }
+                        }
+                    }
+                }
+            });
+    }
+}
+
+#[derive(Resource, Default)]
+pub struct FlightPlanningInput {
+    pub search_string: String,
+    pub selected_airplane_id: Option<u64>,
+    pub selected_destination_id: Option<u64>,
 }

@@ -1,12 +1,13 @@
 use crate::model::CompanyFinances;
 
-use super::{AirPlane, Base, LandingRights};
+use super::{AirPlane, Base, Flight, LandingRights};
 
 pub struct Environment {
     pub company_finances: CompanyFinances,
     pub planes: Vec<AirPlane>,
     pub bases: Vec<Base>,
     pub landing_rights: Vec<LandingRights>,
+    pub flights: Vec<Flight>,
 }
 impl Environment {
     pub fn new(capital: f64) -> Self {
@@ -15,6 +16,7 @@ impl Environment {
             planes: vec![],
             bases: vec![],
             landing_rights: vec![],
+            flights: vec![],
         }
     }
 }

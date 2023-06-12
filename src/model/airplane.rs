@@ -1,6 +1,6 @@
 use super::PlaneType;
 
-#[derive(Debug)]
+#[derive(Debug, Default, Clone)]
 pub struct AirPlane {
     pub id: u64,
     pub base_id: u64,

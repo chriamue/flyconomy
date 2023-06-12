@@ -1,6 +1,6 @@
 use std::sync::atomic::{AtomicUsize, Ordering};
 
-use crate::model::{Base, LandingRights};
+use crate::model::{Base, Flight, LandingRights};
 
 use super::{Aerodrome, AirPlane, Environment, PlaneType};
 
@@ -83,12 +83,40 @@ impl Command for BuyLandingRightsCommand {
         }
         environment.company_finances.cash -= LANDING_RIGHTS_COST;
         environment.landing_rights.push(LandingRights {
-            aerodrome_id: self.aerodrome.id,
+            aerodrome: self.aerodrome.clone(),
             id: LANDING_RIGHTS_ID_COUNTER
                 .fetch_add(1, Ordering::SeqCst)
                 .try_into()
                 .unwrap(),
         });
+        None
+    }
+}
+
+static FLIGHT_ID_COUNTER: AtomicUsize = AtomicUsize::new(0);
+
+pub struct ScheduleFlightCommand {
+    pub airplane: AirPlane,
+    pub origin_aerodrome: Aerodrome,
+    pub destination_aerodrome: Aerodrome,
+}
+
+impl Command for ScheduleFlightCommand {
+    fn execute(&self, environment: &mut Environment) -> Option<String> {
+        let flight_id = FLIGHT_ID_COUNTER.fetch_add(1, Ordering::SeqCst);
+
+        let flight = Flight {
+            flight_id: flight_id.try_into().unwrap(),
+            airplane: self.airplane.clone(),
+            origin_aerodrome: self.origin_aerodrome.clone(),
+            destination_aerodrome: self.destination_aerodrome.clone(),
+        };
+
+        let profit = flight.calculate_profit();
+
+        environment.company_finances.total_income += profit;
+        environment.company_finances.cash += profit as f64;
+
         None
     }
 }

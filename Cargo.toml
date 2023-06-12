@@ -30,6 +30,7 @@ bevy_mod_paramap = { git = "https://github.com/nicopap/bevy_mod_paramap" }
 bevy_mod_picking = { version = "0.13.0", default-features = false, features = ["selection", "backend_raycast"] }
 bevy_panorbit_camera = { version = "0.5.1" }
 csv = "1.2.2"
+geo = "0.25.0"
 serde = { version = "1.0", features = ["derive"] }
 serde_yaml = "0.8"
 serde_json = "1.0"
