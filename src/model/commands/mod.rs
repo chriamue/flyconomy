@@ -114,6 +114,7 @@ impl Command for ScheduleFlightCommand {
 
         let profit = flight.calculate_profit();
 
+        environment.flights.push(flight);
         environment.company_finances.total_income += profit;
         environment.company_finances.cash += profit as f64;
 

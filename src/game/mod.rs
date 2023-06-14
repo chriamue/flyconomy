@@ -3,6 +3,7 @@ use bevy::prelude::*;
 pub mod aerodrome;
 mod camera;
 pub mod earth3d;
+pub mod flights;
 mod game_state;
 pub mod projection;
 
@@ -59,6 +60,7 @@ pub fn setup_game(app: &mut App, game_resource: GameResource) {
     ui::add_ui_systems_to_app(app);
     aerodrome::add_aerodrome_systems_to_app(app);
     earth3d::add_earth3d_systems_to_app(app);
+    flights::add_flight_systems_to_app(app);
 }
 
 fn setup(mut commands: Commands) {
