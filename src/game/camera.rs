@@ -1,3 +1,5 @@
+use std::f32::consts::TAU;
+
 use bevy::{app::PluginGroupBuilder, core_pipeline::bloom::BloomSettings, prelude::*};
 use bevy_mod_picking::prelude::RaycastPickCamera;
 use bevy_panorbit_camera::{PanOrbitCamera, PanOrbitCameraPlugin};
@@ -22,6 +24,11 @@ pub fn setup_camera(mut commands: Commands) {
             button_orbit: MouseButton::Right,
             button_pan: MouseButton::Left,
             radius: Some(3.0),
+            alpha: Some(TAU / 4.0),
+            beta: Some(TAU / 8.0),
+            zoom_sensitivity: 0.2,
+            pan_sensitivity: 0.2,
+            orbit_sensitivity: 0.2,
             ..default()
         },
         RaycastPickCamera::default(),

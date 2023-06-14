@@ -54,7 +54,7 @@ fn setup(
                     wgs84_to_xyz(aerodrome.lat, aerodrome.lon, 0.0) * earth3d::SCALE_FACTOR as f32;
                 let mesh_handle = meshes.add(
                     Mesh::try_from(shape::Icosphere {
-                        radius: 10_000.0 * earth3d::SCALE_FACTOR as f32,
+                        radius: 12_000.0 * earth3d::SCALE_FACTOR as f32,
                         subdivisions: 4,
                     })
                     .unwrap(),
@@ -143,7 +143,7 @@ fn handle_selected_aerodrome_change_event(
                     }
                 }
                 if let Ok(mut transform) = transform_query.get_mut(entity) {
-                    transform.scale = Vec3::splat(3.0);
+                    transform.scale = Vec3::splat(2.0);
                 }
                 break;
             }
