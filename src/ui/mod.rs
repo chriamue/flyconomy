@@ -43,11 +43,23 @@ pub fn welcome_screen(mut contexts: EguiContexts, mut game_resources: ResMut<Gam
 
         ui.label("Flyconomy is an economic simulation game where you manage an airline company.");
 
+        ui.label("Features:");
+        ui.label("- Choose your home aerodrome and buy your first aircraft.");
+        ui.label("- Plan flights by selecting an airplane and a destination aerodrome.");
+        ui.label("- Calculate the estimated distance and profit for your planned flights.");
+        ui.label("- Schedule your flights.");
+
         ui.label("Rules:");
-        ui.label("- Start by choosing a home airport and buying your first aircraft.");
-        ui.label("- Plan flight routes between airports.");
+        ui.label("- Start by choosing a home aerodrome and buying your first aircraft.");
+        ui.label("- Plan flight routes between aerodromes.");
         ui.label("- Monitor fuel prices and adapt your routes.");
         ui.label("- Reinvest your profits to buy new planes and expand.");
+
+        ui.label("Getting Started:");
+        ui.label("- Use the flight planning UI to select an airplane and a destination aerodrome.");
+        ui.label("- View the estimated distance and profit before scheduling your flight.");
+        ui.label("- Click on 'Plan Flight' to schedule your flight.");
+
         if ui.button("Start Game").clicked() {
             game_resources.game_state = GameState::Playing;
         }
