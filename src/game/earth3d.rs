@@ -23,11 +23,10 @@ pub fn add_earth3d_systems_to_app(app: &mut App) {
             brightness: 0.01,
         })
         .insert_resource(ClearColor(Color::BLACK))
-        .insert_resource(Normal(None))
-        .add_startup_system(setup)
-        //.add_system(pan_orbit_camera)
-        .add_system(update_normal)
-        .add_system(spin);
+        .insert_resource(Normal(None));
+    #[cfg(not(target_arch = "wasm32"))]
+    app.add_startup_system(setup);
+    app.add_system(update_normal).add_system(spin);
     app.register_type::<Spin>();
 }
 
@@ -111,7 +110,7 @@ fn setup(
                 // How "deep" to displace stuff
                 height_depth: 0.01,
                 // Use the quality algo, for show.
-                algorithm: ParallaxAlgo::ReliefMapping,
+                algorithm: ParallaxAlgo::ParallaxOcclusionMapping,
                 // This is an unreasonably high value, but since we expect to inspect up close
                 // the surface of the texture, we need to set the max_height_layers pretty high.
                 max_height_layers: 128.0,

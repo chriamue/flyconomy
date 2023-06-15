@@ -144,9 +144,10 @@ pub fn start() {
             .set(WindowPlugin {
                 primary_window: Some(Window {
                     title: "Flyconomy".into(),
-                    resolution: (1000., 1000.).into(),
+                    resolution: (1280., 720.).into(),
                     fit_canvas_to_parent: true,
                     prevent_default_event_handling: true,
+                    canvas: Some("#bevy".to_string()),
                     ..default()
                 }),
                 ..default()
