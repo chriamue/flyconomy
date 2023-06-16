@@ -29,7 +29,7 @@ impl Default for GameResource {
     fn default() -> Self {
         Self {
             game_state: GameState::Welcome,
-            simulation: Simulation::new(1_000_000.0),
+            simulation: Simulation::new(Default::default()),
         }
     }
 }

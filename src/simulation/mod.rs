@@ -1,6 +1,6 @@
 use std::time::Duration;
 
-use crate::model::{commands::Command, Environment};
+use crate::model::{commands::Command, Environment, EnvironmentConfig};
 
 pub struct Simulation {
     pub environment: Environment,
@@ -10,9 +10,9 @@ pub struct Simulation {
 }
 
 impl Simulation {
-    pub fn new(capital: f64) -> Self {
+    pub fn new(config: EnvironmentConfig) -> Self {
         Self {
-            environment: Environment::new(capital),
+            environment: Environment::new(config),
             elapsed_time: Duration::from_secs(0),
             commands: vec![],
             time_multiplier: 1.0 * 60.0 * 60.0,

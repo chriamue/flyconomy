@@ -87,7 +87,7 @@ pub fn game_over_screen(mut contexts: EguiContexts, mut game_resources: ResMut<G
 
         if ui.button("Restart Game").clicked() {
             game_resources.game_state = GameState::Welcome;
-            game_resources.simulation = Simulation::new(1_000_000.0);
+            game_resources.simulation = Simulation::new(Default::default());
         }
         #[cfg(not(target_arch = "wasm32"))]
         if ui.button("Quit").clicked() {

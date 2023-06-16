@@ -54,11 +54,10 @@ pub struct CreateBaseCommand {
 
 impl Command for CreateBaseCommand {
     fn execute(&self, environment: &mut Environment) -> Option<String> {
-        const BASE_COST: f64 = 400_000.0;
-        if environment.company_finances.cash < BASE_COST {
+        if environment.company_finances.cash < environment.config.base_cost {
             return Some(format!("Not enough cash to create base"));
         }
-        environment.company_finances.cash -= BASE_COST;
+        environment.company_finances.cash -= environment.config.base_cost;
         let base_id = BASE_ID_COUNTER.fetch_add(1, Ordering::SeqCst);
         environment.bases.push(Base {
             id: base_id.try_into().unwrap(),
@@ -77,11 +76,10 @@ pub struct BuyLandingRightsCommand {
 
 impl Command for BuyLandingRightsCommand {
     fn execute(&self, environment: &mut Environment) -> Option<String> {
-        const LANDING_RIGHTS_COST: f64 = 100_000.0;
-        if environment.company_finances.cash < LANDING_RIGHTS_COST {
+        if environment.company_finances.cash < environment.config.landing_rights_cost {
             return Some(format!("Not enough cash to buy landing rights"));
         }
-        environment.company_finances.cash -= LANDING_RIGHTS_COST;
+        environment.company_finances.cash -= environment.config.landing_rights_cost;
         environment.landing_rights.push(LandingRights {
             aerodrome: self.aerodrome.clone(),
             id: LANDING_RIGHTS_ID_COUNTER
