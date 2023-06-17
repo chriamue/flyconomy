@@ -2,6 +2,7 @@ use bevy::prelude::{App, EventWriter, Query, Res, ResMut, Resource, Transform};
 use bevy_egui::{egui, EguiContexts};
 use bevy_panorbit_camera::PanOrbitCamera;
 
+mod aerodromes_ui;
 mod game_over_screen;
 mod hud;
 mod welcome_screen;
@@ -28,8 +29,8 @@ pub fn add_ui_systems_to_app(app: &mut App) {
     app.add_plugin(welcome_screen::WelcomeScreenPlugin);
     app.add_plugin(game_over_screen::GameOverScreenPlugin);
     app.add_system(company_hud);
+    app.add_plugin(aerodromes_ui::AerodromesUiPlugin);
     app.add_system(planes_purchase_ui);
-    app.add_system(aerodromes_ui);
     app.add_system(bases_info_ui);
     app.add_system(selected_aerodrome_info_ui);
     app.add_system(flight_planning_ui);
@@ -91,45 +92,6 @@ pub fn planes_purchase_ui(
                 });
             }
         });
-    }
-}
-
-pub fn aerodromes_ui(
-    mut contexts: EguiContexts,
-    config_resource: Res<ConfigResource>,
-    game_resource: ResMut<GameResource>,
-    mut search_input: ResMut<UiInput>,
-    mut ev_selected_aerodrome_change: EventWriter<SelectedAerodromeChangeEvent>,
-    mut pan_orbit_query: Query<(&mut PanOrbitCamera, &mut Transform)>,
-) {
-    if !matches!(game_resource.game_state, GameState::Playing) {
-        return;
-    }
-    if let Some(aerodromes) = config_resource.aerodromes.as_ref() {
-        egui::Window::new("Aerodromes")
-            .default_open(false)
-            .show(contexts.ctx_mut(), |ui| {
-                ui.label("Available Aerodromes:");
-                ui.text_edit_singleline(&mut search_input.search_string);
-
-                for aerodrome in aerodromes
-                    .iter()
-                    .filter(|a| a.name.contains(&search_input.search_string))
-                {
-                    if ui.selectable_label(false, &aerodrome.name).clicked() {
-                        ev_selected_aerodrome_change
-                            .send(SelectedAerodromeChangeEvent(aerodrome.clone()));
-                        let alpha = (90.0 + aerodrome.lon).to_radians();
-                        let beta = aerodrome.lat.to_radians();
-                        for (mut pan_orbit, _transform) in pan_orbit_query.iter_mut() {
-                            pan_orbit.target_alpha = alpha as f32;
-                            pan_orbit.target_beta = beta as f32;
-                            pan_orbit.radius = Some(1.5);
-                            pan_orbit.force_update = true;
-                        }
-                    }
-                }
-            });
     }
 }
 
