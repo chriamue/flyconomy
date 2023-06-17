@@ -2,8 +2,8 @@ use std::collections::HashMap;
 
 use bevy::prelude::{
     App, AssetServer, Assets, BuildChildren, Color, Commands, Component, ComputedVisibility,
-    Entity, GlobalTransform, PbrBundle, Plugin, Quat, Query, Res, ResMut, StandardMaterial,
-    Transform, Vec3, Visibility,
+    DespawnRecursiveExt, Entity, GlobalTransform, PbrBundle, Plugin, Quat, Query, Res, ResMut,
+    StandardMaterial, Transform, Vec3, Visibility,
 };
 use bevy_obj::ObjPlugin;
 
@@ -101,8 +101,7 @@ pub fn plane_system(
                 }
             }
         } else if let Some(entity) = visualized_flights.remove(&flight.flight_id) {
-            // Remove the visual representation of the plane that has landed
-            commands.entity(entity).despawn();
+            commands.entity(entity).despawn_recursive();
         }
     }
 }

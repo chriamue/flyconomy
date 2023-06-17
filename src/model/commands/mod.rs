@@ -101,6 +101,19 @@ pub struct ScheduleFlightCommand {
 
 impl Command for ScheduleFlightCommand {
     fn execute(&self, environment: &mut Environment) -> Option<String> {
+        // Check if the airplane is already in use for an ongoing flight
+        let airplane_id = self.airplane.id;
+        let is_airplane_in_use = environment
+            .flights
+            .iter()
+            .any(|flight| flight.airplane.id == airplane_id && flight.state != FlightState::Landed);
+
+        // If the airplane is in use, return an error message
+        if is_airplane_in_use {
+            return Some(
+                "Cannot schedule the flight because the airplane is already in use".to_string(),
+            );
+        }
         let flight_id = FLIGHT_ID_COUNTER.fetch_add(1, Ordering::SeqCst);
 
         let flight = Flight {
