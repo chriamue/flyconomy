@@ -1,14 +1,21 @@
-use bevy::prelude::{App, Assets, Color, Commands, Component, Entity, Query, ResMut, With};
+use bevy::prelude::{
+    App, Assets, Color, Commands, Component, Entity, IntoSystemConfigs, OnUpdate, Plugin, Query,
+    ResMut, With,
+};
 use bevy_polyline::prelude::{Polyline, PolylineBundle, PolylineMaterial};
 use bevy_polyline::PolylinePlugin;
 
 use crate::game::{earth3d, projection::wgs84_to_xyz};
 
-use super::GameResource;
+use super::{GameResource, GameState};
 
-pub fn add_flight_systems_to_app(app: &mut App) {
-    app.add_plugin(PolylinePlugin)
-        .add_system(draw_flight_paths_system);
+pub struct FlightsPlugin;
+
+impl Plugin for FlightsPlugin {
+    fn build(&self, app: &mut App) {
+        app.add_plugin(PolylinePlugin)
+            .add_systems((draw_flight_paths_system,).in_set(OnUpdate(GameState::Playing)));
+    }
 }
 
 pub fn draw_flight_paths_system(

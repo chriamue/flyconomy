@@ -16,18 +16,22 @@ const ALBEDO_MAP: &str = "earth/base_color.jpg";
 const EMI_MAP: &str = "earth/emissive.jpg";
 const SPIN: f32 = 0.0;
 
-pub fn add_earth3d_systems_to_app(app: &mut App) {
-    app.add_plugin(ParallaxMaterialPlugin)
-        .insert_resource(AmbientLight {
-            color: Color::BLACK,
-            brightness: 0.01,
-        })
-        .insert_resource(ClearColor(Color::BLACK))
-        .insert_resource(Normal(None));
-    #[cfg(not(target_arch = "wasm32"))]
-    app.add_startup_system(setup);
-    app.add_system(update_normal).add_system(spin);
-    app.register_type::<Spin>();
+pub struct Earth3dPlugin;
+
+impl Plugin for Earth3dPlugin {
+    fn build(&self, app: &mut App) {
+        app.add_plugin(ParallaxMaterialPlugin)
+            .insert_resource(AmbientLight {
+                color: Color::BLACK,
+                brightness: 0.01,
+            })
+            .insert_resource(ClearColor(Color::BLACK))
+            .insert_resource(Normal(None));
+        #[cfg(not(target_arch = "wasm32"))]
+        app.add_startup_system(setup);
+        app.add_system(update_normal).add_system(spin);
+        app.register_type::<Spin>();
+    }
 }
 
 #[derive(Component, PartialEq, Eq)]

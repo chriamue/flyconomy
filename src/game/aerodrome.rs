@@ -1,7 +1,7 @@
 use bevy::asset::Handle;
 use bevy::prelude::{
     shape, App, Assets, Color, Commands, Component, Entity, EventReader, EventWriter, Mesh,
-    PbrBundle, Query, Res, ResMut, Resource, StandardMaterial, Transform, Vec3, With,
+    PbrBundle, Plugin, Query, Res, ResMut, Resource, StandardMaterial, Transform, Vec3, With,
 };
 use bevy_mod_picking::{
     prelude::{Click, ListenedEvent, OnPointer, RaycastPickTarget},
@@ -15,14 +15,18 @@ use crate::{
 
 use super::ConfigResource;
 
-pub fn add_aerodrome_systems_to_app(app: &mut App) {
-    app.insert_resource(AerodromeSystem { setup_done: false })
-        .add_system(setup)
-        .add_event::<AerodromeSelectedEvent>()
-        .add_event::<SelectedAerodromeChangeEvent>()
-        .insert_resource(SelectedAerodrome::default())
-        .add_system(handle_aerodrome_selected_event)
-        .add_system(handle_selected_aerodrome_change_event);
+pub struct AerodromePlugin;
+
+impl Plugin for AerodromePlugin {
+    fn build(&self, app: &mut App) {
+        app.insert_resource(AerodromeSystem { setup_done: false })
+            .add_system(setup)
+            .add_event::<AerodromeSelectedEvent>()
+            .add_event::<SelectedAerodromeChangeEvent>()
+            .insert_resource(SelectedAerodrome::default())
+            .add_system(handle_aerodrome_selected_event)
+            .add_system(handle_selected_aerodrome_change_event);
+    }
 }
 
 pub struct SelectedAerodromeChangeEvent(pub Aerodrome);

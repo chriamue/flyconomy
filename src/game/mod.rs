@@ -55,12 +55,12 @@ pub fn setup_game(app: &mut App, game_resource: GameResource) {
         .add_startup_system(setup)
         .add_startup_system(load_config_assets)
         .add_system(config_assets_loaded)
-        .add_systems((update_simulation_system,).in_set(OnUpdate(GameState::Playing)));
-    camera::add_camera_systems_to_app(app);
-    ui::add_ui_systems_to_app(app);
-    aerodrome::add_aerodrome_systems_to_app(app);
-    earth3d::add_earth3d_systems_to_app(app);
-    flights::add_flight_systems_to_app(app);
+        .add_systems((update_simulation_system,).in_set(OnUpdate(GameState::Playing)))
+        .add_plugin(camera::CameraPlugin)
+        .add_plugin(flights::FlightsPlugin)
+        .add_plugin(aerodrome::AerodromePlugin)
+        .add_plugin(ui::UiPlugin)
+        .add_plugin(earth3d::Earth3dPlugin);
 }
 
 fn setup(mut commands: Commands) {

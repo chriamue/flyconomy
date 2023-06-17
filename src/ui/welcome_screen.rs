@@ -1,4 +1,4 @@
-use crate::game::{GameResource, GameState};
+use crate::game::GameState;
 use bevy::prelude::*;
 use bevy::prelude::{App, NextState, OnUpdate, Plugin, ResMut};
 use bevy_egui::{egui, EguiContexts};

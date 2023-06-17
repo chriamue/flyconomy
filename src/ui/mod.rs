@@ -1,5 +1,5 @@
-use bevy::prelude::IntoSystemConfigs;
 use bevy::prelude::{App, EventWriter, OnUpdate, Query, Res, ResMut, Resource, Transform};
+use bevy::prelude::{IntoSystemConfigs, Plugin};
 use bevy_egui::{egui, EguiContexts};
 use bevy_panorbit_camera::PanOrbitCamera;
 mod aerodromes_ui;
@@ -18,21 +18,25 @@ use crate::{
     },
 };
 
-pub fn add_ui_systems_to_app(app: &mut App) {
-    app.insert_resource(FlightPlanningInput::default());
-    app.add_plugin(hud::HudPlugin);
-    app.add_plugin(welcome_screen::WelcomeScreenPlugin);
-    app.add_plugin(game_over_screen::GameOverScreenPlugin);
-    app.add_plugin(aerodromes_ui::AerodromesUiPlugin);
-    app.add_systems(
-        (
-            company_hud,
-            planes_purchase_ui,
-            bases_info_ui,
-            flight_planning_ui,
-        )
-            .in_set(OnUpdate(GameState::Playing)),
-    );
+pub struct UiPlugin;
+
+impl Plugin for UiPlugin {
+    fn build(&self, app: &mut App) {
+        app.insert_resource(FlightPlanningInput::default());
+        app.add_plugin(hud::HudPlugin);
+        app.add_plugin(welcome_screen::WelcomeScreenPlugin);
+        app.add_plugin(game_over_screen::GameOverScreenPlugin);
+        app.add_plugin(aerodromes_ui::AerodromesUiPlugin);
+        app.add_systems(
+            (
+                company_hud,
+                planes_purchase_ui,
+                bases_info_ui,
+                flight_planning_ui,
+            )
+                .in_set(OnUpdate(GameState::Playing)),
+        );
+    }
 }
 
 fn company_hud(mut contexts: EguiContexts, game_resource: Res<GameResource>) {
