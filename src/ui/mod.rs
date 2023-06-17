@@ -2,6 +2,7 @@ use bevy::prelude::{App, EventWriter, Query, Res, ResMut, Resource, Transform};
 use bevy_egui::{egui, EguiContexts};
 use bevy_panorbit_camera::PanOrbitCamera;
 
+mod game_over_screen;
 mod hud;
 mod welcome_screen;
 
@@ -16,7 +17,6 @@ use crate::{
         },
         Base, Flight,
     },
-    simulation::Simulation,
 };
 
 pub fn add_ui_systems_to_app(app: &mut App) {
@@ -26,43 +26,13 @@ pub fn add_ui_systems_to_app(app: &mut App) {
     app.insert_resource(FlightPlanningInput::default());
     app.add_plugin(hud::HudPlugin);
     app.add_plugin(welcome_screen::WelcomeScreenPlugin);
-    app.add_system(game_over_screen);
+    app.add_plugin(game_over_screen::GameOverScreenPlugin);
     app.add_system(company_hud);
     app.add_system(planes_purchase_ui);
     app.add_system(aerodromes_ui);
     app.add_system(bases_info_ui);
     app.add_system(selected_aerodrome_info_ui);
     app.add_system(flight_planning_ui);
-}
-
-pub fn game_over_screen(mut contexts: EguiContexts, mut game_resources: ResMut<GameResource>) {
-    if !matches!(game_resources.game_state, GameState::GameOver) {
-        return;
-    }
-
-    egui::CentralPanel::default().show(contexts.ctx_mut(), |ui| {
-        ui.label("Game Over");
-
-        ui.label(format!(
-            "Final Airline Value: ${:.2}",
-            game_resources.simulation.environment.company_finances.cash
-        ));
-        ui.label(format!(
-            "Total Planes: {}",
-            game_resources.simulation.environment.planes.len()
-        ));
-
-        ui.label("Thank you for playing Flyconomy!");
-
-        if ui.button("Restart Game").clicked() {
-            game_resources.game_state = GameState::Welcome;
-            game_resources.simulation = Simulation::new(Default::default());
-        }
-        #[cfg(not(target_arch = "wasm32"))]
-        if ui.button("Quit").clicked() {
-            std::process::exit(0);
-        }
-    });
 }
 
 fn company_hud(mut contexts: EguiContexts, game_resource: Res<GameResource>) {
