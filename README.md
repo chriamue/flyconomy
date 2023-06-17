@@ -81,3 +81,5 @@ Project Link: [https://github.com/chriamue/flyconomy](https://github.com/chriamu
 ## Notes
 
 The spinning earth, materials and shading come from [bevy_mod_paramap](https://github.com/nicopap/bevy_mod_paramap/blob/main/examples/earth3d.rs).
+
+Thanks for this great tutorial: [frederickjjoubert/bevy-ball-game](https://github.com/frederickjjoubert/bevy-ball-game/tree/Episode-10)

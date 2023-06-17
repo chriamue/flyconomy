@@ -9,6 +9,7 @@ pub struct Environment {
     pub bases: Vec<Base>,
     pub landing_rights: Vec<LandingRights>,
     pub flights: Vec<Flight>,
+    pub timestamp: f64,
 }
 impl Environment {
     pub fn new(config: EnvironmentConfig) -> Self {
@@ -19,6 +20,7 @@ impl Environment {
             bases: vec![],
             landing_rights: vec![],
             flights: vec![],
+            timestamp: 0.0,
         }
     }
 }

@@ -4,7 +4,7 @@ use crate::model::{commands::Command, Environment, EnvironmentConfig};
 
 pub struct Simulation {
     pub environment: Environment,
-    elapsed_time: Duration,
+    pub elapsed_time: Duration,
     commands: Vec<Box<dyn Command>>,
     time_multiplier: f64,
 }
@@ -15,7 +15,7 @@ impl Simulation {
             environment: Environment::new(config),
             elapsed_time: Duration::from_secs(0),
             commands: vec![],
-            time_multiplier: 1.0 * 60.0 * 60.0,
+            time_multiplier: 1.0 * 5.0 * 60.0, // 1 second = 5 minutes
         }
     }
 
@@ -23,6 +23,7 @@ impl Simulation {
         let effective_delta_time =
             Duration::from_secs_f64(delta_time.as_secs_f64() * self.time_multiplier);
         self.elapsed_time += effective_delta_time;
+        self.environment.timestamp += effective_delta_time.as_secs_f64();
 
         let commands = self.commands.drain(..).collect::<Vec<_>>();
         for command in commands {

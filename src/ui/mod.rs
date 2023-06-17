@@ -256,7 +256,10 @@ pub fn flight_planning_ui(
                                             airplane,
                                             origin_aerodrome,
                                             destination_aerodrome: destination_aerodrome.clone(),
-                                            departure_time: time.elapsed().as_secs(),
+                                            departure_time: game_resource
+                                                .simulation
+                                                .elapsed_time
+                                                .as_secs(),
                                         };
                                         game_resource
                                             .simulation

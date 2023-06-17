@@ -15,6 +15,6 @@ pub use base::Base;
 pub use company_finances::CompanyFinances;
 pub use environment::Environment;
 pub use environment_config::EnvironmentConfig;
-pub use flight::Flight;
+pub use flight::{Flight, FlightState};
 pub use landing_rights::LandingRights;
 pub use plane_type::PlaneType;

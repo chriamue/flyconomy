@@ -6,6 +6,7 @@ mod camera;
 pub mod earth3d;
 pub mod flights;
 mod game_state;
+mod plane;
 pub mod projection;
 
 use bevy::prelude::IntoSystemConfigs;
@@ -63,6 +64,7 @@ pub fn setup_game(app: &mut App, game_resource: GameResource) {
         .add_plugin(flights::FlightsPlugin)
         .add_plugin(aerodrome::AerodromePlugin)
         .add_plugin(ui::UiPlugin)
+        .add_plugin(plane::PlanePlugin)
         .add_plugin(earth3d::Earth3dPlugin);
 }
 

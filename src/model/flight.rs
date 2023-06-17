@@ -55,6 +55,30 @@ impl Flight {
             self.state = FlightState::Landed;
         }
     }
+
+    pub fn estimate_current_position(&self, timestamp: f64) -> Option<(f64, f64)> {
+        if let Some(arrival_time) = self.arrival_time {
+            if timestamp >= self.departure_time as f64 && timestamp <= arrival_time as f64 {
+                let total_flight_time = arrival_time - self.departure_time;
+                let elapsed_time = timestamp - self.departure_time as f64;
+
+                // Calculate the fraction of the trip completed
+                let fraction = elapsed_time / total_flight_time as f64;
+
+                let origin_lat = self.origin_aerodrome.lat;
+                let origin_lon = self.origin_aerodrome.lon;
+                let dest_lat = self.destination_aerodrome.lat;
+                let dest_lon = self.destination_aerodrome.lon;
+
+                // Linear interpolation between origin and destination
+                let current_lat = origin_lat + fraction * (dest_lat - origin_lat);
+                let current_lon = origin_lon + fraction * (dest_lon - origin_lon);
+
+                return Some((current_lat, current_lon));
+            }
+        }
+        None
+    }
 }
 
 #[cfg(test)]
