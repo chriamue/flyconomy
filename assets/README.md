@@ -14,6 +14,10 @@ For more details and for the most up-to-date data, please visit the OpenFlights 
 
 The icons used in the application are sourced from [Game-icons.net](https://game-icons.net/).
 
+## plane.obj
+
+The 3D model of the plane used in the application is sourced from [cgtrader.com](https://www.cgtrader.com/items/4140769/download-page)
+
 ### Attribution
 
 Data is courtesy of [OpenFlights](https://github.com/jpatokal/openflights). When using this data, please credit OpenFlights as the source.
