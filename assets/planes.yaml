@@ -3,11 +3,14 @@ planes:
     cost: 300000
     monthly_income: 0
     monthly_operating_cost: 1000
+    speed: 400
   - name: "Medium Plane"
     cost: 800000
     monthly_income: 0
     monthly_operating_cost: 8000
+    speed: 900
   - name: "Large Plane"
     cost: 2000000
     monthly_income: 0
     monthly_operating_cost: 30000
+    speed: 800
