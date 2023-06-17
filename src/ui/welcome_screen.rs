@@ -13,7 +13,6 @@ impl Plugin for WelcomeScreenPlugin {
 
 pub fn welcome_screen_system(
     mut contexts: EguiContexts,
-    mut game_resources: ResMut<GameResource>,
     mut game_state_next_state: ResMut<NextState<GameState>>,
 ) {
     egui::CentralPanel::default().show(contexts.ctx_mut(), |ui| {
@@ -39,7 +38,6 @@ pub fn welcome_screen_system(
         ui.label("- Click on 'Plan Flight' to schedule your flight.");
 
         if ui.button("Start Game").clicked() {
-            game_resources.game_state = GameState::Playing;
             game_state_next_state.set(GameState::Playing);
         }
     });

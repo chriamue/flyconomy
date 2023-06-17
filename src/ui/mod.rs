@@ -93,10 +93,6 @@ pub fn bases_info_ui(
     mut ev_selected_aerodrome_change: EventWriter<SelectedAerodromeChangeEvent>,
     mut pan_orbit_query: Query<(&mut PanOrbitCamera, &mut Transform)>,
 ) {
-    if !matches!(game_resource.game_state, GameState::Playing) {
-        return;
-    }
-
     egui::Window::new("Bases Info")
         .default_open(true)
         .show(contexts.ctx_mut(), |ui| {

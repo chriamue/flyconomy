@@ -7,6 +7,7 @@ pub mod flights;
 mod game_state;
 pub mod projection;
 
+use bevy::prelude::IntoSystemConfigs;
 use bevy_common_assets::yaml::YamlAssetPlugin;
 use bevy_egui::EguiPlugin;
 use bevy_mod_picking::DefaultPickingPlugins;
@@ -21,14 +22,12 @@ use crate::{
 
 #[derive(Resource)]
 pub struct GameResource {
-    pub game_state: GameState,
     pub simulation: Simulation,
 }
 
 impl Default for GameResource {
     fn default() -> Self {
         Self {
-            game_state: GameState::Welcome,
             simulation: Simulation::new(Default::default()),
         }
     }
@@ -56,7 +55,7 @@ pub fn setup_game(app: &mut App, game_resource: GameResource) {
         .add_startup_system(setup)
         .add_startup_system(load_config_assets)
         .add_system(config_assets_loaded)
-        .add_system(update_simulation_system);
+        .add_systems((update_simulation_system,).in_set(OnUpdate(GameState::Playing)));
     camera::add_camera_systems_to_app(app);
     ui::add_ui_systems_to_app(app);
     aerodrome::add_aerodrome_systems_to_app(app);
@@ -124,13 +123,14 @@ fn config_assets_loaded(
     }
 }
 
-fn update_simulation_system(mut game_resource: ResMut<GameResource>, time: Res<Time>) {
-    if !matches!(game_resource.game_state, GameState::Playing) {
-        return;
-    }
+fn update_simulation_system(
+    mut game_resource: ResMut<GameResource>,
+    time: Res<Time>,
+    mut game_state_next_state: ResMut<NextState<GameState>>,
+) {
     game_resource.simulation.update(time.delta());
     if game_resource.simulation.environment.company_finances.cash < 10000.0 {
-        game_resource.game_state = GameState::GameOver;
+        game_state_next_state.set(GameState::GameOver);
     }
 }
 
