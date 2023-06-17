@@ -23,7 +23,6 @@ impl Command for BuyPlaneCommand {
                 self.plane_type.name
             ));
         }
-        environment.company_finances.cash -= self.plane_type.cost as f64;
         let airplane_id: u64 = PLANE_ID_COUNTER
             .fetch_add(1, Ordering::SeqCst)
             .try_into()
@@ -36,11 +35,11 @@ impl Command for BuyPlaneCommand {
         environment
             .bases
             .iter_mut()
-            .find(|base| base.id == self.home_base_id)
-            .unwrap()
+            .find(|base| base.id == self.home_base_id)?
             .airplane_ids
             .push(airplane_id);
 
+        environment.company_finances.cash -= self.plane_type.cost as f64;
         environment.planes.push(airplane);
         None
     }

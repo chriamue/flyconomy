@@ -1,8 +1,8 @@
-use bevy::prelude::{App, EventWriter, Query, Res, ResMut, Resource, Transform};
+use bevy::prelude::{App, EventWriter, NextState, Query, Res, ResMut, Resource, Transform};
 use bevy_egui::{egui, EguiContexts};
 use bevy_panorbit_camera::PanOrbitCamera;
 
-mod scores;
+mod hud;
 
 use crate::{
     game::{
@@ -18,11 +18,14 @@ use crate::{
     simulation::Simulation,
 };
 
+use self::hud::HudPlugin;
+
 pub fn add_ui_systems_to_app(app: &mut App) {
     app.insert_resource(UiInput {
         search_string: String::new(),
     });
     app.insert_resource(FlightPlanningInput::default());
+    app.add_plugin(HudPlugin);
     app.add_system(welcome_screen);
     app.add_system(game_over_screen);
     app.add_system(company_hud);
@@ -31,10 +34,13 @@ pub fn add_ui_systems_to_app(app: &mut App) {
     app.add_system(bases_info_ui);
     app.add_system(selected_aerodrome_info_ui);
     app.add_system(flight_planning_ui);
-    scores::add_scores_systems_to_app(app);
 }
 
-pub fn welcome_screen(mut contexts: EguiContexts, mut game_resources: ResMut<GameResource>) {
+pub fn welcome_screen(
+    mut contexts: EguiContexts,
+    mut game_resources: ResMut<GameResource>,
+    mut game_state_next_state: ResMut<NextState<GameState>>,
+) {
     if !matches!(game_resources.game_state, GameState::Welcome) {
         return;
     }
@@ -62,6 +68,7 @@ pub fn welcome_screen(mut contexts: EguiContexts, mut game_resources: ResMut<Gam
 
         if ui.button("Start Game").clicked() {
             game_resources.game_state = GameState::Playing;
+            game_state_next_state.set(GameState::Playing);
         }
     });
 }

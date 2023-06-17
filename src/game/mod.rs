@@ -50,6 +50,7 @@ pub fn setup_game(app: &mut App, game_resource: GameResource) {
         .add_plugin(YamlAssetPlugin::<AerodromeConfig>::new(&[
             "aerodromes.json",
         ]))
+        .add_state::<GameState>()
         .insert_resource(game_resource)
         .insert_resource(ConfigResource::default())
         .add_startup_system(setup)
