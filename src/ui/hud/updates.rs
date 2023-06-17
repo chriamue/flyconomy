@@ -30,7 +30,7 @@ pub fn update_income_system(
 ) {
     for mut text in query.iter_mut() {
         let environment = &game_resource.simulation.environment;
-        text.sections[0].value = format!("{}", environment.company_finances.total_income);
+        text.sections[0].value = format!("{:.2}$", environment.company_finances.total_income);
     }
 }
 
@@ -40,6 +40,6 @@ pub fn update_expenses_system(
 ) {
     for mut text in query.iter_mut() {
         let environment = &game_resource.simulation.environment;
-        text.sections[0].value = format!("{}", environment.company_finances.total_expenses);
+        text.sections[0].value = format!("{:.2}$", environment.company_finances.total_expenses);
     }
 }

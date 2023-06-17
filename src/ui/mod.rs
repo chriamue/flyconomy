@@ -1,7 +1,7 @@
-use bevy::prelude::{App, EventWriter, Query, Res, ResMut, Resource, Transform};
+use bevy::prelude::IntoSystemConfigs;
+use bevy::prelude::{App, EventWriter, OnUpdate, Query, Res, ResMut, Resource, Transform};
 use bevy_egui::{egui, EguiContexts};
 use bevy_panorbit_camera::PanOrbitCamera;
-
 mod aerodromes_ui;
 mod game_over_screen;
 mod hud;
@@ -23,18 +23,19 @@ pub fn add_ui_systems_to_app(app: &mut App) {
     app.add_plugin(hud::HudPlugin);
     app.add_plugin(welcome_screen::WelcomeScreenPlugin);
     app.add_plugin(game_over_screen::GameOverScreenPlugin);
-    app.add_system(company_hud);
     app.add_plugin(aerodromes_ui::AerodromesUiPlugin);
-    app.add_system(planes_purchase_ui);
-    app.add_system(bases_info_ui);
-    app.add_system(flight_planning_ui);
+    app.add_systems(
+        (
+            company_hud,
+            planes_purchase_ui,
+            bases_info_ui,
+            flight_planning_ui,
+        )
+            .in_set(OnUpdate(GameState::Playing)),
+    );
 }
 
 fn company_hud(mut contexts: EguiContexts, game_resource: Res<GameResource>) {
-    if !matches!(game_resource.game_state, GameState::Playing) {
-        return;
-    }
-
     egui::Window::new("Company")
         .default_open(false)
         .show(contexts.ctx_mut(), |ui| {
@@ -59,9 +60,6 @@ pub fn planes_purchase_ui(
     config_resource: Res<ConfigResource>,
     mut game_resource: ResMut<GameResource>,
 ) {
-    if !matches!(game_resource.game_state, GameState::Playing) {
-        return;
-    }
     if let Some(planes_config) = config_resource.planes_config.as_ref() {
         egui::Window::new("Buy Planes").show(contexts.ctx_mut(), |ui| {
             ui.label("Available Planes:");
