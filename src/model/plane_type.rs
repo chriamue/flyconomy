@@ -6,4 +6,5 @@ pub struct PlaneType {
     pub cost: f32,
     pub monthly_income: f32,
     pub monthly_operating_cost: f32,
+    pub speed: f32,
 }

@@ -2,7 +2,7 @@ use std::sync::atomic::{AtomicUsize, Ordering};
 
 use crate::model::{Base, Flight, LandingRights};
 
-use super::{Aerodrome, AirPlane, Environment, PlaneType};
+use super::{flight::FlightState, Aerodrome, AirPlane, Environment, PlaneType};
 
 pub trait Command: Send + Sync {
     fn execute(&self, environment: &mut Environment) -> Option<String>;
@@ -96,6 +96,7 @@ pub struct ScheduleFlightCommand {
     pub airplane: AirPlane,
     pub origin_aerodrome: Aerodrome,
     pub destination_aerodrome: Aerodrome,
+    pub departure_time: u64,
 }
 
 impl Command for ScheduleFlightCommand {
@@ -107,6 +108,9 @@ impl Command for ScheduleFlightCommand {
             airplane: self.airplane.clone(),
             origin_aerodrome: self.origin_aerodrome.clone(),
             destination_aerodrome: self.destination_aerodrome.clone(),
+            departure_time: self.departure_time,
+            arrival_time: None,
+            state: FlightState::Scheduled,
         };
 
         let profit = flight.calculate_profit();

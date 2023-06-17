@@ -31,6 +31,14 @@ impl Simulation {
 
         let profit = self.calculate_profit(effective_delta_time);
         self.environment.company_finances.cash += profit;
+
+        self.update_flights();
+    }
+
+    pub fn update_flights(&mut self) {
+        for flight in &mut self.environment.flights {
+            flight.update_state(self.elapsed_time.as_secs())
+        }
     }
 
     pub fn add_command(&mut self, command: Box<dyn Command>) {

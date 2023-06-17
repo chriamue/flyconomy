@@ -9,6 +9,17 @@ pub struct Flight {
     pub airplane: AirPlane,
     pub origin_aerodrome: Aerodrome,
     pub destination_aerodrome: Aerodrome,
+    pub departure_time: u64,
+    pub arrival_time: Option<u64>,
+    pub state: FlightState,
+}
+
+#[derive(Default, Debug, Clone, PartialEq)]
+pub enum FlightState {
+    #[default]
+    Scheduled,
+    EnRoute,
+    Landed,
 }
 
 impl Flight {
@@ -30,6 +41,19 @@ impl Flight {
         let profit = distance_in_kilometers * PROFIT_PER_KILOMETER;
 
         profit as f32
+    }
+
+    pub fn update_state(&mut self, current_time: u64) {
+        if self.state == FlightState::Scheduled && current_time >= self.departure_time {
+            self.state = FlightState::EnRoute;
+            let distance = self.calculate_distance();
+            let speed = self.airplane.plane_type.speed;
+            self.arrival_time =
+                Some(self.departure_time + (distance / speed as f64 * 3600.0) as u64);
+        // assuming speed in km/h
+        } else if self.state == FlightState::EnRoute && current_time >= self.arrival_time.unwrap() {
+            self.state = FlightState::Landed;
+        }
     }
 }
 
@@ -60,6 +84,9 @@ mod tests {
             airplane,
             origin_aerodrome,
             destination_aerodrome,
+            departure_time: 0,
+            arrival_time: None,
+            state: Default::default(),
         };
 
         let profit = flight.calculate_profit();

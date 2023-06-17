@@ -1,5 +1,6 @@
 use bevy::prelude::{App, EventWriter, OnUpdate, Query, Res, ResMut, Resource, Transform};
 use bevy::prelude::{IntoSystemConfigs, Plugin};
+use bevy::time::Time;
 use bevy_egui::{egui, EguiContexts};
 use bevy_panorbit_camera::PanOrbitCamera;
 mod aerodromes_ui;
@@ -131,6 +132,7 @@ pub fn flight_planning_ui(
     selected_aerodrome: Res<SelectedAerodrome>,
     mut game_resource: ResMut<GameResource>,
     mut flight_planning_input: ResMut<FlightPlanningInput>,
+    time: Res<Time>,
 ) {
     if let Some(selected_aerodrome) = &selected_aerodrome.aerodrome {
         egui::Window::new("Flight Planning")
@@ -235,6 +237,9 @@ pub fn flight_planning_ui(
                                         airplane: airplane.clone(),
                                         origin_aerodrome: origin_aerodrome.clone(),
                                         destination_aerodrome: destination_aerodrome.clone(),
+                                        departure_time: time.elapsed().as_secs(),
+                                        arrival_time: None,
+                                        state: Default::default(),
                                     };
 
                                     let profit = flight.calculate_profit();
@@ -251,6 +256,7 @@ pub fn flight_planning_ui(
                                             airplane,
                                             origin_aerodrome,
                                             destination_aerodrome: destination_aerodrome.clone(),
+                                            departure_time: time.elapsed().as_secs(),
                                         };
                                         game_resource
                                             .simulation
