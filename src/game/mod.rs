@@ -1,4 +1,5 @@
-use bevy::prelude::*;
+use bevy::diagnostic::LogDiagnosticsPlugin;
+use bevy::{diagnostic::FrameTimeDiagnosticsPlugin, prelude::*};
 
 pub mod aerodrome;
 mod camera;
@@ -44,6 +45,8 @@ pub struct ConfigResource {
 
 pub fn setup_game(app: &mut App, game_resource: GameResource) {
     app.add_plugin(EguiPlugin)
+        .add_plugin(FrameTimeDiagnosticsPlugin::default())
+        .add_plugin(LogDiagnosticsPlugin::default())
         .add_plugins(DefaultPickingPlugins)
         .add_plugin(YamlAssetPlugin::<PlanesConfig>::new(&["yaml"]))
         .add_plugin(YamlAssetPlugin::<AerodromeConfig>::new(&[
