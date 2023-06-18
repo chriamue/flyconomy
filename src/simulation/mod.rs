@@ -14,6 +14,7 @@ pub struct Simulation {
     commands: Vec<Box<dyn Command>>,
     pub time_multiplier: f64,
     pub error_messages: Vec<(Timestamp, String)>,
+    pub event_messages: Vec<(Timestamp, String)>,
     pub event_manager: EventManager,
 }
 
@@ -25,6 +26,7 @@ impl Simulation {
             commands: vec![],
             time_multiplier: 1.0 * 5.0 * 60.0, // 1 second = 5 minutes
             error_messages: vec![],
+            event_messages: vec![],
             event_manager: EventManager::default(),
         };
         simulation.setup();
@@ -62,7 +64,7 @@ impl Simulation {
 
             if previous_state != FlightState::EnRoute && flight.state == FlightState::EnRoute {
                 self.event_manager.add_event(Box::new(AirplaneTakeoffEvent {
-                    airplane: flight.airplane.clone(),
+                    flight: flight.clone(),
                 }));
             }
 
@@ -103,6 +105,11 @@ impl Simulation {
     }
 
     pub fn handle_events(&mut self) {
-        self.event_manager.handle_events(&mut self.environment);
+        for event in self.event_manager.handle_events(&mut self.environment) {
+            self.event_messages.push((
+                self.elapsed_time.as_secs_f64(),
+                format!("{}", event.message()),
+            ));
+        }
     }
 }

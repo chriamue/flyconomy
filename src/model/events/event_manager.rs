@@ -34,12 +34,16 @@ impl EventManager {
         self.event_handlers.clear();
     }
 
-    pub fn handle_events(&mut self, environment: &mut crate::model::Environment) {
+    pub fn handle_events(
+        &mut self,
+        environment: &mut crate::model::Environment,
+    ) -> Vec<Box<dyn Event>> {
         let events = self.events.drain(..).collect::<Vec<_>>();
-        for event in events {
+        for event in events.iter() {
             for event_handler in &self.event_handlers {
                 event_handler.handle(environment, event.as_ref());
             }
         }
+        events
     }
 }
