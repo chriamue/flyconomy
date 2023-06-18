@@ -76,9 +76,12 @@ pub fn planes_purchase_ui(
                     ui.label(&plane.name);
                     ui.label(format!("Cost: ${:.2}", plane.cost));
                     ui.label(format!("Monthly Income: ${:.2}", plane.monthly_income));
+                    ui.label(format!("Range: {} km", plane.range));
+                    ui.label(format!("Speed: {} km/h", plane.speed));
+                    ui.label(format!("Capacity: {} passengers", plane.seats));
                     ui.label(format!(
-                        "Monthly Operating Cost: ${:.2}",
-                        plane.monthly_operating_cost
+                        "Fuel Consumption: {} L/km",
+                        plane.fuel_consumption_per_km
                     ));
 
                     if ui.button("Buy").clicked() {

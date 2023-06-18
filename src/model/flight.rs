@@ -37,8 +37,8 @@ impl Flight {
 
     pub fn calculate_profit(&self) -> f32 {
         let distance_in_kilometers = self.calculate_distance();
-
-        let profit = distance_in_kilometers * PROFIT_PER_KILOMETER;
+        let seats = self.airplane.plane_type.seats as f64;
+        let profit = distance_in_kilometers * PROFIT_PER_KILOMETER * seats;
 
         profit as f32
     }

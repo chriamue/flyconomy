@@ -4,7 +4,8 @@ use crate::model::{
     commands::Command,
     events::{
         AirplaneLandedEvent, AirplaneLandedEventHandler, AirplaneTakeoffEvent,
-        BuyLandingRightsEvent, BuyPlaneEvent, CreateBaseEvent, EventManager,
+        AirplaneTakeoffEventHandler, BuyLandingRightsEvent, BuyPlaneEvent, CreateBaseEvent,
+        EventManager,
     },
     Environment, EnvironmentConfig, FlightState,
 };
@@ -40,6 +41,8 @@ impl Simulation {
         let airplane_landed_event_handler = Box::new(AirplaneLandedEventHandler {});
         self.event_manager
             .add_event_handler(airplane_landed_event_handler);
+        let takeoff_event_handler = Box::new(AirplaneTakeoffEventHandler {});
+        self.event_manager.add_event_handler(takeoff_event_handler);
     }
 
     pub fn update(&mut self, delta_time: Duration) {

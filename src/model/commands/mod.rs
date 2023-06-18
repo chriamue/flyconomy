@@ -165,6 +165,8 @@ pub struct ScheduleFlightCommand {
 pub enum ScheduleFlightError {
     #[error("Cannot schedule the flight because the airplane is already in use")]
     AirplaneInUse,
+    #[error("Cannot schedule the flight because the distance is beyond the airplane's range")]
+    DistanceBeyondRange,
 }
 
 impl Command for ScheduleFlightCommand {
@@ -195,6 +197,12 @@ impl Command for ScheduleFlightCommand {
             arrival_time: None,
             state: FlightState::Scheduled,
         };
+
+        // Check if the distance is within the airplane's range
+        let distance = flight.calculate_distance();
+        if distance > self.airplane.plane_type.range as f64 {
+            return Err(Box::new(ScheduleFlightError::DistanceBeyondRange));
+        }
 
         let profit = flight.calculate_profit();
 

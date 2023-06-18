@@ -4,13 +4,22 @@ planes:
     monthly_income: 0
     monthly_operating_cost: 1000
     speed: 400
+    range: 1200 # in kilometers
+    seats: 20
+    fuel_consumption_per_km: 1.5 # in liters per kilometer
   - name: "Medium Plane"
     cost: 800000
     monthly_income: 0
     monthly_operating_cost: 8000
     speed: 900
+    range: 3500 # in kilometers
+    seats: 150
+    fuel_consumption_per_km: 3.0 # in liters per kilometer
   - name: "Large Plane"
     cost: 2000000
     monthly_income: 0
     monthly_operating_cost: 30000
     speed: 800
+    range: 8000 # in kilometers
+    seats: 350
+    fuel_consumption_per_km: 5.0 # in liters per kilometer

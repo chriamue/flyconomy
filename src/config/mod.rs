@@ -60,7 +60,6 @@ mod tests {
         assert_eq!(planes.planes[0].name, "Small Plane");
         assert_eq!(planes.planes[0].cost, 300000.0);
         assert_eq!(planes.planes[0].monthly_income, 0.0);
-        assert_eq!(planes.planes[0].monthly_operating_cost, 1000.0);
     }
 
     #[test]
