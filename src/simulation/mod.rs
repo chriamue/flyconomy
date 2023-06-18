@@ -2,11 +2,14 @@ use std::time::Duration;
 
 use crate::model::{commands::Command, Environment, EnvironmentConfig};
 
+type Timestamp = f64;
+
 pub struct Simulation {
     pub environment: Environment,
     pub elapsed_time: Duration,
     commands: Vec<Box<dyn Command>>,
-    time_multiplier: f64,
+    pub time_multiplier: f64,
+    pub error_messages: Vec<(Timestamp, String)>,
 }
 
 impl Simulation {
@@ -16,6 +19,7 @@ impl Simulation {
             elapsed_time: Duration::from_secs(0),
             commands: vec![],
             time_multiplier: 1.0 * 5.0 * 60.0, // 1 second = 5 minutes
+            error_messages: vec![],
         }
     }
 
@@ -49,7 +53,11 @@ impl Simulation {
     fn execute_command(&mut self, command: Box<dyn Command>) {
         match command.execute(&mut self.environment) {
             Ok(Some(message)) => println!("{}", message),
-            Err(error) => println!("Error: {:?}", error),
+            Err(error) => {
+                println!("{}", error);
+                self.error_messages
+                    .push((self.elapsed_time.as_secs_f64(), error.to_string()));
+            }
             _ => {}
         }
     }

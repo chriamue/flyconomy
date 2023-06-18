@@ -6,6 +6,7 @@ use bevy_panorbit_camera::PanOrbitCamera;
 mod aerodromes_ui;
 mod game_over_screen;
 mod hud;
+mod messages;
 mod welcome_screen;
 
 use crate::{
@@ -28,6 +29,7 @@ impl Plugin for UiPlugin {
         app.add_plugin(welcome_screen::WelcomeScreenPlugin);
         app.add_plugin(game_over_screen::GameOverScreenPlugin);
         app.add_plugin(aerodromes_ui::AerodromesUiPlugin);
+        app.add_plugin(messages::MessagesPlugin);
         app.add_systems(
             (
                 company_hud,
