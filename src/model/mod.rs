@@ -5,6 +5,7 @@ pub mod commands;
 mod company_finances;
 mod environment;
 mod environment_config;
+pub mod events;
 mod flight;
 mod landing_rights;
 mod plane_type;
