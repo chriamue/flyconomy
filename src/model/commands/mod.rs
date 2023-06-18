@@ -1,11 +1,14 @@
 use std::sync::atomic::{AtomicUsize, Ordering};
-
-use crate::model::{Base, Flight, LandingRights};
+use thiserror::Error;
 
 use super::{flight::FlightState, Aerodrome, AirPlane, Environment, PlaneType};
+use crate::model::{Base, Flight, LandingRights};
 
 pub trait Command: Send + Sync {
-    fn execute(&self, environment: &mut Environment) -> Option<String>;
+    fn execute(
+        &self,
+        environment: &mut Environment,
+    ) -> Result<Option<String>, Box<dyn std::error::Error>>;
 }
 
 static PLANE_ID_COUNTER: AtomicUsize = AtomicUsize::new(0);
@@ -15,13 +18,24 @@ pub struct BuyPlaneCommand {
     pub home_base_id: u64,
 }
 
+#[derive(Debug, Error)]
+pub enum BuyPlaneError {
+    #[error("Insufficient funds: needed {needed}, but have {has}")]
+    InsufficientFunds { needed: f64, has: f64 },
+    #[error("Base not found")]
+    BaseNotFound { base_id: u64 },
+}
+
 impl Command for BuyPlaneCommand {
-    fn execute(&self, environment: &mut Environment) -> Option<String> {
+    fn execute(
+        &self,
+        environment: &mut Environment,
+    ) -> Result<Option<String>, Box<dyn std::error::Error>> {
         if environment.company_finances.cash < self.plane_type.cost as f64 {
-            return Some(format!(
-                "Not enough cash to buy plane: {}",
-                self.plane_type.name
-            ));
+            return Err(Box::new(BuyPlaneError::InsufficientFunds {
+                needed: self.plane_type.cost as f64,
+                has: environment.company_finances.cash,
+            }));
         }
         let airplane_id: u64 = PLANE_ID_COUNTER
             .fetch_add(1, Ordering::SeqCst)
@@ -32,16 +46,23 @@ impl Command for BuyPlaneCommand {
             base_id: self.home_base_id,
             plane_type: self.plane_type.clone(),
         };
-        environment
+
+        match environment
             .bases
             .iter_mut()
-            .find(|base| base.id == self.home_base_id)?
-            .airplane_ids
-            .push(airplane_id);
+            .find(|base| base.id == self.home_base_id)
+        {
+            Some(base) => base.airplane_ids.push(airplane_id),
+            None => {
+                return Err(Box::new(BuyPlaneError::BaseNotFound {
+                    base_id: self.home_base_id,
+                }))
+            }
+        }
 
         environment.company_finances.cash -= self.plane_type.cost as f64;
         environment.planes.push(airplane);
-        None
+        Ok(None)
     }
 }
 
@@ -51,11 +72,24 @@ pub struct CreateBaseCommand {
     pub aerodrome: Aerodrome,
 }
 
+#[derive(Debug, Error)]
+pub enum CreateBaseError {
+    #[error("Insufficient funds to create base: needed {needed}, but have {has}")]
+    InsufficientFunds { needed: f64, has: f64 },
+}
+
 impl Command for CreateBaseCommand {
-    fn execute(&self, environment: &mut Environment) -> Option<String> {
+    fn execute(
+        &self,
+        environment: &mut Environment,
+    ) -> Result<Option<String>, Box<dyn std::error::Error>> {
         if environment.company_finances.cash < environment.config.base_cost {
-            return Some(format!("Not enough cash to create base"));
+            return Err(Box::new(CreateBaseError::InsufficientFunds {
+                needed: environment.config.base_cost,
+                has: environment.company_finances.cash,
+            }));
         }
+
         environment.company_finances.cash -= environment.config.base_cost;
         let base_id = BASE_ID_COUNTER.fetch_add(1, Ordering::SeqCst);
         environment.bases.push(Base {
@@ -63,7 +97,7 @@ impl Command for CreateBaseCommand {
             aerodrome: self.aerodrome.clone(),
             airplane_ids: vec![],
         });
-        None
+        Ok(None)
     }
 }
 
@@ -73,10 +107,22 @@ pub struct BuyLandingRightsCommand {
     pub aerodrome: Aerodrome,
 }
 
+#[derive(Debug, Error)]
+pub enum BuyLandingRightsError {
+    #[error("Insufficient funds to buy landing rights: needed {needed}, but have {has}")]
+    InsufficientFunds { needed: f64, has: f64 },
+}
+
 impl Command for BuyLandingRightsCommand {
-    fn execute(&self, environment: &mut Environment) -> Option<String> {
+    fn execute(
+        &self,
+        environment: &mut Environment,
+    ) -> Result<Option<String>, Box<dyn std::error::Error>> {
         if environment.company_finances.cash < environment.config.landing_rights_cost {
-            return Some(format!("Not enough cash to buy landing rights"));
+            return Err(Box::new(BuyLandingRightsError::InsufficientFunds {
+                needed: environment.config.landing_rights_cost,
+                has: environment.company_finances.cash,
+            }));
         }
         environment.company_finances.cash -= environment.config.landing_rights_cost;
         environment.landing_rights.push(LandingRights {
@@ -86,7 +132,7 @@ impl Command for BuyLandingRightsCommand {
                 .try_into()
                 .unwrap(),
         });
-        None
+        Ok(None)
     }
 }
 
@@ -99,8 +145,17 @@ pub struct ScheduleFlightCommand {
     pub departure_time: u64,
 }
 
+#[derive(Debug, Error)]
+pub enum ScheduleFlightError {
+    #[error("Cannot schedule the flight because the airplane is already in use")]
+    AirplaneInUse,
+}
+
 impl Command for ScheduleFlightCommand {
-    fn execute(&self, environment: &mut Environment) -> Option<String> {
+    fn execute(
+        &self,
+        environment: &mut Environment,
+    ) -> Result<Option<String>, Box<dyn std::error::Error>> {
         // Check if the airplane is already in use for an ongoing flight
         let airplane_id = self.airplane.id;
         let is_airplane_in_use = environment
@@ -108,12 +163,11 @@ impl Command for ScheduleFlightCommand {
             .iter()
             .any(|flight| flight.airplane.id == airplane_id && flight.state != FlightState::Landed);
 
-        // If the airplane is in use, return an error message
+        // If the airplane is in use, return an error
         if is_airplane_in_use {
-            return Some(
-                "Cannot schedule the flight because the airplane is already in use".to_string(),
-            );
+            return Err(Box::new(ScheduleFlightError::AirplaneInUse));
         }
+
         let flight_id = FLIGHT_ID_COUNTER.fetch_add(1, Ordering::SeqCst);
 
         let flight = Flight {
@@ -132,6 +186,6 @@ impl Command for ScheduleFlightCommand {
         environment.company_finances.total_income += profit;
         environment.company_finances.cash += profit as f64;
 
-        None
+        Ok(None)
     }
 }

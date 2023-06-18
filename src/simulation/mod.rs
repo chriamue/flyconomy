@@ -47,8 +47,10 @@ impl Simulation {
     }
 
     fn execute_command(&mut self, command: Box<dyn Command>) {
-        if let Some(message) = command.execute(&mut self.environment) {
-            println!("{}", message);
+        match command.execute(&mut self.environment) {
+            Ok(Some(message)) => println!("{}", message),
+            Err(error) => println!("Error: {:?}", error),
+            _ => {}
         }
     }
 
