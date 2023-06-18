@@ -54,7 +54,7 @@ fn setup(
     if !aerodrome_system.setup_done {
         if let Some(aerodromes) = config_resource.aerodromes.as_ref() {
             #[cfg(target_arch = "wasm32")]
-            let aerodromes = aerodromes.iter().take(200).collect::<Vec<_>>();
+            let aerodromes = aerodromes.iter().take(2000).collect::<Vec<_>>();
             for aerodrome in aerodromes {
                 let position =
                     wgs84_to_xyz(aerodrome.lat, aerodrome.lon, 0.0) * earth3d::SCALE_FACTOR as f32;

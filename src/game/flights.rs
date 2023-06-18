@@ -6,6 +6,7 @@ use bevy_polyline::prelude::{Polyline, PolylineBundle, PolylineMaterial};
 use bevy_polyline::PolylinePlugin;
 
 use crate::game::{earth3d, projection::wgs84_to_xyz};
+use crate::model::FlightState;
 
 use super::{GameResource, GameState};
 
@@ -31,24 +32,26 @@ pub fn draw_flight_paths_system(
 
     let flight_query = game_resource.simulation.environment.flights.iter();
 
-    for flight in flight_query {
+    for flight in flight_query.filter(|flight| flight.state == FlightState::EnRoute) {
         let origin = &flight.origin_aerodrome;
         let destination = &flight.destination_aerodrome;
         let start_point = wgs84_to_xyz(origin.lat, origin.lon, 0.0) * earth3d::SCALE_FACTOR as f32;
         let end_point =
             wgs84_to_xyz(destination.lat, destination.lon, 0.0) * earth3d::SCALE_FACTOR as f32;
-        commands.spawn(PolylineBundle {
-            polyline: polylines.add(Polyline {
-                vertices: vec![start_point, end_point],
-            }),
-            material: polyline_materials.add(PolylineMaterial {
-                width: 2.0,
-                color: Color::RED,
-                perspective: false,
-                depth_bias: -0.0002,
-            }),
-            ..Default::default()
-        });
+        commands
+            .spawn(PolylineBundle {
+                polyline: polylines.add(Polyline {
+                    vertices: vec![start_point, end_point],
+                }),
+                material: polyline_materials.add(PolylineMaterial {
+                    width: 2.0,
+                    color: Color::RED,
+                    perspective: false,
+                    depth_bias: -0.0002,
+                }),
+                ..Default::default()
+            })
+            .insert(FlightLine);
     }
 }
 
