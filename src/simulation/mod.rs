@@ -2,7 +2,10 @@ use std::time::Duration;
 
 use crate::model::{
     commands::Command,
-    events::{AirplaneLandedEvent, AirplaneLandedEventHandler, AirplaneTakeoffEvent, EventManager},
+    events::{
+        AirplaneLandedEvent, AirplaneLandedEventHandler, AirplaneTakeoffEvent,
+        BuyLandingRightsEvent, BuyPlaneEvent, CreateBaseEvent, EventManager,
+    },
     Environment, EnvironmentConfig, FlightState,
 };
 
@@ -82,13 +85,38 @@ impl Simulation {
 
     fn execute_command(&mut self, command: Box<dyn Command>) {
         match command.execute(&mut self.environment) {
-            Ok(Some(message)) => println!("{}", message),
+            Ok(_message) => {
+                if let Some(command) = command
+                    .as_any()
+                    .downcast_ref::<crate::model::commands::BuyPlaneCommand>()
+                {
+                    self.event_manager.add_event(Box::new(BuyPlaneEvent {
+                        plane_type: command.plane_type.clone(),
+                    }));
+                }
+                if let Some(command) = command
+                    .as_any()
+                    .downcast_ref::<crate::model::commands::CreateBaseCommand>()
+                {
+                    self.event_manager.add_event(Box::new(CreateBaseEvent {
+                        aerodrome: command.aerodrome.clone(),
+                    }));
+                }
+                if let Some(command) = command
+                    .as_any()
+                    .downcast_ref::<crate::model::commands::BuyLandingRightsCommand>(
+                ) {
+                    self.event_manager
+                        .add_event(Box::new(BuyLandingRightsEvent {
+                            aerodrome: command.aerodrome.clone(),
+                        }));
+                }
+            }
             Err(error) => {
                 println!("{}", error);
                 self.error_messages
                     .push((self.elapsed_time.as_secs_f64(), error.to_string()));
             }
-            _ => {}
         }
     }
 

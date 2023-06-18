@@ -1,6 +1,6 @@
 use std::any::Any;
 
-use super::Flight;
+use super::{Aerodrome, Flight, PlaneType};
 
 mod event_handlers;
 mod event_manager;
@@ -47,5 +47,47 @@ impl Event for AirplaneTakeoffEvent {
             "Flight {} started from {}",
             self.flight.flight_id, self.flight.origin_aerodrome.name
         )
+    }
+}
+
+pub struct BuyPlaneEvent {
+    pub plane_type: PlaneType,
+}
+
+impl Event for BuyPlaneEvent {
+    fn as_any(&self) -> &dyn Any {
+        self
+    }
+
+    fn message(&self) -> String {
+        format!("Bought airplane {}", self.plane_type.name)
+    }
+}
+
+pub struct CreateBaseEvent {
+    pub aerodrome: Aerodrome,
+}
+
+impl Event for CreateBaseEvent {
+    fn as_any(&self) -> &dyn Any {
+        self
+    }
+
+    fn message(&self) -> String {
+        format!("Created base at {}", self.aerodrome.name)
+    }
+}
+
+pub struct BuyLandingRightsEvent {
+    pub aerodrome: Aerodrome,
+}
+
+impl Event for BuyLandingRightsEvent {
+    fn as_any(&self) -> &dyn Any {
+        self
+    }
+
+    fn message(&self) -> String {
+        format!("Bought landing rights at {}", self.aerodrome.name)
     }
 }

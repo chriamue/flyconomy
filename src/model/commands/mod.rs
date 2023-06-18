@@ -1,10 +1,14 @@
-use std::sync::atomic::{AtomicUsize, Ordering};
+use std::{
+    any::Any,
+    sync::atomic::{AtomicUsize, Ordering},
+};
 use thiserror::Error;
 
 use super::{flight::FlightState, Aerodrome, AirPlane, Environment, PlaneType};
 use crate::model::{Base, Flight, LandingRights};
 
 pub trait Command: Send + Sync {
+    fn as_any(&self) -> &dyn Any;
     fn execute(
         &self,
         environment: &mut Environment,
@@ -64,6 +68,10 @@ impl Command for BuyPlaneCommand {
         environment.planes.push(airplane);
         Ok(None)
     }
+
+    fn as_any(&self) -> &dyn Any {
+        self
+    }
 }
 
 static BASE_ID_COUNTER: AtomicUsize = AtomicUsize::new(0);
@@ -99,6 +107,10 @@ impl Command for CreateBaseCommand {
         });
         Ok(None)
     }
+
+    fn as_any(&self) -> &dyn Any {
+        self
+    }
 }
 
 static LANDING_RIGHTS_ID_COUNTER: AtomicUsize = AtomicUsize::new(0);
@@ -133,6 +145,10 @@ impl Command for BuyLandingRightsCommand {
                 .unwrap(),
         });
         Ok(None)
+    }
+
+    fn as_any(&self) -> &dyn Any {
+        self
     }
 }
 
@@ -187,5 +203,9 @@ impl Command for ScheduleFlightCommand {
         environment.company_finances.cash += profit as f64;
 
         Ok(None)
+    }
+
+    fn as_any(&self) -> &dyn Any {
+        self
     }
 }
