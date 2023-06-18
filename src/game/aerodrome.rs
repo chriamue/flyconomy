@@ -61,7 +61,7 @@ fn setup(
                 let mesh_handle = meshes.add(
                     Mesh::try_from(shape::Icosphere {
                         radius: 12_000.0 * earth3d::SCALE_FACTOR as f32,
-                        subdivisions: 4,
+                        subdivisions: 1,
                     })
                     .unwrap(),
                 );
