@@ -7,3 +7,9 @@ pub struct Aerodrome {
     pub lon: f64,
     pub name: String,
 }
+
+impl Aerodrome {
+    pub fn new(id: u64, lat: f64, lon: f64, name: String) -> Self {
+        Self { id, lat, lon, name }
+    }
+}

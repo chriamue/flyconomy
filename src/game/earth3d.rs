@@ -125,13 +125,12 @@ fn setup(
         })
         .insert((Earth, Spin(SPIN), Name::new("Earth")));
 
-    commands
-        .spawn(PointLightBundle {
-            point_light: PointLight {
-                intensity: 500.0,
-                ..default()
-            },
-            transform: Transform::from_xyz(2.0, 0.5, 2.0),
+    commands.spawn(PointLightBundle {
+        point_light: PointLight {
+            intensity: 500.0,
             ..default()
-        });
+        },
+        transform: Transform::from_xyz(2.0, 0.5, 2.0),
+        ..default()
+    });
 }

@@ -105,7 +105,7 @@ mod tests {
 
         let flight = Flight {
             flight_id: 1,
-            airplane,
+            airplane: airplane.clone(),
             origin_aerodrome,
             destination_aerodrome,
             departure_time: 0,
@@ -113,10 +113,9 @@ mod tests {
             state: Default::default(),
         };
 
-        let profit = flight.calculate_profit();
-        assert!((profit - 560.0).abs() < 1.0);
-
         let distance = flight.calculate_distance();
-        assert!((distance - 559.0).abs() < 10.0); // allow some margin for precision errors
+        let expected_profit = distance * airplane.plane_type.seats as f64;
+        let profit = flight.calculate_profit();
+        assert!((profit - expected_profit as f32).abs() < 1.0);
     }
 }

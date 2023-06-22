@@ -10,6 +10,9 @@ use crate::model::{
     Environment, EnvironmentConfig, FlightState,
 };
 
+#[cfg(test)]
+mod tests;
+
 type Timestamp = f64;
 
 pub struct Simulation {
