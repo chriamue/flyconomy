@@ -133,15 +133,5 @@ fn setup(
             },
             transform: Transform::from_xyz(2.0, 0.5, 2.0),
             ..default()
-        })
-        .with_children(|cmd| {
-            let sphere = shape::Icosphere {
-                radius: 0.05,
-                subdivisions: 3,
-            };
-            cmd.spawn(PbrBundle {
-                mesh: meshes.add(sphere.try_into().unwrap()),
-                ..default()
-            });
         });
 }
