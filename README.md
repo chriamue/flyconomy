@@ -1,5 +1,10 @@
 # Flyconomy ✈️💰
 
+[![Status](https://img.shields.io/badge/status-ideation-blue.svg)](https://github.com/chriamue/flyconomy)
+[![Github Repo](https://img.shields.io/badge/github-repo-green.svg)](https://github.com/chriamue/flyconomy)
+[![License: MIT](https://img.shields.io/badge/License-MIT-yellow.svg)](https://opensource.org/licenses/MIT)
+[![codecov](https://codecov.io/gh/chriamue/flyconomy/branch/main/graph/badge.svg?token=WTP4TXR51N)](https://codecov.io/gh/chriamue/flyconomy)
+
 Flyconomy is a 2D economic simulation game where players manage their own airline company with the goal of maximizing profits. Players must strategically plan flight routes, manage their fleet of aircraft, and adapt to fluctuating fuel prices, while navigating the demands of a realistic network of airports across the globe.
 
 ## Features 🚀
