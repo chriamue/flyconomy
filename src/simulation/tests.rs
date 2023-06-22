@@ -1,7 +1,9 @@
 use crate::{
     config::PlanesConfig,
     model::{
-        commands::{BuyLandingRightsCommand, BuyPlaneCommand, CreateBaseCommand},
+        commands::{
+            BuyLandingRightsCommand, BuyPlaneCommand, CreateBaseCommand, ScheduleFlightCommand,
+        },
         Aerodrome,
     },
 };
@@ -57,4 +59,18 @@ fn test_simulation() {
     assert_eq!(simulation.environment.bases.len(), 1);
     assert_eq!(simulation.environment.landing_rights.len(), 1);
     assert_eq!(simulation.environment.flights.len(), 0);
+
+    let flight_command = ScheduleFlightCommand {
+        airplane: simulation.environment.planes[0].clone(),
+        origin_aerodrome: frankfurt_aerodrome.clone(),
+        destination_aerodrome: paris_aerodrome.clone(),
+        departure_time: (simulation.elapsed_time + Duration::from_secs(1)).as_secs(),
+    };
+
+    simulation.add_command(Box::new(flight_command));
+
+    simulation.update(Duration::from_secs(1));
+
+    assert_eq!(simulation.environment.planes.len(), 1);
+    assert_eq!(simulation.environment.flights.len(), 1);
 }
