@@ -1,12 +1,15 @@
 use bevy::prelude::Vec3;
 
-const WGS84_A: f64 = 6_378_137.0; // Semi-major axis
+use super::earth3d::EARTH_RADIUS;
+
+const WGS84_A: f64 = EARTH_RADIUS; // Semi-major axis
 const WGS84_E: f64 = 0.0818191908426; // First eccentricity
 
 /// Converts a GPS coordinate to a 3D point on a sphere.
 ///
 /// * `lat` - Latitude in degrees.
 /// * `lon` - Longitude in degrees.
+/// * `alt` - Altitude in meters.
 ///
 /// # Returns
 ///

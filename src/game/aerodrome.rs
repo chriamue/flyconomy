@@ -15,6 +15,9 @@ use crate::{
 
 use super::ConfigResource;
 
+const AERODROME_COLOR: Color = Color::rgb(0.0, 0.0, 1.0);
+const AERODROME_COLOR_SELECTED: Color = Color::rgb(1.0, 0.0, 0.0);
+
 pub struct AerodromePlugin;
 
 impl Plugin for AerodromePlugin {
@@ -66,11 +69,9 @@ fn setup(
                     .unwrap(),
                 );
                 let material_handle = materials.add(StandardMaterial {
-                    base_color: Color::rgb(0.0, 0.0, 1.0),
+                    base_color: AERODROME_COLOR,
                     ..Default::default()
                 });
-
-                println!("Adding aerodrome: {:?} at {:?}", aerodrome, position);
 
                 commands
                     .spawn((
@@ -129,7 +130,7 @@ fn handle_selected_aerodrome_change_event(
                 if aerodrome_component.0 == *selected_aerodrome {
                     if let Ok(material_handle) = mesh_query.get(entity) {
                         if let Some(mut material) = materials.get_mut(material_handle) {
-                            material.base_color = Color::rgb(0.0, 0.0, 1.0);
+                            material.base_color = AERODROME_COLOR;
                         }
                     }
                     if let Ok(mut transform) = transform_query.get_mut(entity) {
@@ -145,7 +146,7 @@ fn handle_selected_aerodrome_change_event(
                 selected_aerodrome.aerodrome = Some(aerodrome.clone());
                 if let Ok(material_handle) = mesh_query.get(entity) {
                     if let Some(mut material) = materials.get_mut(material_handle) {
-                        material.base_color = Color::rgb(1.0, 0.0, 0.0);
+                        material.base_color = AERODROME_COLOR_SELECTED;
                     }
                 }
                 if let Ok(mut transform) = transform_query.get_mut(entity) {

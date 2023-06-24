@@ -6,7 +6,7 @@ use bevy::{prelude::*, render::render_resource::TextureFormat};
 use bevy_mod_paramap::{ParallaxAlgo, ParallaxMaterial, ParallaxMaterialPlugin};
 //use bevy_mod_paramap::*;
 
-pub const EARTH_RADIUS: f64 = 6_371_000.0;
+pub const EARTH_RADIUS: f64 = 6_378_137.0;
 pub const SIMULATION_EARTH_RADIUS: f64 = 1.0;
 pub const SCALE_FACTOR: f64 = SIMULATION_EARTH_RADIUS / EARTH_RADIUS;
 
