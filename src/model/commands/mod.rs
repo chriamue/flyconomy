@@ -1,3 +1,4 @@
+use serde::{Deserialize, Serialize};
 use std::{
     any::Any,
     sync::atomic::{AtomicUsize, Ordering},
@@ -13,10 +14,22 @@ pub trait Command: Send + Sync {
         &self,
         environment: &mut Environment,
     ) -> Result<Option<String>, Box<dyn std::error::Error>>;
+    fn clone_box(&self) -> Box<dyn Command>;
+}
+
+impl Clone for Box<dyn Command> {
+    fn clone(&self) -> Self {
+        self.clone_box()
+    }
+}
+
+pub trait TypeName {
+    fn type_name(&self) -> &'static str;
 }
 
 static PLANE_ID_COUNTER: AtomicUsize = AtomicUsize::new(0);
 
+#[derive(Debug, Clone, Serialize, Deserialize)]
 pub struct BuyPlaneCommand {
     pub plane_type: PlaneType,
     pub home_base_id: u64,
@@ -72,10 +85,15 @@ impl Command for BuyPlaneCommand {
     fn as_any(&self) -> &dyn Any {
         self
     }
+
+    fn clone_box(&self) -> Box<dyn Command> {
+        Box::new(self.clone())
+    }
 }
 
 static BASE_ID_COUNTER: AtomicUsize = AtomicUsize::new(0);
 
+#[derive(Debug, Clone, Serialize, Deserialize)]
 pub struct CreateBaseCommand {
     pub aerodrome: Aerodrome,
 }
@@ -111,10 +129,15 @@ impl Command for CreateBaseCommand {
     fn as_any(&self) -> &dyn Any {
         self
     }
+
+    fn clone_box(&self) -> Box<dyn Command> {
+        Box::new(self.clone())
+    }
 }
 
 static LANDING_RIGHTS_ID_COUNTER: AtomicUsize = AtomicUsize::new(0);
 
+#[derive(Debug, Clone, Serialize, Deserialize)]
 pub struct BuyLandingRightsCommand {
     pub aerodrome: Aerodrome,
 }
@@ -150,10 +173,15 @@ impl Command for BuyLandingRightsCommand {
     fn as_any(&self) -> &dyn Any {
         self
     }
+
+    fn clone_box(&self) -> Box<dyn Command> {
+        Box::new(self.clone())
+    }
 }
 
 static FLIGHT_ID_COUNTER: AtomicUsize = AtomicUsize::new(0);
 
+#[derive(Debug, Clone, Serialize, Deserialize)]
 pub struct ScheduleFlightCommand {
     pub airplane: AirPlane,
     pub origin_aerodrome: Aerodrome,
@@ -215,6 +243,10 @@ impl Command for ScheduleFlightCommand {
 
     fn as_any(&self) -> &dyn Any {
         self
+    }
+
+    fn clone_box(&self) -> Box<dyn Command> {
+        Box::new(self.clone())
     }
 }
 

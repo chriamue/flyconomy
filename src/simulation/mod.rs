@@ -10,6 +10,9 @@ use crate::model::{
     Environment, EnvironmentConfig, FlightState,
 };
 
+#[cfg(not(target_arch = "wasm32"))]
+pub mod replay;
+
 #[cfg(test)]
 mod tests;
 
@@ -23,6 +26,7 @@ pub struct Simulation {
     pub error_messages: Vec<(Timestamp, String)>,
     pub event_messages: Vec<(Timestamp, String)>,
     pub event_manager: EventManager,
+    pub command_history: Vec<(Timestamp, Box<dyn Command>)>,
 }
 
 impl Simulation {
@@ -35,6 +39,7 @@ impl Simulation {
             error_messages: vec![],
             event_messages: vec![],
             event_manager: EventManager::default(),
+            command_history: vec![],
         };
         simulation.setup();
         simulation
@@ -86,6 +91,8 @@ impl Simulation {
     }
 
     pub fn add_command(&mut self, command: Box<dyn Command>) {
+        self.command_history
+            .push((self.elapsed_time.as_secs_f64(), command.clone_box()));
         self.commands.push(command);
     }
 
