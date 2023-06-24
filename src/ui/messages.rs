@@ -12,7 +12,7 @@ impl Plugin for MessagesPlugin {
 }
 
 pub fn show_error_messages(mut contexts: EguiContexts, game_resource: Res<GameResource>) {
-    let elapsed_time = game_resource.simulation.elapsed_time.as_secs_f64();
+    let elapsed_time = game_resource.simulation.elapsed_time.as_millis();
     let time_multiplier = game_resource.simulation.time_multiplier;
 
     if !game_resource.simulation.error_messages.is_empty() {
@@ -20,7 +20,7 @@ pub fn show_error_messages(mut contexts: EguiContexts, game_resource: Res<GameRe
             .default_open(true)
             .show(contexts.ctx_mut(), |ui| {
                 for message in &game_resource.simulation.error_messages {
-                    if elapsed_time - message.0 < 8.0 * time_multiplier {
+                    if elapsed_time - message.0 < (8_000.0 * time_multiplier) as u128 {
                         let text = format!("{:.0}, {}", message.0, message.1);
                         ui.label(text);
                     }
@@ -30,7 +30,7 @@ pub fn show_error_messages(mut contexts: EguiContexts, game_resource: Res<GameRe
 }
 
 pub fn show_event_messages(mut contexts: EguiContexts, game_resource: Res<GameResource>) {
-    let elapsed_time = game_resource.simulation.elapsed_time.as_secs_f64();
+    let elapsed_time = game_resource.simulation.elapsed_time.as_millis();
     let time_multiplier = game_resource.simulation.time_multiplier;
 
     if !game_resource.simulation.event_messages.is_empty() {
@@ -38,7 +38,7 @@ pub fn show_event_messages(mut contexts: EguiContexts, game_resource: Res<GameRe
             .default_open(true)
             .show(contexts.ctx_mut(), |ui| {
                 for message in &game_resource.simulation.event_messages {
-                    if elapsed_time - message.0 < 10.0 * time_multiplier {
+                    if elapsed_time - message.0 < (10_000.0 * time_multiplier) as u128 {
                         let text = format!("{:.0}, {}", message.0, message.1);
                         ui.label(text);
                     }

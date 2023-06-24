@@ -19,3 +19,6 @@ pub use environment_config::EnvironmentConfig;
 pub use flight::{Flight, FlightState};
 pub use landing_rights::LandingRights;
 pub use plane_type::PlaneType;
+
+/// Timestamp in milliseconds
+pub type Timestamp = u128;

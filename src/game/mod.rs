@@ -48,12 +48,12 @@ impl GameResource {
 
     pub fn from_replay(replay: Replay) -> Self {
         let mut simulation = Simulation::new(replay.initial_config);
-        let mut last_timestamp = 0.0;
-        for (timestamp, command) in replay.command_history {
-            simulation.execute_command(command);
-            let delta = timestamp - last_timestamp;
-            last_timestamp = timestamp;
-            simulation.update(Duration::from_millis((delta * 1000.0) as u64));
+        let mut last_timestamp = 0u128;
+        for timestamped_command in replay.command_history {
+            simulation.execute_command(timestamped_command.command);
+            let delta = timestamped_command.timestamp - last_timestamp;
+            last_timestamp = timestamped_command.timestamp;
+            simulation.update(Duration::from_millis(delta as u64));
         }
 
         Self {

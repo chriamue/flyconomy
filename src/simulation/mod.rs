@@ -1,32 +1,29 @@
 use std::time::Duration;
 
 use crate::model::{
-    commands::Command,
+    commands::{Command, TimestampedCommand},
     events::{
         AirplaneLandedEvent, AirplaneLandedEventHandler, AirplaneTakeoffEvent,
         AirplaneTakeoffEventHandler, BuyLandingRightsEvent, BuyPlaneEvent, CreateBaseEvent,
         EventManager,
     },
-    Environment, EnvironmentConfig, FlightState,
+    Environment, EnvironmentConfig, FlightState, Timestamp,
 };
 
-#[cfg(not(target_arch = "wasm32"))]
 pub mod replay;
 
 #[cfg(test)]
 mod tests;
 
-type Timestamp = f64;
-
 pub struct Simulation {
     pub environment: Environment,
     pub elapsed_time: Duration,
-    commands: Vec<Box<dyn Command>>,
+    commands: Vec<TimestampedCommand>,
     pub time_multiplier: f64,
     pub error_messages: Vec<(Timestamp, String)>,
     pub event_messages: Vec<(Timestamp, String)>,
     pub event_manager: EventManager,
-    pub command_history: Vec<(Timestamp, Box<dyn Command>)>,
+    pub command_history: Vec<TimestampedCommand>,
 }
 
 impl Simulation {
@@ -59,8 +56,17 @@ impl Simulation {
         self.elapsed_time += effective_delta_time;
         self.environment.timestamp += effective_delta_time.as_secs_f64();
 
-        let commands = self.commands.drain(..).collect::<Vec<_>>();
-        for command in commands {
+        let mut to_execute = vec![];
+        self.commands.retain(|command| {
+            if self.elapsed_time.as_millis() >= command.timestamp {
+                to_execute.push(command.command.clone());
+                false
+            } else {
+                true
+            }
+        });
+
+        for command in to_execute {
             self.execute_command(command);
         }
 
@@ -91,8 +97,13 @@ impl Simulation {
     }
 
     pub fn add_command(&mut self, command: Box<dyn Command>) {
-        self.command_history
-            .push((self.elapsed_time.as_secs_f64(), command.clone_box()));
+        let timestamped_command =
+            TimestampedCommand::new(self.elapsed_time.as_millis(), command.clone());
+        self.add_command_timed(timestamped_command)
+    }
+
+    pub fn add_command_timed(&mut self, command: TimestampedCommand) {
+        self.command_history.push(command.clone());
         self.commands.push(command);
     }
 
@@ -128,7 +139,7 @@ impl Simulation {
             Err(error) => {
                 println!("{}", error);
                 self.error_messages
-                    .push((self.elapsed_time.as_secs_f64(), error.to_string()));
+                    .push((self.elapsed_time.as_millis(), error.to_string()));
             }
         }
     }
@@ -148,7 +159,7 @@ impl Simulation {
     pub fn handle_events(&mut self) {
         for event in self.event_manager.handle_events(&mut self.environment) {
             self.event_messages.push((
-                self.elapsed_time.as_secs_f64(),
+                self.elapsed_time.as_millis(),
                 format!("{}", event.message()),
             ));
         }

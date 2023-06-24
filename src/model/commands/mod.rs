@@ -8,6 +8,10 @@ use thiserror::Error;
 use super::{flight::FlightState, Aerodrome, AirPlane, Environment, PlaneType};
 use crate::model::{Base, Flight, LandingRights};
 
+mod timestamped_command;
+
+pub use timestamped_command::TimestampedCommand;
+
 pub trait Command: Send + Sync {
     fn as_any(&self) -> &dyn Any;
     fn execute(
