@@ -2,12 +2,30 @@ use csv::{ByteRecord, ReaderBuilder};
 use serde::{Deserialize, Serialize};
 use serde_json::Value;
 
-use crate::model::{Aerodrome, PlaneType};
+use crate::model::{Aerodrome, EnvironmentConfig, PlaneType};
 
 #[derive(Serialize, Deserialize, Debug, bevy::reflect::TypeUuid, Clone)]
 #[uuid = "0f597d24-3263-4083-ace3-f971d2a820b7"]
 pub struct PlanesConfig {
     pub planes: Vec<PlaneType>,
+}
+
+#[derive(Serialize, Deserialize, Debug, bevy::reflect::TypeUuid, Clone)]
+#[uuid = "0f597d24-3263-4083-ace3-f971d2a820b8"]
+pub struct LevelConfig {
+    pub name: String,
+    pub description: String,
+    pub environment: EnvironmentConfig,
+}
+
+impl Default for LevelConfig {
+    fn default() -> Self {
+        Self {
+            name: String::from("Default"),
+            description: String::from("Default level"),
+            environment: Default::default(),
+        }
+    }
 }
 
 #[derive(Serialize, Deserialize, Debug, bevy::reflect::TypeUuid, Clone)]

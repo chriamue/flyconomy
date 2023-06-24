@@ -15,6 +15,7 @@ use bevy_egui::EguiPlugin;
 use bevy_mod_picking::DefaultPickingPlugins;
 pub use game_state::GameState;
 
+use crate::config::LevelConfig;
 use crate::{
     config::{parse_airport_csv, AerodromeConfig, PlanesConfig},
     model::Aerodrome,
@@ -24,13 +25,31 @@ use crate::{
 
 #[derive(Resource)]
 pub struct GameResource {
+    pub level: String,
     pub simulation: Simulation,
+}
+
+impl GameResource {
+    pub fn new(level: String) -> Self {
+        let level_config: LevelConfig = match level.as_str() {
+            "default" => LevelConfig::default(),
+            "level1" => serde_yaml::from_str(include_str!("../../assets/levels/level1.yaml"))
+                .expect("Failed to load level1"),
+            _ => panic!("Unknown level {}", level),
+        };
+
+        Self {
+            level,
+            simulation: Simulation::new(level_config.environment),
+        }
+    }
 }
 
 impl Default for GameResource {
     fn default() -> Self {
         Self {
-            simulation: Simulation::new(Default::default()),
+            level: String::from("default"),
+            simulation: Simulation::new(LevelConfig::default().environment),
         }
     }
 }
@@ -42,6 +61,7 @@ pub struct ConfigResource {
     pub planes_config: Option<PlanesConfig>,
     pub aerodrome_config: Option<AerodromeConfig>,
     pub aerodromes: Option<Vec<Aerodrome>>,
+    pub level_config: Option<LevelConfig>,
 }
 
 pub fn setup_game(app: &mut App, game_resource: GameResource) {
@@ -94,6 +114,10 @@ fn load_config_assets(asset_server: Res<AssetServer>, mut config_resource: ResMu
     let aerodromes = parse_airport_csv(include_str!("../../assets/airports.dat"));
     config_resource.aerodromes = Some(aerodromes);
 
+    let level_config: LevelConfig =
+        serde_yaml::from_str(include_str!("../../assets/levels/level1.yaml")).unwrap();
+    config_resource.level_config = Some(level_config);
+
     #[cfg(target_arch = "wasm32")]
     {
         let planes_config: PlanesConfig =
@@ -141,7 +165,8 @@ fn update_simulation_system(
 
 #[cfg_attr(target_arch = "wasm32", wasm_bindgen::prelude::wasm_bindgen(start))]
 pub fn start() {
-    let game_resource = GameResource::default();
+    let level = "level1".to_string();
+    let game_resource = GameResource::new(level);
 
     let mut app = App::new();
 
