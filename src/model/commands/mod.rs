@@ -217,3 +217,153 @@ impl Command for ScheduleFlightCommand {
         self
     }
 }
+
+#[cfg(test)]
+mod tests {
+    use super::*;
+
+    #[test]
+    fn test_buy_plane_insufficient_funds() {
+        let mut environment = Environment::default();
+        environment.company_finances.cash = 100.0; // Not enough for any plane
+
+        let plane_type = PlaneType::default();
+
+        let cmd = BuyPlaneCommand {
+            plane_type: plane_type.clone(),
+            home_base_id: 0,
+        };
+
+        match cmd.execute(&mut environment) {
+            Err(e) => {
+                let err = e.downcast::<BuyPlaneError>().unwrap();
+                assert!(matches!(*err, BuyPlaneError::InsufficientFunds { .. }));
+            }
+            _ => panic!("Expected an error"),
+        }
+    }
+
+    #[test]
+    fn test_buy_plane_base_not_found() {
+        let mut environment = Environment::default();
+
+        let plane_type = PlaneType::default();
+
+        let cmd = BuyPlaneCommand {
+            plane_type: plane_type.clone(),
+            home_base_id: 0, // Base with id 0 does not exist
+        };
+
+        match cmd.execute(&mut environment) {
+            Err(e) => {
+                let err = e.downcast::<BuyPlaneError>().unwrap();
+                assert!(matches!(*err, BuyPlaneError::BaseNotFound { .. }));
+            }
+            _ => panic!("Expected an error"),
+        }
+    }
+
+    #[test]
+    fn test_create_base_insufficient_funds() {
+        let mut environment = Environment::default();
+        environment.company_finances.cash = 500.0; // Not enough for a base
+
+        let aerodrome = Aerodrome::default();
+
+        let cmd = CreateBaseCommand {
+            aerodrome: aerodrome.clone(),
+        };
+
+        match cmd.execute(&mut environment) {
+            Err(e) => {
+                let err = e.downcast::<CreateBaseError>().unwrap();
+                assert!(matches!(*err, CreateBaseError::InsufficientFunds { .. }));
+            }
+            _ => panic!("Expected an error"),
+        }
+    }
+
+    #[test]
+    fn test_buy_landing_rights_insufficient_funds() {
+        let mut environment = Environment::default();
+        environment.company_finances.cash = 200.0; // Not enough for landing rights
+
+        let aerodrome = Aerodrome::default();
+
+        let cmd = BuyLandingRightsCommand {
+            aerodrome: aerodrome.clone(),
+        };
+
+        match cmd.execute(&mut environment) {
+            Err(e) => {
+                let err = e.downcast::<BuyLandingRightsError>().unwrap();
+                assert!(matches!(
+                    *err,
+                    BuyLandingRightsError::InsufficientFunds { .. }
+                ));
+            }
+            _ => panic!("Expected an error"),
+        }
+    }
+
+    #[test]
+    fn test_schedule_flight_airplane_in_use() {
+        let mut environment = Environment::default();
+
+        let airplane = AirPlane::default();
+        let aerodrome = Aerodrome::default();
+
+        // Add a flight to the environment using the same airplane
+        environment.flights.push(Flight {
+            flight_id: 1,
+            airplane: airplane.clone(),
+            origin_aerodrome: aerodrome.clone(),
+            destination_aerodrome: aerodrome.clone(),
+            departure_time: 1,
+            arrival_time: None,
+            state: FlightState::Scheduled,
+        });
+
+        let cmd = ScheduleFlightCommand {
+            airplane: airplane.clone(),
+            origin_aerodrome: aerodrome.clone(),
+            destination_aerodrome: aerodrome.clone(),
+            departure_time: 2,
+        };
+
+        match cmd.execute(&mut environment) {
+            Err(e) => {
+                let err = e.downcast::<ScheduleFlightError>().unwrap();
+                assert!(matches!(*err, ScheduleFlightError::AirplaneInUse));
+            }
+            _ => panic!("Expected an error"),
+        }
+    }
+
+    #[test]
+    fn test_schedule_flight_distance_beyond_range() {
+        let mut environment = Environment::default();
+
+        let airplane = AirPlane::default();
+        let origin_aerodrome = Aerodrome::default();
+        let mut destination_aerodrome = Aerodrome::default();
+        // Change latitude and longitude so that the distance exceeds the airplane's range
+        destination_aerodrome.lat += 50.0;
+        destination_aerodrome.lon += 50.0;
+
+        let cmd = ScheduleFlightCommand {
+            airplane: airplane.clone(),
+            origin_aerodrome: origin_aerodrome.clone(),
+            destination_aerodrome: destination_aerodrome.clone(),
+            departure_time: 1,
+        };
+
+        match cmd.execute(&mut environment) {
+            Err(e) => {
+                let err = e.downcast::<ScheduleFlightError>().unwrap();
+                assert!(matches!(*err, ScheduleFlightError::DistanceBeyondRange));
+            }
+            _ => panic!("Expected an error"),
+        }
+    }
+}
