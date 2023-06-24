@@ -1,3 +1,5 @@
+use std::time::Duration;
+
 use bevy::diagnostic::LogDiagnosticsPlugin;
 use bevy::{diagnostic::FrameTimeDiagnosticsPlugin, prelude::*};
 
@@ -20,7 +22,7 @@ use crate::{
     config::{parse_airport_csv, AerodromeConfig, PlanesConfig},
     model::Aerodrome,
     simulation::Simulation,
-    ui,
+    ui, Replay,
 };
 
 #[derive(Resource)]
@@ -41,6 +43,22 @@ impl GameResource {
         Self {
             level,
             simulation: Simulation::new(level_config.environment),
+        }
+    }
+
+    pub fn from_replay(replay: Replay) -> Self {
+        let mut simulation = Simulation::new(replay.initial_config);
+        let mut last_timestamp = 0.0;
+        for (timestamp, command) in replay.command_history {
+            simulation.execute_command(command);
+            let delta = timestamp - last_timestamp;
+            last_timestamp = timestamp;
+            simulation.update(Duration::from_millis((delta * 1000.0) as u64));
+        }
+
+        Self {
+            level: String::from("replay"),
+            simulation,
         }
     }
 }
@@ -167,6 +185,30 @@ fn update_simulation_system(
 pub fn start() {
     let level = "level1".to_string();
     let game_resource = GameResource::new(level);
+
+    let mut app = App::new();
+
+    app.add_plugins(
+        DefaultPlugins
+            .set(WindowPlugin {
+                primary_window: Some(Window {
+                    title: "Flyconomy".into(),
+                    resolution: (1280., 720.).into(),
+                    fit_canvas_to_parent: true,
+                    prevent_default_event_handling: true,
+                    canvas: Some("#bevy".to_string()),
+                    ..default()
+                }),
+                ..default()
+            })
+            .set(AssetPlugin { ..default() }),
+    );
+    setup_game(&mut app, game_resource);
+    app.run()
+}
+
+pub fn start_from_replay(replay: Replay) {
+    let game_resource = GameResource::from_replay(replay);
 
     let mut app = App::new();
 

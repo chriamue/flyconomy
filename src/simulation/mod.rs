@@ -96,7 +96,7 @@ impl Simulation {
         self.commands.push(command);
     }
 
-    fn execute_command(&mut self, command: Box<dyn Command>) {
+    pub fn execute_command(&mut self, command: Box<dyn Command>) {
         match command.execute(&mut self.environment) {
             Ok(_message) => {
                 if let Some(command) = command
