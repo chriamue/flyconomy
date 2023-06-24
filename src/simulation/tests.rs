@@ -15,12 +15,8 @@ fn test_simulation() {
     let mut simulation = Simulation::new(Default::default());
     simulation.setup();
 
-    let paris_aerodrome = Aerodrome::new(
-        0,
-        48.969398498535156,
-        2.441390037536621,
-        "Paris-Le Bourget Airport".to_string(),
-    );
+    let paris_aerodrome =
+        Aerodrome::new(0, 49.012798, 2.55, "Paris, Charles de Gaulle".to_string());
 
     let frankfurt_aerodrome = Aerodrome::new(
         1,

@@ -3,7 +3,8 @@
 use std::f32::consts::TAU;
 
 use bevy::{prelude::*, render::render_resource::TextureFormat};
-use bevy_mod_paramap::*;
+use bevy_mod_paramap::{ParallaxAlgo, ParallaxMaterial, ParallaxMaterialPlugin};
+//use bevy_mod_paramap::*;
 
 pub const EARTH_RADIUS: f64 = 6_371_000.0;
 pub const SIMULATION_EARTH_RADIUS: f64 = 1.0;
@@ -13,6 +14,7 @@ const NORMAL_MAP: &str = "earth/normal_map.jpg";
 const HEIGHT_MAP: &str = "earth/elevation_surface.jpg";
 const ROUGH_MAP: &str = "earth/metallic_roughness.png";
 const ALBEDO_MAP: &str = "earth/base_color.jpg";
+const ALBEDO_MAP_HALF: &str = "earth/half_base_color.jpg";
 const EMI_MAP: &str = "earth/emissive.jpg";
 const SPIN: f32 = 0.0;
 
@@ -27,7 +29,6 @@ impl Plugin for Earth3dPlugin {
             })
             .insert_resource(ClearColor(Color::BLACK))
             .insert_resource(Normal(None));
-        #[cfg(not(target_arch = "wasm32"))]
         app.add_startup_system(setup);
         app.add_system(update_normal).add_system(spin);
         app.register_type::<Spin>();
@@ -80,7 +81,8 @@ fn update_normal(
 fn setup(
     mut commands: Commands,
     mut meshes: ResMut<Assets<Mesh>>,
-    mut materials: ResMut<Assets<ParallaxMaterial>>,
+    #[cfg(not(target_arch = "wasm32"))] mut materials: ResMut<Assets<ParallaxMaterial>>,
+    #[cfg(target_arch = "wasm32")] mut materials: ResMut<Assets<StandardMaterial>>,
     mut normal: ResMut<Normal>,
     assets: Res<AssetServer>,
 ) {
@@ -89,11 +91,11 @@ fn setup(
     normal.0 = Some(normal_handle.clone());
     let mut sphere: Mesh = shape::UVSphere::default().into();
     sphere.generate_tangents().unwrap();
-    commands
-        .spawn(MaterialMeshBundle {
-            transform: Transform::from_rotation(Quat::from_euler(XYZ, -TAU / 4.0, 0.0, TAU / 2.0)),
-            mesh: meshes.add(sphere),
-            material: materials.add(ParallaxMaterial {
+
+    let earth_material = {
+        #[cfg(not(target_arch = "wasm32"))]
+        {
+            materials.add(ParallaxMaterial {
                 // reduce roughness set in the "earth/metallic_roughness.png" file
                 perceptual_roughness: 0.75,
                 // The base color. See README for source.
@@ -120,7 +122,22 @@ fn setup(
                 max_height_layers: 128.0,
                 flip_normal_map_y: false,
                 ..default()
-            }),
+            })
+        }
+        #[cfg(target_arch = "wasm32")]
+        {
+            materials.add(StandardMaterial {
+                base_color_texture: Some(assets.load(ALBEDO_MAP_HALF)),
+                ..Default::default()
+            })
+        }
+    };
+
+    commands
+        .spawn(MaterialMeshBundle {
+            transform: Transform::from_rotation(Quat::from_euler(XYZ, -TAU / 4.0, 0.0, TAU / 2.0)),
+            mesh: meshes.add(sphere),
+            material: earth_material,
             ..default()
         })
         .insert((Earth, Spin(SPIN), Name::new("Earth")));
