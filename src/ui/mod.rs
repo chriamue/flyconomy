@@ -7,7 +7,6 @@ mod aerodromes_ui;
 mod game_over_screen;
 mod hud;
 mod messages;
-#[cfg(not(target_arch = "wasm32"))]
 mod replay;
 mod welcome_screen;
 
@@ -32,7 +31,6 @@ impl Plugin for UiPlugin {
         app.add_plugin(game_over_screen::GameOverScreenPlugin);
         app.add_plugin(aerodromes_ui::AerodromesUiPlugin);
         app.add_plugin(messages::MessagesPlugin);
-        #[cfg(not(target_arch = "wasm32"))]
         app.add_plugin(replay::ReplayPlugin);
         app.add_systems(
             (
