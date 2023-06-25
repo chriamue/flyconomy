@@ -8,6 +8,7 @@ mod game_over_screen;
 mod hud;
 mod messages;
 mod replay;
+mod simulation_control;
 mod welcome_screen;
 
 use crate::{
@@ -32,6 +33,7 @@ impl Plugin for UiPlugin {
         app.add_plugin(aerodromes_ui::AerodromesUiPlugin);
         app.add_plugin(messages::MessagesPlugin);
         app.add_plugin(replay::ReplayPlugin);
+        app.add_plugin(simulation_control::SimulationControlPlugin);
         app.add_systems(
             (
                 company_hud,
@@ -66,6 +68,7 @@ fn company_hud(mut contexts: EguiContexts, game_resource: Res<GameResource>) {
 
 pub fn planes_purchase_ui(
     mut contexts: EguiContexts,
+    selected_aerodrome: Res<SelectedAerodrome>,
     config_resource: Res<ConfigResource>,
     mut game_resource: ResMut<GameResource>,
 ) {
@@ -87,11 +90,21 @@ pub fn planes_purchase_ui(
                     ));
 
                     if ui.button("Buy").clicked() {
-                        let buy_plane = BuyPlaneCommand {
-                            plane_type: plane.clone(),
-                            home_base_id: 0,
-                        };
-                        game_resource.simulation.add_command(Box::new(buy_plane));
+                        if let Some(selected_aerodrome) = &selected_aerodrome.aerodrome {
+                            let home_base_id = game_resource
+                                .simulation
+                                .environment
+                                .bases
+                                .iter()
+                                .find(|base| base.aerodrome.id == selected_aerodrome.id)
+                                .map(|base| base.id);
+
+                            let buy_plane = BuyPlaneCommand {
+                                plane_type: plane.clone(),
+                                home_base_id: home_base_id.unwrap_or_default(),
+                            };
+                            game_resource.simulation.add_command(Box::new(buy_plane));
+                        }
                     }
                 });
             }

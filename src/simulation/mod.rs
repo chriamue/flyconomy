@@ -15,10 +15,12 @@ pub mod replay;
 #[cfg(test)]
 mod tests;
 
+pub const DEFAULT_TIME_MULTIPLIER: f64 = 1.0 * 5.0 * 60.0; // 1 second = 5 minutes
+
 pub struct Simulation {
     pub environment: Environment,
     pub elapsed_time: Duration,
-    commands: Vec<TimestampedCommand>,
+    pub commands: Vec<TimestampedCommand>,
     pub time_multiplier: f64,
     pub error_messages: Vec<(Timestamp, String)>,
     pub event_messages: Vec<(Timestamp, String)>,
@@ -32,7 +34,7 @@ impl Simulation {
             environment: Environment::new(config),
             elapsed_time: Duration::from_secs(0),
             commands: vec![],
-            time_multiplier: 1.0 * 5.0 * 60.0, // 1 second = 5 minutes
+            time_multiplier: DEFAULT_TIME_MULTIPLIER, // 1 second = 5 minutes
             error_messages: vec![],
             event_messages: vec![],
             event_manager: EventManager::default(),

@@ -49,12 +49,12 @@ pub fn plane_system(
             if let Some((current_lat, current_lon)) = flight.estimate_current_position(current_time)
             {
                 let position =
-                    wgs84_to_xyz(current_lat, current_lon, 0.0) * earth3d::SCALE_FACTOR as f32;
+                    wgs84_to_xyz(current_lat, current_lon, 10_000.0) * earth3d::SCALE_FACTOR as f32;
                 // Calculate the look-at rotation
                 let destination = wgs84_to_xyz(
                     flight.destination_aerodrome.lat,
                     flight.destination_aerodrome.lon,
-                    0.0,
+                    1_000.0,
                 ) * earth3d::SCALE_FACTOR as f32;
 
                 if let Some(entity) = visualized_flights.get(&flight.flight_id) {

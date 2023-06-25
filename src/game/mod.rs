@@ -1,5 +1,3 @@
-use std::time::Duration;
-
 use bevy::diagnostic::LogDiagnosticsPlugin;
 use bevy::{diagnostic::FrameTimeDiagnosticsPlugin, prelude::*};
 
@@ -29,6 +27,7 @@ use crate::{
 pub struct GameResource {
     pub level: String,
     pub simulation: Simulation,
+    pub replay: Option<Replay>,
 }
 
 impl GameResource {
@@ -43,22 +42,20 @@ impl GameResource {
         Self {
             level,
             simulation: Simulation::new(level_config.environment),
+            replay: None,
         }
     }
 
     pub fn from_replay(replay: Replay) -> Self {
-        let mut simulation = Simulation::new(replay.initial_config);
-        let mut last_timestamp = 0u128;
-        for timestamped_command in replay.command_history {
-            simulation.execute_command(timestamped_command.command);
-            let delta = timestamped_command.timestamp - last_timestamp;
-            last_timestamp = timestamped_command.timestamp;
-            simulation.update(Duration::from_millis(delta as u64));
+        let mut simulation = Simulation::new(replay.initial_config.clone());
+        for timestamped_command in &replay.command_history {
+            simulation.add_command_timed(timestamped_command.clone());
         }
 
         Self {
             level: String::from("replay"),
             simulation,
+            replay: Some(replay),
         }
     }
 }
@@ -68,6 +65,7 @@ impl Default for GameResource {
         Self {
             level: String::from("default"),
             simulation: Simulation::new(LevelConfig::default().environment),
+            replay: None,
         }
     }
 }
@@ -181,7 +179,7 @@ fn update_simulation_system(
     }
 }
 
-#[cfg_attr(target_arch = "wasm32", wasm_bindgen::prelude::wasm_bindgen(start))]
+#[cfg_attr(target_arch = "wasm32", wasm_bindgen::prelude::wasm_bindgen)]
 pub fn start() {
     let level = "level1".to_string();
     let game_resource = GameResource::new(level);
@@ -229,6 +227,13 @@ pub fn start_from_replay(replay: Replay) {
     );
     setup_game(&mut app, game_resource);
     app.run()
+}
+
+#[cfg_attr(target_arch = "wasm32", wasm_bindgen::prelude::wasm_bindgen)]
+pub fn start_from_replay_string(replay_string: String) {
+    let replay: Replay =
+        serde_yaml::from_str(&replay_string).expect("Failed to deserialize replay.");
+    start_from_replay(replay);
 }
 
 #[derive(Resource)]
