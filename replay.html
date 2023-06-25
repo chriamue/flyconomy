@@ -12,10 +12,11 @@
     </div>
     <input type="file" id="upload" accept=".yaml" onchange="uploadFile(event)">
     <script type="module">
-      import init, { start_from_replay_string } from "./pkg/flyconomy.js";
+      import init, { start, start_from_replay_string } from "./pkg/flyconomy.js";
 
       init().then(async () => {
         try {
+          window.start = start;
           window.start_from_replay_string = start_from_replay_string;
         } catch (e) {
           console.error(e);
