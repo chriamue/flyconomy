@@ -35,14 +35,29 @@ pub fn draw_flight_paths_system(
     for flight in flight_query.filter(|flight| flight.state == FlightState::EnRoute) {
         let origin = &flight.origin_aerodrome;
         let destination = &flight.destination_aerodrome;
-        let start_point = wgs84_to_xyz(origin.lat, origin.lon, 0.0) * earth3d::SCALE_FACTOR as f32;
-        let end_point =
-            wgs84_to_xyz(destination.lat, destination.lon, 0.0) * earth3d::SCALE_FACTOR as f32;
+        let start_gps = (origin.lat, origin.lon);
+        let end_gps = (destination.lat, destination.lon);
+        // Intermediate points in GPS
+        let mut intermediate_gps_points = Vec::new();
+        let num_intermediate = 32;
+        for i in 1..=num_intermediate {
+            let t = i as f32 / (num_intermediate + 1) as f32; // Divide by total segments
+            let intermediate_lat = start_gps.0 + (end_gps.0 - start_gps.0) * t as f64;
+            let intermediate_lon = start_gps.1 + (end_gps.1 - start_gps.1) * t as f64;
+            intermediate_gps_points.push((intermediate_lat, intermediate_lon));
+        }
+
+        // Convert points to XYZ
+        let mut points =
+            vec![wgs84_to_xyz(start_gps.0, start_gps.1, 0.0) * earth3d::SCALE_FACTOR as f32];
+        for gps in intermediate_gps_points {
+            points.push(wgs84_to_xyz(gps.0, gps.1, 0.0) * earth3d::SCALE_FACTOR as f32);
+        }
+        points.push(wgs84_to_xyz(end_gps.0, end_gps.1, 0.0) * earth3d::SCALE_FACTOR as f32);
+
         commands
             .spawn(PolylineBundle {
-                polyline: polylines.add(Polyline {
-                    vertices: vec![start_point, end_point],
-                }),
+                polyline: polylines.add(Polyline { vertices: points }),
                 material: polyline_materials.add(PolylineMaterial {
                     width: 2.0,
                     color: Color::RED,
