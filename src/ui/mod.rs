@@ -10,6 +10,7 @@ mod messages;
 mod replay;
 mod simulation_control;
 mod welcome_screen;
+mod world_heritage_site_ui;
 
 use crate::{
     game::{
@@ -31,6 +32,7 @@ impl Plugin for UiPlugin {
         app.add_plugin(welcome_screen::WelcomeScreenPlugin);
         app.add_plugin(game_over_screen::GameOverScreenPlugin);
         app.add_plugin(aerodromes_ui::AerodromesUiPlugin);
+        app.add_plugin(world_heritage_site_ui::WorldHeritageSiteUiPlugin);
         app.add_plugin(messages::MessagesPlugin);
         app.add_plugin(replay::ReplayPlugin);
         app.add_plugin(simulation_control::SimulationControlPlugin);

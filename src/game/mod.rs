@@ -8,6 +8,7 @@ pub mod flights;
 mod game_state;
 mod plane;
 pub mod projection;
+pub mod world_heritage_site;
 
 use bevy::prelude::IntoSystemConfigs;
 use bevy_common_assets::yaml::YamlAssetPlugin;
@@ -15,7 +16,8 @@ use bevy_egui::EguiPlugin;
 use bevy_mod_picking::DefaultPickingPlugins;
 pub use game_state::GameState;
 
-use crate::config::LevelConfig;
+use crate::config::{parse_world_heritage_site_csv, LevelConfig};
+use crate::model::WorldHeritageSite;
 use crate::{
     config::{parse_airport_csv, AerodromeConfig, PlanesConfig},
     model::Aerodrome,
@@ -77,6 +79,7 @@ pub struct ConfigResource {
     pub planes_config: Option<PlanesConfig>,
     pub aerodrome_config: Option<AerodromeConfig>,
     pub aerodromes: Option<Vec<Aerodrome>>,
+    pub world_heritage_sites: Option<Vec<WorldHeritageSite>>,
     pub level_config: Option<LevelConfig>,
 }
 
@@ -99,6 +102,7 @@ pub fn setup_game(app: &mut App, game_resource: GameResource) {
         .add_plugin(camera::CameraPlugin)
         .add_plugin(flights::FlightsPlugin)
         .add_plugin(aerodrome::AerodromePlugin)
+        .add_plugin(world_heritage_site::WorldHeritageSitePlugin)
         .add_plugin(ui::UiPlugin)
         .add_plugin(plane::PlanePlugin)
         .add_plugin(earth3d::Earth3dPlugin);
@@ -129,6 +133,10 @@ fn load_config_assets(asset_server: Res<AssetServer>, mut config_resource: ResMu
 
     let aerodromes = parse_airport_csv(include_str!("../../assets/airports.dat"));
     config_resource.aerodromes = Some(aerodromes);
+
+    let world_heritage_sites: Vec<WorldHeritageSite> =
+        parse_world_heritage_site_csv(include_str!("../../assets/whc-sites-2019.csv"));
+    config_resource.world_heritage_sites = Some(world_heritage_sites);
 
     let level_config: LevelConfig =
         serde_yaml::from_str(include_str!("../../assets/levels/level1.yaml")).unwrap();

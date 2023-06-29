@@ -10,41 +10,41 @@ use bevy_mod_picking::{
 
 use crate::{
     game::{earth3d, projection::wgs84_to_xyz},
-    model::Aerodrome,
+    model::WorldHeritageSite,
 };
 
 use super::ConfigResource;
 
-const AERODROME_COLOR: Color = Color::rgb(0.0, 0.0, 1.0);
-const AERODROME_COLOR_SELECTED: Color = Color::rgb(1.0, 0.0, 0.0);
+const SITE_COLOR: Color = Color::rgb(1.0, 1.0, 0.0);
+const SITE_COLOR_SELECTED: Color = Color::rgb(1.0, 0.0, 0.0);
 
-pub struct AerodromePlugin;
+pub struct WorldHeritageSitePlugin;
 
-impl Plugin for AerodromePlugin {
+impl Plugin for WorldHeritageSitePlugin {
     fn build(&self, app: &mut App) {
-        app.insert_resource(AerodromeSystem { setup_done: false })
+        app.insert_resource(WorldHeritageSiteSystem { setup_done: false })
             .add_system(setup)
-            .add_event::<AerodromeSelectedEvent>()
-            .add_event::<SelectedAerodromeChangeEvent>()
-            .insert_resource(SelectedAerodrome::default())
-            .add_system(handle_aerodrome_selected_event)
-            .add_system(handle_selected_aerodrome_change_event);
+            .add_event::<WorldHeritageSiteSelectedEvent>()
+            .add_event::<SelectedWorldHeritageSiteChangeEvent>()
+            .insert_resource(SelectedWorldHeritageSite::default())
+            .add_system(handle_world_heritage_site_selected_event)
+            .add_system(handle_selected_world_heritage_site_change_event);
     }
 }
 
-pub struct SelectedAerodromeChangeEvent(pub Aerodrome);
+pub struct SelectedWorldHeritageSiteChangeEvent(pub WorldHeritageSite);
 
 #[derive(Resource)]
-struct AerodromeSystem {
+struct WorldHeritageSiteSystem {
     setup_done: bool,
 }
 
 #[derive(Default, Component)]
-pub struct AerodromeComponent(pub Aerodrome);
+pub struct WorldHeritageSiteComponent(pub WorldHeritageSite);
 
 #[derive(Default, Resource, Debug)]
-pub struct SelectedAerodrome {
-    pub aerodrome: Option<Aerodrome>,
+pub struct SelectedWorldHeritageSite {
+    pub site: Option<WorldHeritageSite>,
 }
 
 fn setup(
@@ -52,13 +52,12 @@ fn setup(
     mut meshes: ResMut<Assets<Mesh>>,
     mut materials: ResMut<Assets<StandardMaterial>>,
     config_resource: Res<ConfigResource>,
-    mut aerodrome_system: ResMut<AerodromeSystem>,
+    mut site_system: ResMut<WorldHeritageSiteSystem>,
 ) {
-    if !aerodrome_system.setup_done {
-        if let Some(aerodromes) = config_resource.aerodromes.as_ref() {
-            for aerodrome in aerodromes {
-                let position =
-                    wgs84_to_xyz(aerodrome.lat, aerodrome.lon, 0.0) * earth3d::SCALE_FACTOR as f32;
+    if !site_system.setup_done {
+        if let Some(sites) = config_resource.world_heritage_sites.as_ref() {
+            for site in sites {
+                let position = wgs84_to_xyz(site.lat, site.lon, 0.0) * earth3d::SCALE_FACTOR as f32;
                 let mesh_handle = meshes.add(
                     Mesh::try_from(shape::Icosphere {
                         radius: 12_000.0 * earth3d::SCALE_FACTOR as f32,
@@ -67,7 +66,7 @@ fn setup(
                     .unwrap(),
                 );
                 let material_handle = materials.add(StandardMaterial {
-                    base_color: AERODROME_COLOR,
+                    base_color: SITE_COLOR,
                     ..Default::default()
                 });
 
@@ -81,54 +80,55 @@ fn setup(
                         },
                         PickableBundle::default(),
                         RaycastPickTarget::default(),
-                        OnPointer::<Click>::send_event::<AerodromeSelectedEvent>(),
+                        OnPointer::<Click>::send_event::<WorldHeritageSiteSelectedEvent>(),
                     ))
-                    .insert(AerodromeComponent(aerodrome.clone()));
+                    .insert(WorldHeritageSiteComponent(site.clone()));
             }
-            aerodrome_system.setup_done = true;
+            site_system.setup_done = true;
         }
     }
 }
 
 #[derive(Debug, Component)]
-struct AerodromeSelectedEvent(Entity);
+struct WorldHeritageSiteSelectedEvent(Entity);
 
-impl From<ListenedEvent<Click>> for AerodromeSelectedEvent {
+impl From<ListenedEvent<Click>> for WorldHeritageSiteSelectedEvent {
     fn from(click_event: ListenedEvent<Click>) -> Self {
         Self(click_event.target)
     }
 }
 
-fn handle_aerodrome_selected_event(
-    mut event: EventReader<AerodromeSelectedEvent>,
-    aerodrome_query: Query<(Entity, &AerodromeComponent)>,
-    mut ev_selected_aerodrome_change: EventWriter<SelectedAerodromeChangeEvent>,
+fn handle_world_heritage_site_selected_event(
+    mut event: EventReader<WorldHeritageSiteSelectedEvent>,
+    site_query: Query<(Entity, &WorldHeritageSiteComponent)>,
+    mut ev_selected_site_change: EventWriter<SelectedWorldHeritageSiteChangeEvent>,
 ) {
     for select_event in event.iter() {
-        if let Ok((_entity, aerodrome_component)) = aerodrome_query.get(select_event.0) {
-            ev_selected_aerodrome_change
-                .send(SelectedAerodromeChangeEvent(aerodrome_component.0.clone()));
+        if let Ok((_entity, site_component)) = site_query.get(select_event.0) {
+            ev_selected_site_change.send(SelectedWorldHeritageSiteChangeEvent(
+                site_component.0.clone(),
+            ));
         }
     }
 }
 
-fn handle_selected_aerodrome_change_event(
-    mut event: EventReader<SelectedAerodromeChangeEvent>,
-    aerodrome_query: Query<(Entity, &AerodromeComponent)>,
-    mut selected_aerodrome: ResMut<SelectedAerodrome>,
+fn handle_selected_world_heritage_site_change_event(
+    mut event: EventReader<SelectedWorldHeritageSiteChangeEvent>,
+    site_query: Query<(Entity, &WorldHeritageSiteComponent)>,
+    mut selected_site: ResMut<SelectedWorldHeritageSite>,
     mut materials: ResMut<Assets<StandardMaterial>>,
     mesh_query: Query<&Handle<StandardMaterial>, With<Handle<StandardMaterial>>>,
     mut transform_query: Query<&mut Transform>,
 ) {
     for event in event.iter() {
-        let aerodrome = &event.0;
+        let site = &event.0;
 
-        if let Some(selected_aerodrome) = selected_aerodrome.aerodrome.as_ref() {
-            for (entity, aerodrome_component) in aerodrome_query.iter() {
-                if aerodrome_component.0 == *selected_aerodrome {
+        if let Some(selected_site) = selected_site.site.as_ref() {
+            for (entity, site_component) in site_query.iter() {
+                if site_component.0 == *selected_site {
                     if let Ok(material_handle) = mesh_query.get(entity) {
                         if let Some(mut material) = materials.get_mut(material_handle) {
-                            material.base_color = AERODROME_COLOR;
+                            material.base_color = SITE_COLOR;
                         }
                     }
                     if let Ok(mut transform) = transform_query.get_mut(entity) {
@@ -139,12 +139,12 @@ fn handle_selected_aerodrome_change_event(
             }
         }
 
-        for (entity, aerodrome_component) in aerodrome_query.iter() {
-            if aerodrome_component.0 == *aerodrome {
-                selected_aerodrome.aerodrome = Some(aerodrome.clone());
+        for (entity, site_component) in site_query.iter() {
+            if site_component.0 == *site {
+                selected_site.site = Some(site.clone());
                 if let Ok(material_handle) = mesh_query.get(entity) {
                     if let Some(mut material) = materials.get_mut(material_handle) {
-                        material.base_color = AERODROME_COLOR_SELECTED;
+                        material.base_color = SITE_COLOR_SELECTED;
                     }
                 }
                 if let Ok(mut transform) = transform_query.get_mut(entity) {

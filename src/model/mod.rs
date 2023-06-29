@@ -9,6 +9,7 @@ pub mod events;
 mod flight;
 mod landing_rights;
 mod plane_type;
+mod world_heritage_site;
 
 pub use aerodrome::Aerodrome;
 pub use airplane::AirPlane;
@@ -19,6 +20,7 @@ pub use environment_config::EnvironmentConfig;
 pub use flight::{Flight, FlightState};
 pub use landing_rights::LandingRights;
 pub use plane_type::PlaneType;
+pub use world_heritage_site::WorldHeritageSite;
 
 /// Timestamp in milliseconds
 pub type Timestamp = u128;

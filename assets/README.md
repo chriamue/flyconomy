@@ -14,6 +14,11 @@ For more details and for the most up-to-date data, please visit the OpenFlights 
 
 The icons used in the application are sourced from [Game-icons.net](https://game-icons.net/).
 
+## World Heritage Sites
+
+The data on World Heritage Sites is sourced from [Kaggle](https://www.kaggle.com/datasets/ujwalkandi/unesco-world-heritage-sites?select=whc-sites-2019.csv).
+It is under the CC0: Public Domain license.
+
 ## plane.obj
 
 The 3D model of the plane used in the application is sourced from [cgtrader.com](https://www.cgtrader.com/items/4140769/download-page)
