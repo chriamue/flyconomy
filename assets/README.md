@@ -10,6 +10,11 @@ OpenFlights provides data on airports, airlines, and routes, and is a valuable r
 
 For more details and for the most up-to-date data, please visit the OpenFlights repository on GitHub: [OpenFlights on GitHub](https://github.com/jpatokal/openflights)
 
+## passengers
+
+The file `passengers.csv` contains the most crowded airports in the world, as of 2019. The data is sourced from [Kaggle](https://www.kaggle.com/datasets/jonahmary17/airports).
+The data is under the CC BY-SA 3.0 license.
+
 ## Icons
 
 The icons used in the application are sourced from [Game-icons.net](https://game-icons.net/).
