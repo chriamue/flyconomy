@@ -94,6 +94,8 @@ mod tests {
             lat: 37.7749, // Coordinates of San Francisco
             lon: -122.4194,
             name: "San Francisco International Airport".to_string(),
+            code: "SFO/KSFO".to_string(),
+            passengers: None,
         };
 
         let destination_aerodrome = Aerodrome {
@@ -101,6 +103,8 @@ mod tests {
             lat: 34.0522, // Coordinates of Los Angeles
             lon: -118.2437,
             name: "Los Angeles International Airport".to_string(),
+            code: "LAX/KLAX".to_string(),
+            passengers: None,
         };
 
         let flight = Flight {

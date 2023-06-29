@@ -34,7 +34,15 @@ impl From<Element> for Aerodrome {
         let id = element.id;
         let lat = element.lat.unwrap();
         let lon = element.lon.unwrap();
-        Aerodrome { id, lat, lon, name }
+        let code: String = "".to_string();
+        Aerodrome {
+            id,
+            lat,
+            lon,
+            name,
+            code,
+            passengers: None,
+        }
     }
 }
 

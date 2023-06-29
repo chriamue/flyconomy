@@ -6,10 +6,19 @@ pub struct Aerodrome {
     pub lat: f64,
     pub lon: f64,
     pub name: String,
+    pub code: String,
+    pub passengers: Option<u64>,
 }
 
 impl Aerodrome {
-    pub fn new(id: u64, lat: f64, lon: f64, name: String) -> Self {
-        Self { id, lat, lon, name }
+    pub fn new(id: u64, lat: f64, lon: f64, name: String, code: String) -> Self {
+        Self {
+            id,
+            lat,
+            lon,
+            name,
+            code,
+            passengers: None,
+        }
     }
 }

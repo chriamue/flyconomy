@@ -33,8 +33,19 @@ pub fn parse_airport_csv(input: &str) -> Vec<Aerodrome> {
             .unwrap()
             .parse::<f64>()
             .unwrap();
+        let iata = std::str::from_utf8(record.get(4).unwrap()).unwrap();
+        let icao = std::str::from_utf8(record.get(5).unwrap()).unwrap();
 
-        let aerodrome = Aerodrome { id, lat, lon, name };
+        let code = format!("{}/{}", iata, icao);
+
+        let aerodrome = Aerodrome {
+            id,
+            lat,
+            lon,
+            name,
+            code,
+            passengers: None,
+        };
         aerodromes.push(aerodrome);
     }
     aerodromes
@@ -56,6 +67,7 @@ mod tests {
         assert_eq!(aerodromes[0].name, "Goroka Airport");
         assert_eq!(aerodromes[0].lat, -6.081689834590001);
         assert_eq!(aerodromes[0].lon, 145.391998291);
+        assert_eq!(aerodromes[0].code, "GKA/AYGA");
 
         assert_eq!(aerodromes[1].id, 2);
         assert_eq!(aerodromes[1].name, "Madang Airport");
