@@ -5,7 +5,7 @@ use crate::model::{EnvironmentConfig, PlaneType};
 mod aerodrome_config;
 mod world_heritage_site_config;
 
-pub use aerodrome_config::{parse_airport_csv, AerodromeConfig};
+pub use aerodrome_config::{load_airports, AerodromeConfig};
 pub use world_heritage_site_config::{parse_world_heritage_site_csv, WorldHeritageSiteConfig};
 
 #[derive(Serialize, Deserialize, Debug, bevy::reflect::TypeUuid, Clone)]

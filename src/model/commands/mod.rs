@@ -102,6 +102,15 @@ pub struct CreateBaseCommand {
     pub aerodrome: Aerodrome,
 }
 
+impl CreateBaseCommand {
+    pub fn base_cost(&self, environment: &Environment) -> f64 {
+        match self.aerodrome.passengers {
+            Some(passengers) => environment.config.base_cost + passengers as f64 / 20.0,
+            None => environment.config.base_cost,
+        }
+    }
+}
+
 #[derive(Debug, Error)]
 pub enum CreateBaseError {
     #[error("Insufficient funds to create base: needed {needed}, but have {has}")]
@@ -113,14 +122,14 @@ impl Command for CreateBaseCommand {
         &self,
         environment: &mut Environment,
     ) -> Result<Option<String>, Box<dyn std::error::Error>> {
-        if environment.company_finances.cash < environment.config.base_cost {
+        if environment.company_finances.cash < self.base_cost(environment) {
             return Err(Box::new(CreateBaseError::InsufficientFunds {
-                needed: environment.config.base_cost,
+                needed: self.base_cost(environment),
                 has: environment.company_finances.cash,
             }));
         }
 
-        environment.company_finances.cash -= environment.config.base_cost;
+        environment.company_finances.cash -= self.base_cost(environment);
         let base_id = BASE_ID_COUNTER.fetch_add(1, Ordering::SeqCst);
         environment.bases.push(Base {
             id: base_id.try_into().unwrap(),

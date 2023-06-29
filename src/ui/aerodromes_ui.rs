@@ -102,6 +102,9 @@ fn selected_aerodrome_info_ui_system(
                 }
                 ui.label(format!("Latitude: {:.4}", selected_aerodrome.lat));
                 ui.label(format!("Longitude: {:.4}", selected_aerodrome.lon));
+                if let Some(passengers) = selected_aerodrome.passengers {
+                    ui.label(format!("Passengers: {}", passengers));
+                }
 
                 if is_base {
                     ui.label("This is one of your bases.");
@@ -123,6 +126,14 @@ fn selected_aerodrome_info_ui_system(
                         }
                     }
                 } else {
+                    let environment = &game_resource.simulation.environment;
+                    let buy_command = CreateBaseCommand {
+                        aerodrome: selected_aerodrome.clone(),
+                    };
+                    ui.label(format!(
+                        "Price to create base: {:.2}",
+                        buy_command.base_cost(environment)
+                    ));
                     ui.label("You do not have a base at this aerodrome.");
 
                     if ui.button("Create Base").clicked() {

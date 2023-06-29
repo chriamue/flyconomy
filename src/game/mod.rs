@@ -19,7 +19,7 @@ pub use game_state::GameState;
 use crate::config::{parse_world_heritage_site_csv, LevelConfig};
 use crate::model::WorldHeritageSite;
 use crate::{
-    config::{parse_airport_csv, AerodromeConfig, PlanesConfig},
+    config::{load_airports, AerodromeConfig, PlanesConfig},
     model::Aerodrome,
     simulation::Simulation,
     ui, Replay,
@@ -131,7 +131,10 @@ fn load_config_assets(asset_server: Res<AssetServer>, mut config_resource: ResMu
     let handle = asset_server.load("german.aerodromes.json");
     config_resource.aerodrome_handle = Some(handle);
 
-    let aerodromes = parse_airport_csv(include_str!("../../assets/airports.dat"));
+    let aerodromes = load_airports(
+        include_str!("../../assets/airports.dat"),
+        include_str!("../../assets/passengers.csv"),
+    );
     config_resource.aerodromes = Some(aerodromes);
 
     let world_heritage_sites: Vec<WorldHeritageSite> =

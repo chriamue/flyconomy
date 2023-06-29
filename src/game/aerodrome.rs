@@ -3,6 +3,7 @@ use bevy::prelude::{
     shape, App, Assets, Color, Commands, Component, Entity, EventReader, EventWriter, Mesh,
     PbrBundle, Plugin, Query, Res, ResMut, Resource, StandardMaterial, Transform, Vec3, With,
 };
+use bevy::transform;
 use bevy_mod_picking::{
     prelude::{Click, ListenedEvent, OnPointer, RaycastPickTarget},
     PickableBundle,
@@ -70,13 +71,23 @@ fn setup(
                     base_color: AERODROME_COLOR,
                     ..Default::default()
                 });
+                let mut transform = Transform::from_translation(position);
+                match aerodrome.passengers {
+                    Some(passengers) => {
+                        transform.scale = Vec3::splat(1.0)
+                            + Vec3::splat(1.0) * (passengers as f32 / 50_000_000.0);
+                    }
+                    None => {
+                        transform.scale = Vec3::splat(1.0);
+                    }
+                }
 
                 commands
                     .spawn((
                         PbrBundle {
                             mesh: mesh_handle,
                             material: material_handle,
-                            transform: Transform::from_translation(position),
+                            transform,
                             ..Default::default()
                         },
                         PickableBundle::default(),
@@ -132,8 +143,17 @@ fn handle_selected_aerodrome_change_event(
                         }
                     }
                     if let Ok(mut transform) = transform_query.get_mut(entity) {
-                        transform.scale = Vec3::splat(1.0);
+                        match aerodrome.passengers {
+                            Some(passengers) => {
+                                transform.scale = Vec3::splat(1.0)
+                                    + Vec3::splat(1.0) * (passengers as f32 / 50_000_000.0);
+                            }
+                            None => {
+                                transform.scale = Vec3::splat(1.0);
+                            }
+                        }
                     }
+
                     break;
                 }
             }
