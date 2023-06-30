@@ -56,7 +56,7 @@ impl Simulation {
         let effective_delta_time =
             Duration::from_secs_f64(delta_time.as_secs_f64() * self.time_multiplier);
         self.elapsed_time += effective_delta_time;
-        self.environment.timestamp += effective_delta_time.as_secs_f64();
+        self.environment.timestamp += effective_delta_time.as_millis();
 
         let mut to_execute = vec![];
         self.commands.retain(|command| {
@@ -73,7 +73,9 @@ impl Simulation {
         }
 
         let profit = self.calculate_profit(effective_delta_time);
-        self.environment.company_finances.cash += profit;
+        self.environment
+            .company_finances
+            .add_income(self.environment.timestamp, profit);
 
         self.update_flights();
         self.handle_events();
@@ -82,7 +84,7 @@ impl Simulation {
     pub fn update_flights(&mut self) {
         for flight in &mut self.environment.flights {
             let previous_state = flight.state.clone();
-            flight.update_state(self.elapsed_time.as_secs());
+            flight.update_state(self.elapsed_time.as_millis());
 
             if previous_state != FlightState::EnRoute && flight.state == FlightState::EnRoute {
                 self.event_manager.add_event(Box::new(AirplaneTakeoffEvent {

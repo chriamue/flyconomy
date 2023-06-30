@@ -22,7 +22,11 @@ pub fn game_over_screen_system(
 
         ui.label(format!(
             "Final Airline Value: ${:.2}",
-            game_resources.simulation.environment.company_finances.cash
+            game_resources
+                .simulation
+                .environment
+                .company_finances
+                .cash(game_resources.simulation.environment.timestamp)
         ));
         ui.label(format!(
             "Total Planes: {}",

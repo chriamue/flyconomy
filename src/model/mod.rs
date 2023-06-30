@@ -1,5 +1,6 @@
 mod aerodrome;
 mod airplane;
+pub mod analytics;
 mod base;
 pub mod commands;
 mod company_finances;

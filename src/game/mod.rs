@@ -185,7 +185,7 @@ fn update_simulation_system(
     mut game_state_next_state: ResMut<NextState<GameState>>,
 ) {
     game_resource.simulation.update(time.delta());
-    if game_resource.simulation.environment.company_finances.cash < 10000.0 {
+    if game_resource.simulation.environment.company_finances.cash(game_resource.simulation.environment.timestamp) < 10000.0 {
         game_state_next_state.set(GameState::GameOver);
     }
 }

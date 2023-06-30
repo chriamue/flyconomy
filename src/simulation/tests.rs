@@ -66,7 +66,7 @@ fn test_simulation() {
         airplane: simulation.environment.planes[0].clone(),
         origin_aerodrome: frankfurt_aerodrome.clone(),
         destination_aerodrome: paris_aerodrome.clone(),
-        departure_time: (simulation.elapsed_time + Duration::from_secs(1)).as_secs(),
+        departure_time: (simulation.elapsed_time + Duration::from_secs(1)).as_millis(),
     };
 
     simulation.add_command(Box::new(flight_command));

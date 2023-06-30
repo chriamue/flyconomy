@@ -54,15 +54,20 @@ fn company_hud(mut contexts: EguiContexts, game_resource: Res<GameResource>) {
         .show(contexts.ctx_mut(), |ui| {
             let environment = &game_resource.simulation.environment;
             ui.horizontal(|ui| {
-                ui.label(format!("Cash: ${:.2}", environment.company_finances.cash));
+                ui.label(format!(
+                    "Cash: ${:.2}",
+                    environment.company_finances.cash(environment.timestamp)
+                ));
                 ui.label(format!("Planes: {}", environment.planes.len()));
                 ui.label(format!(
                     "Total Income: ${:.2}",
-                    environment.company_finances.total_income
+                    environment.company_finances.total_income(environment.timestamp)
                 ));
                 ui.label(format!(
                     "Total Expenses: ${:.2}",
-                    environment.company_finances.total_expenses
+                    environment
+                        .company_finances
+                        .total_expenses(environment.timestamp)
                 ));
             });
         });
@@ -259,7 +264,7 @@ pub fn flight_planning_ui(
                                         airplane: airplane.clone(),
                                         origin_aerodrome: origin_aerodrome.clone(),
                                         destination_aerodrome: destination_aerodrome.clone(),
-                                        departure_time: time.elapsed().as_secs(),
+                                        departure_time: time.elapsed().as_millis(),
                                         arrival_time: None,
                                         state: Default::default(),
                                     };
@@ -280,8 +285,7 @@ pub fn flight_planning_ui(
                                             destination_aerodrome: destination_aerodrome.clone(),
                                             departure_time: game_resource
                                                 .simulation
-                                                .elapsed_time
-                                                .as_secs(),
+                                                .elapsed_time.as_millis(),
                                         };
                                         game_resource
                                             .simulation

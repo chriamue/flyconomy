@@ -1,6 +1,6 @@
 use crate::model::CompanyFinances;
 
-use super::{AirPlane, Base, EnvironmentConfig, Flight, LandingRights};
+use super::{AirPlane, Base, EnvironmentConfig, Flight, LandingRights, Timestamp};
 
 pub struct Environment {
     pub config: EnvironmentConfig,
@@ -9,7 +9,7 @@ pub struct Environment {
     pub bases: Vec<Base>,
     pub landing_rights: Vec<LandingRights>,
     pub flights: Vec<Flight>,
-    pub timestamp: f64,
+    pub timestamp: Timestamp,
 }
 impl Environment {
     pub fn new(config: EnvironmentConfig) -> Self {
@@ -20,7 +20,7 @@ impl Environment {
             bases: vec![],
             landing_rights: vec![],
             flights: vec![],
-            timestamp: 0.0,
+            timestamp: 0,
         }
     }
 }

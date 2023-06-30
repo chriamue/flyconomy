@@ -5,7 +5,7 @@ use std::{
 };
 use thiserror::Error;
 
-use super::{flight::FlightState, Aerodrome, AirPlane, Environment, PlaneType};
+use super::{flight::FlightState, Aerodrome, AirPlane, Environment, PlaneType, Timestamp};
 use crate::model::{Base, Flight, LandingRights};
 
 mod timestamped_command;
@@ -52,10 +52,10 @@ impl Command for BuyPlaneCommand {
         &self,
         environment: &mut Environment,
     ) -> Result<Option<String>, Box<dyn std::error::Error>> {
-        if environment.company_finances.cash < self.plane_type.cost as f64 {
+        if environment.company_finances.cash(environment.timestamp) < self.plane_type.cost as f64 {
             return Err(Box::new(BuyPlaneError::InsufficientFunds {
                 needed: self.plane_type.cost as f64,
-                has: environment.company_finances.cash,
+                has: environment.company_finances.cash(environment.timestamp),
             }));
         }
         let airplane_id: u64 = PLANE_ID_COUNTER
@@ -81,7 +81,9 @@ impl Command for BuyPlaneCommand {
             }
         }
 
-        environment.company_finances.cash -= self.plane_type.cost as f64;
+        environment
+            .company_finances
+            .add_expense(environment.timestamp, self.plane_type.cost.into());
         environment.planes.push(airplane);
         Ok(None)
     }
@@ -122,14 +124,16 @@ impl Command for CreateBaseCommand {
         &self,
         environment: &mut Environment,
     ) -> Result<Option<String>, Box<dyn std::error::Error>> {
-        if environment.company_finances.cash < self.base_cost(environment) {
+        if environment.company_finances.cash(environment.timestamp) < self.base_cost(environment) {
             return Err(Box::new(CreateBaseError::InsufficientFunds {
                 needed: self.base_cost(environment),
-                has: environment.company_finances.cash,
+                has: environment.company_finances.cash(environment.timestamp),
             }));
         }
 
-        environment.company_finances.cash -= self.base_cost(environment);
+        environment
+            .company_finances
+            .add_expense(environment.timestamp, self.base_cost(environment));
         let base_id = BASE_ID_COUNTER.fetch_add(1, Ordering::SeqCst);
         environment.bases.push(Base {
             id: base_id.try_into().unwrap(),
@@ -166,13 +170,18 @@ impl Command for BuyLandingRightsCommand {
         &self,
         environment: &mut Environment,
     ) -> Result<Option<String>, Box<dyn std::error::Error>> {
-        if environment.company_finances.cash < environment.config.landing_rights_cost {
+        if environment.company_finances.cash(environment.timestamp)
+            < environment.config.landing_rights_cost
+        {
             return Err(Box::new(BuyLandingRightsError::InsufficientFunds {
                 needed: environment.config.landing_rights_cost,
-                has: environment.company_finances.cash,
+                has: environment.company_finances.cash(environment.timestamp),
             }));
         }
-        environment.company_finances.cash -= environment.config.landing_rights_cost;
+        environment.company_finances.add_expense(
+            environment.timestamp,
+            environment.config.landing_rights_cost,
+        );
         environment.landing_rights.push(LandingRights {
             aerodrome: self.aerodrome.clone(),
             id: LANDING_RIGHTS_ID_COUNTER
@@ -199,7 +208,7 @@ pub struct ScheduleFlightCommand {
     pub airplane: AirPlane,
     pub origin_aerodrome: Aerodrome,
     pub destination_aerodrome: Aerodrome,
-    pub departure_time: u64,
+    pub departure_time: Timestamp,
 }
 
 #[derive(Debug, Error)]
@@ -248,8 +257,9 @@ impl Command for ScheduleFlightCommand {
         let profit = flight.calculate_profit();
 
         environment.flights.push(flight);
-        environment.company_finances.total_income += profit;
-        environment.company_finances.cash += profit as f64;
+        environment
+            .company_finances
+            .add_income(environment.timestamp, profit);
 
         Ok(None)
     }
@@ -265,12 +275,15 @@ impl Command for ScheduleFlightCommand {
 
 #[cfg(test)]
 mod tests {
+
     use super::*;
 
     #[test]
     fn test_buy_plane_insufficient_funds() {
         let mut environment = Environment::default();
-        environment.company_finances.cash = 100.0; // Not enough for any plane
+
+        environment.company_finances.income.clear();
+        environment.company_finances.add_income(0, 100.0);
 
         let plane_type = PlaneType::default();
 
@@ -311,7 +324,8 @@ mod tests {
     #[test]
     fn test_create_base_insufficient_funds() {
         let mut environment = Environment::default();
-        environment.company_finances.cash = 500.0; // Not enough for a base
+        environment.company_finances.income.clear();
+        environment.company_finances.add_income(0, 500.0); // Not enough for a base
 
         let aerodrome = Aerodrome::default();
 
@@ -331,7 +345,8 @@ mod tests {
     #[test]
     fn test_buy_landing_rights_insufficient_funds() {
         let mut environment = Environment::default();
-        environment.company_finances.cash = 200.0; // Not enough for landing rights
+        environment.company_finances.income.clear();
+        environment.company_finances.add_income(0, 200.0);
 
         let aerodrome = Aerodrome::default();
 
