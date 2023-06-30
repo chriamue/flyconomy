@@ -1,17 +1,15 @@
-use crate::simulation::Simulation;
+use super::{Environment, Timestamp};
 
-use super::Timestamp;
-
-pub fn calculate_cash_history(simulation: Simulation) -> Vec<(Timestamp, f64)> {
+pub fn calculate_cash_history(environment: &Environment) -> Vec<(Timestamp, f64)> {
     let mut cash_history = vec![];
-    let mut cash = 0.0;
-    cash_history.push((0, cash));
-    for command in simulation.command_history {
-        cash = simulation
-            .environment
-            .company_finances
-            .cash(command.timestamp);
-        cash_history.push((command.timestamp, cash));
+
+    let total_timestamps = environment.timestamp;
+    let sample_interval = (total_timestamps / 100).max(1);
+
+    for timestamp in (0..total_timestamps + sample_interval).step_by(sample_interval as usize) {
+        let cash = environment.company_finances.cash(timestamp);
+        cash_history.push((timestamp, cash));
     }
+
     cash_history
 }

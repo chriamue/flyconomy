@@ -3,7 +3,9 @@ use bevy::prelude::{IntoSystemConfigs, Plugin};
 use bevy::time::Time;
 use bevy_egui::{egui, EguiContexts};
 use bevy_panorbit_camera::PanOrbitCamera;
+
 mod aerodromes_ui;
+mod analytics_ui;
 mod game_over_screen;
 mod hud;
 mod messages;
@@ -36,6 +38,7 @@ impl Plugin for UiPlugin {
         app.add_plugin(messages::MessagesPlugin);
         app.add_plugin(replay::ReplayPlugin);
         app.add_plugin(simulation_control::SimulationControlPlugin);
+        app.add_plugin(analytics_ui::AnalyticsPlugin);
         app.add_systems(
             (
                 company_hud,
@@ -61,7 +64,9 @@ fn company_hud(mut contexts: EguiContexts, game_resource: Res<GameResource>) {
                 ui.label(format!("Planes: {}", environment.planes.len()));
                 ui.label(format!(
                     "Total Income: ${:.2}",
-                    environment.company_finances.total_income(environment.timestamp)
+                    environment
+                        .company_finances
+                        .total_income(environment.timestamp)
                 ));
                 ui.label(format!(
                     "Total Expenses: ${:.2}",
@@ -285,7 +290,8 @@ pub fn flight_planning_ui(
                                             destination_aerodrome: destination_aerodrome.clone(),
                                             departure_time: game_resource
                                                 .simulation
-                                                .elapsed_time.as_millis(),
+                                                .elapsed_time
+                                                .as_millis(),
                                         };
                                         game_resource
                                             .simulation
