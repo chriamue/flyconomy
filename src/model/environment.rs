@@ -2,6 +2,7 @@ use crate::model::CompanyFinances;
 
 use super::{AirPlane, Base, EnvironmentConfig, Flight, LandingRights, Timestamp};
 
+#[derive(Debug, Clone)]
 pub struct Environment {
     pub config: EnvironmentConfig,
     pub company_finances: CompanyFinances,

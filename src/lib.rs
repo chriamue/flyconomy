@@ -1,3 +1,5 @@
+#[cfg(feature = "ai")]
+mod ai;
 mod config;
 mod game;
 mod model;

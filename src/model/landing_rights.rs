@@ -1,6 +1,6 @@
 use super::Aerodrome;
 
-#[derive(Debug)]
+#[derive(Debug, Clone)]
 pub struct LandingRights {
     pub id: u32,
     pub aerodrome: Aerodrome,

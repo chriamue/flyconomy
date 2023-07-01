@@ -1,6 +1,6 @@
 use super::Timestamp;
 
-#[derive(Debug, Default)]
+#[derive(Debug, Default, Clone)]
 pub struct CompanyFinances {
     pub income: Vec<(Timestamp, f64)>,
     pub expenses: Vec<(Timestamp, f64)>,

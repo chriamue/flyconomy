@@ -11,6 +11,13 @@ repository = "https://github.com/chriamue/flyconomy"
 [lib]
 crate-type = ["cdylib", "rlib"]
 
+[package.metadata.docs.rs]
+features = ["ai"]
+
+[features]
+default = ["ai"]
+ai = ["rurel"]
+
 [dependencies]
 bevy = { version = "0.10.1", default-features = false, features = [
     "bevy_asset",
@@ -33,6 +40,7 @@ bevy_panorbit_camera = { version = "0.5.2", features = ["bevy_egui"] }
 bevy_polyline = { version = "0.6.0" }
 csv = "1.2.2"
 geo = "0.25.0"
+rurel = { version = "0.4.0", optional = true }
 serde = { version = "1.0", features = ["derive"] }
 serde_yaml = "0.8"
 serde_json = "1.0"
