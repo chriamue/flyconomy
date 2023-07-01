@@ -1,6 +1,6 @@
 #[cfg(feature = "ai")]
 use crate::game::manager::ManagerAction;
-use crate::game::{GameState};
+use crate::game::GameState;
 use bevy::prelude::{App, IntoSystemConfigs, OnUpdate, Plugin, ResMut};
 use bevy_egui::{
     egui::{vec2, Align2, Window},

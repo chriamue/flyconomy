@@ -7,10 +7,13 @@ use std::time::Duration;
 pub use ai_action::AiAction;
 pub use ai_agent::AiAgent;
 pub use ai_state::AiState;
-use rand::seq::SliceRandom;
 use rurel::{
-    mdp::State,
-    strategy::{explore::RandomExploration, learn::QLearning, terminate::FixedIterations},
+    mdp::{Agent, State},
+    strategy::{
+        explore::{ExplorationStrategy, RandomExploration},
+        learn::QLearning,
+        terminate::FixedIterations,
+    },
     AgentTrainer,
 };
 
@@ -23,8 +26,34 @@ use crate::{
     simulation::Simulation,
 };
 
+struct AiUpdateStrategy {
+    last_state_action: Option<(AiState, AiAction)>,
+}
+
+impl<S: State> ExplorationStrategy<S> for AiUpdateStrategy
+where
+    S: State<A = AiAction>,
+{
+    fn pick_action(&self, _: &mut dyn rurel::mdp::Agent<S>) -> S::A {
+        self.last_state_action.as_ref().unwrap().1.clone()
+    }
+}
+
+struct AiUpdateAgent {
+    state: AiState,
+}
+
+impl Agent<AiState> for AiUpdateAgent {
+    fn current_state(&self) -> &AiState {
+        &self.state
+    }
+
+    fn take_action(&mut self, _action: &<AiState as State>::A) {}
+}
+
 pub struct AiManager {
     pub trainer: AgentTrainer<AiState>,
+    last_state_action: Option<(AiState, AiAction)>,
     no_op_counter: u32,
 }
 
@@ -40,6 +69,7 @@ impl AiManager {
         Self {
             trainer,
             no_op_counter: 0,
+            last_state_action: None,
         }
     }
 
@@ -100,7 +130,7 @@ impl AiManager {
 
         self.trainer.train(
             &mut agent,
-            &QLearning::new(0.2, 0.01, 2.0),
+            &QLearning::new(0.02, 0.05, 0.7),
             &mut FixedIterations::new(iterations),
             &RandomExploration::new(),
         );
@@ -116,30 +146,48 @@ impl AiManager {
         aerodromes: &Vec<Aerodrome>,
     ) -> Option<Box<dyn Command>> {
         let ai_state: AiState = environment.into();
-        let action = self.trainer.best_action(&ai_state);
 
-        let action = if let None = action {
+        let mut action = self.trainer.best_action(&ai_state);
+
+        if action.is_none() {
             self.no_op_counter += 1;
-            if self.no_op_counter > 100 {
-                let actions = ai_state.actions();
-                self.no_op_counter = 0;
-                actions.choose(&mut rand::thread_rng()).cloned()
-            } else {
-                None
+            if self.no_op_counter > 10 {
+                action = Some(ai_state.random_action());
             }
         } else {
             self.no_op_counter = 0;
-            action
-        };
-        match action {
-            Some(action) => {
-                let command = action.to_command(environment, plane_types, aerodromes);
-                match command {
-                    Some(command) => Some(command),
-                    None => None,
-                }
+        }
+
+        if let (Some(last_state_action), Some(cur_action)) = (&self.last_state_action, &action) {
+            if last_state_action.1 == *cur_action {
+                self.no_op_counter += 1;
+                return None;
             }
-            None => None,
+        }
+
+        action.as_ref().and_then(|action| {
+            self.last_state_action = Some((ai_state, action.clone()));
+            action.to_command(environment, plane_types, aerodromes)
+        })
+    }
+
+    pub fn update(&mut self, environment: &Environment) {
+        if let Some((last_state, last_action)) = self.last_state_action.take() {
+            let new_ai_state: AiState = environment.into();
+            let exploration_strategy = AiUpdateStrategy {
+                last_state_action: Some((last_state, last_action)),
+            };
+
+            let mut agent = AiUpdateAgent {
+                state: new_ai_state,
+            };
+
+            self.trainer.train(
+                &mut agent,
+                &QLearning::new(0.0002, 0.01, 0.5),
+                &mut FixedIterations::new(1),
+                &exploration_strategy,
+            );
         }
     }
 }

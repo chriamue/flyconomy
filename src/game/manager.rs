@@ -1,5 +1,7 @@
 use bevy::prelude::{App, Plugin, Res, ResMut, Resource};
 
+use bevy::prelude::Time;
+use bevy::time::Timer;
 use crate::ai::AiManager;
 
 use super::{ConfigResource, GameResource};
@@ -9,11 +11,12 @@ pub struct ManagerPlugin;
 impl Plugin for ManagerPlugin {
     fn build(&self, app: &mut App) {
         let mut manager_action = ManagerAction::default();
-        manager_action.ai_manager.train(2_000);
+        manager_action.ai_manager.train(3_000);
         println!(
             "Manager Action: {:?}",
             manager_action.ai_manager.trainer.learned_values()
         );
+        app.insert_resource(ManagerTimer::default());
         app.insert_resource(manager_action);
         app.add_system(manager_action_system);
     }
@@ -26,12 +29,30 @@ pub struct ManagerAction {
     pub ai_manager: AiManager,
 }
 
+#[derive(Resource)]
+pub struct ManagerTimer {
+    pub timer: Timer,
+}
+
+impl Default for ManagerTimer {
+    fn default() -> Self {
+        Self {
+            timer: Timer::from_seconds(0.5, bevy::time::TimerMode::Repeating),
+        }
+    }
+}
+
+
 pub fn manager_action_system(
+    time: Res<Time>,
+    mut manager_timer: ResMut<ManagerTimer>,
     config_resource: Res<ConfigResource>,
     mut game_resource: ResMut<GameResource>,
     mut manager_action: ResMut<ManagerAction>,
 ) {
-    if manager_action.is_working {
+    manager_timer.timer.tick(time.delta());
+
+    if manager_timer.timer.finished() && manager_action.is_working {
         let environment = &game_resource.simulation.environment;
 
         if let (Some(plane_types), Some(aerodromes)) =
