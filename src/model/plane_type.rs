@@ -2,6 +2,7 @@ use serde::{Deserialize, Serialize};
 
 #[derive(Serialize, Deserialize, Debug, Clone)]
 pub struct PlaneType {
+    pub id: u32,
     pub name: String,
     pub cost: f32,
     pub monthly_income: f32,
@@ -14,6 +15,7 @@ pub struct PlaneType {
 impl Default for PlaneType {
     fn default() -> Self {
         Self {
+            id: 0,
             name: String::from("Generic Plane"),
             cost: 100000.0,
             monthly_income: 0.0,

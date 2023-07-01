@@ -1,8 +1,10 @@
+use std::time::Duration;
+
 use bevy::prelude::{App, Plugin, Res, ResMut, Resource};
 
+use crate::ai::AiManager;
 use bevy::prelude::Time;
 use bevy::time::Timer;
-use crate::ai::AiManager;
 
 use super::{ConfigResource, GameResource};
 
@@ -42,7 +44,6 @@ impl Default for ManagerTimer {
     }
 }
 
-
 pub fn manager_action_system(
     time: Res<Time>,
     mut manager_timer: ResMut<ManagerTimer>,
@@ -66,6 +67,10 @@ pub fn manager_action_system(
             if let Some(command) = command {
                 manager_action.manager_action = format!("{:#?}", command);
                 game_resource.simulation.add_command(command);
+                // let process command
+                game_resource.simulation.update(Duration::from_millis(1));
+                // then update ai manager
+                manager_action.ai_manager.update(&game_resource.simulation);
             }
         }
     }

@@ -23,24 +23,19 @@ use crate::{
         commands::{BuyLandingRightsCommand, BuyPlaneCommand, Command, CreateBaseCommand},
         Aerodrome, Environment, PlaneType,
     },
-    simulation::Simulation,
+    simulation::{Simulation},
 };
-
-struct AiUpdateStrategy {
-    last_state_action: Option<(AiState, AiAction)>,
-}
-
-impl<S: State> ExplorationStrategy<S> for AiUpdateStrategy
-where
-    S: State<A = AiAction>,
-{
-    fn pick_action(&self, _: &mut dyn rurel::mdp::Agent<S>) -> S::A {
-        self.last_state_action.as_ref().unwrap().1.clone()
-    }
-}
 
 struct AiUpdateAgent {
     state: AiState,
+}
+
+impl AiUpdateAgent {
+    pub fn new(simulation: &Simulation) -> Self {
+        Self {
+            state: (&simulation.environment).into(),
+        }
+    }
 }
 
 impl Agent<AiState> for AiUpdateAgent {
@@ -49,6 +44,12 @@ impl Agent<AiState> for AiUpdateAgent {
     }
 
     fn take_action(&mut self, _action: &<AiState as State>::A) {}
+}
+
+impl ExplorationStrategy<AiState> for Simulation {
+    fn pick_action(&self, _: &mut dyn Agent<AiState>) -> <AiState as State>::A {
+        (&self.command_history.last().unwrap().clone().command).into()
+    }
 }
 
 pub struct AiManager {
@@ -171,24 +172,15 @@ impl AiManager {
         })
     }
 
-    pub fn update(&mut self, environment: &Environment) {
-        if let Some((last_state, last_action)) = self.last_state_action.take() {
-            let new_ai_state: AiState = environment.into();
-            let exploration_strategy = AiUpdateStrategy {
-                last_state_action: Some((last_state, last_action)),
-            };
+    pub fn update(&mut self, simulation: &Simulation) {
+        let mut agent = AiUpdateAgent::new(simulation);
 
-            let mut agent = AiUpdateAgent {
-                state: new_ai_state,
-            };
-
-            self.trainer.train(
-                &mut agent,
-                &QLearning::new(0.0002, 0.01, 0.5),
-                &mut FixedIterations::new(1),
-                &exploration_strategy,
-            );
-        }
+        self.trainer.train(
+            &mut agent,
+            &QLearning::new(0.02, 0.01, 0.5),
+            &mut FixedIterations::new(1),
+            simulation,
+        );
     }
 }
 
