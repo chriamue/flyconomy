@@ -1,3 +1,5 @@
+use std::time::Duration;
+
 use rurel::mdp::{Agent, State};
 
 use crate::{
@@ -13,6 +15,7 @@ use crate::{
 
 #[derive(Debug, Clone, Hash, PartialEq, Eq)]
 pub enum AiAction {
+    NoOp,
     BuyPlane {
         plane_type: u8,
         base_id: u64,
@@ -36,30 +39,36 @@ impl AiAction {
         environment: &Environment,
         plane_types: &Vec<PlaneType>,
         aerodromes: &Vec<Aerodrome>,
-    ) -> Box<dyn Command> {
+    ) -> Option<Box<dyn Command>> {
         match self {
             AiAction::BuyPlane {
                 plane_type,
                 base_id,
-            } => Box::new(BuyPlaneCommand {
+            } => Some(Box::new(BuyPlaneCommand {
                 plane_type: plane_types[*plane_type as usize].clone(),
                 home_base_id: *base_id,
-            }),
+            })),
             AiAction::CreateBase { aerodrome_id } => {
-                let aerodrome = aerodromes
+                match aerodromes
                     .iter()
                     .find(|aerodrome| aerodrome.id == *aerodrome_id)
-                    .unwrap()
-                    .clone();
-                Box::new(CreateBaseCommand { aerodrome })
+                {
+                    Some(aerodrome) => Some(Box::new(CreateBaseCommand {
+                        aerodrome: aerodrome.clone(),
+                    })),
+                    None => return None,
+                }
             }
             AiAction::BuyLandingRights { aerodrome_id } => {
-                let aerodrome = aerodromes
+                match aerodromes
                     .iter()
                     .find(|aerodrome| aerodrome.id == *aerodrome_id)
-                    .unwrap()
-                    .clone();
-                Box::new(BuyLandingRightsCommand { aerodrome })
+                {
+                    Some(aerodrome) => Some(Box::new(BuyLandingRightsCommand {
+                        aerodrome: aerodrome.clone(),
+                    })),
+                    None => return None,
+                }
             }
             AiAction::ScheduleFlight {
                 plane_id,
@@ -82,20 +91,21 @@ impl AiAction {
                     .clone();
 
                 let destination_aerodrome: Aerodrome = environment
-                    .bases
+                    .landing_rights
                     .iter()
-                    .find(|base| base.id == *destination_id)
+                    .find(|landing_rights| landing_rights.aerodrome.id == *destination_id)
                     .unwrap()
                     .aerodrome
                     .clone();
 
-                Box::new(ScheduleFlightCommand {
+                Some(Box::new(ScheduleFlightCommand {
                     airplane,
                     origin_aerodrome,
                     destination_aerodrome,
                     departure_time: environment.timestamp,
-                })
+                }))
             }
+            AiAction::NoOp => None,
         }
     }
 }
@@ -116,8 +126,8 @@ impl State for AiState {
     }
 
     fn actions(&self) -> Vec<Self::A> {
-        let mut actions = vec![];
-        if self.cash >= 100_000 {
+        let mut actions = vec![AiAction::NoOp];
+        if self.cash >= 350_000 {
             for base_id in &self.bases {
                 for plane_type in 0..3 {
                     actions.push(AiAction::BuyPlane {
@@ -127,24 +137,23 @@ impl State for AiState {
                 }
             }
         }
-        if self.cash >= 400_000 {
-            for aerodrome_id in &self.landing_rights {
-                actions.push(AiAction::CreateBase {
-                    aerodrome_id: *aerodrome_id,
-                });
+        if self.cash >= 800_000 {
+            for aerodrome_id in 0..1000 {
+                actions.push(AiAction::CreateBase { aerodrome_id });
             }
         }
-        if self.cash >= 100_000 {
-            for aerodrome_id in &self.landing_rights {
-                actions.push(AiAction::BuyLandingRights {
-                    aerodrome_id: *aerodrome_id,
-                });
+        if self.cash >= 150_000
+            && self.bases.len() > 0
+            && self.planes.len() > self.landing_rights.len()
+        {
+            for aerodrome_id in 0..1000 {
+                actions.push(AiAction::BuyLandingRights { aerodrome_id });
             }
         }
         if self.cash >= 500 {
             for plane_id in &self.planes {
                 for origin_id in &self.bases {
-                    for destination_id in &self.bases {
+                    for destination_id in &self.landing_rights {
                         if origin_id != destination_id {
                             actions.push(AiAction::ScheduleFlight {
                                 plane_id: *plane_id,
@@ -217,7 +226,101 @@ impl Agent<AiState> for AiAgent<'_> {
             &self.plane_types,
             &self.aerodromes,
         );
-        self.simulation.add_command(command);
+        println!("Taking action: {:?}", action);
+        match command {
+            Some(command) => self.simulation.add_command(command),
+            None => {}
+        }
+        self.simulation.update(Duration::from_secs(1));
         self.update_state();
+    }
+}
+
+#[cfg(test)]
+mod tests {
+    use std::time::Duration;
+
+    use rurel::{
+        strategy::{explore::RandomExploration, learn::QLearning, terminate::FixedIterations},
+        AgentTrainer,
+    };
+
+    use crate::{
+        config::{load_airports, PlanesConfig},
+        model::{
+            commands::{BuyLandingRightsCommand, BuyPlaneCommand, CreateBaseCommand},
+            Aerodrome,
+        },
+        simulation::Simulation,
+    };
+
+    #[test]
+    fn test_ai_agent() {
+        let aerodromes = load_airports(
+            include_str!("../../assets/airports.dat"),
+            include_str!("../../assets/passengers.csv"),
+        );
+
+        let planes_config: PlanesConfig =
+            serde_yaml::from_str(include_str!("../../assets/planes.yaml")).unwrap();
+
+        let mut simulation = Simulation::new(Default::default());
+        simulation.setup();
+
+        let paris_aerodrome = Aerodrome::new(
+            1381,
+            49.012798,
+            2.55,
+            "Paris, Charles de Gaulle".to_string(),
+            "CDG/LFPG".to_string(),
+        );
+
+        let frankfurt_aerodrome = Aerodrome::new(
+            339,
+            50.033333,
+            8.570556,
+            "Frankfurt am Main Airport".to_string(),
+            "FRA/EDDF".to_string(),
+        );
+
+        let create_base_command = CreateBaseCommand {
+            aerodrome: frankfurt_aerodrome.clone(),
+        };
+
+        let buy_landing_rights_command = BuyLandingRightsCommand {
+            aerodrome: paris_aerodrome.clone(),
+        };
+
+        simulation.add_command(Box::new(create_base_command));
+        simulation.update(Duration::from_secs(1));
+
+        simulation.add_command(Box::new(buy_landing_rights_command));
+        simulation.update(Duration::from_secs(1));
+
+        let buy_plane_command = BuyPlaneCommand {
+            plane_type: planes_config.planes[0].clone(),
+            home_base_id: simulation.environment.bases[0].id,
+        };
+
+        simulation.add_command(Box::new(buy_plane_command));
+
+        simulation.update(Duration::from_secs(1));
+
+        // Start training
+
+        let mut agent = super::AiAgent::new(&mut simulation, planes_config.planes, aerodromes);
+
+        let mut trainer = AgentTrainer::new();
+        trainer.train(
+            &mut agent,
+            &QLearning::new(0.2, 0.01, 2.0),
+            &mut FixedIterations::new(1000),
+            &RandomExploration::new(),
+        );
+
+        println!("{:?}", agent.state);
+        println!("Planes: {:#?}", simulation.environment.planes);
+        println!("Bases: {:#?}", simulation.environment.bases);
+
     }
 }
