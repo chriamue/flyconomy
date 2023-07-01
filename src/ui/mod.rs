@@ -9,6 +9,7 @@ mod analytics_ui;
 mod game_over_screen;
 mod hud;
 mod messages;
+mod office_ui;
 mod replay;
 mod simulation_control;
 mod welcome_screen;
@@ -40,6 +41,7 @@ impl Plugin for UiPlugin {
         app.add_plugin(replay::ReplayPlugin);
         app.add_plugin(simulation_control::SimulationControlPlugin);
         app.add_plugin(analytics_ui::AnalyticsPlugin);
+        app.add_plugin(office_ui::OfficePlugin);
         app.add_systems(
             (planes_purchase_ui, bases_info_ui)
                 .in_set(OnUpdate(GameState::Playing))
@@ -60,6 +62,7 @@ pub enum UiState {
     Settings,
     Analytics,
     Schedule,
+    Office,
 }
 
 pub fn planes_purchase_ui(

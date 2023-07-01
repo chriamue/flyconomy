@@ -3,7 +3,10 @@ use crate::{
     model::analytics::calculate_cash_history,
 };
 use bevy::prelude::{App, IntoSystemConfigs, OnUpdate, Plugin, Res};
-use bevy_egui::{egui, EguiContexts};
+use bevy_egui::{
+    egui::{self, vec2, Align2},
+    EguiContexts,
+};
 
 use super::UiState;
 
@@ -19,8 +22,9 @@ impl Plugin for AnalyticsPlugin {
     }
 }
 
-fn company_hud_system(mut contexts: EguiContexts, game_resource: Res<GameResource>) {
+pub fn company_hud_system(mut contexts: EguiContexts, game_resource: Res<GameResource>) {
     egui::Window::new("Company")
+        .anchor(Align2::LEFT_TOP, vec2(0.0, 100.0))
         .default_open(false)
         .show(contexts.ctx_mut(), |ui| {
             let environment = &game_resource.simulation.environment;
@@ -70,6 +74,7 @@ pub fn show_cash_history(mut contexts: EguiContexts, game_resource: Res<GameReso
         });
 
     egui::Window::new("Cash History")
+        .anchor(egui::Align2::LEFT_CENTER, vec2(0.0, 0.0))
         .default_open(true)
         .show(contexts.ctx_mut(), |ui| {
             cash_history_plot.show(ui, |ui| {

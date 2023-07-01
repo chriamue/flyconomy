@@ -1,261 +1,49 @@
+mod ai_action;
+mod ai_agent;
+mod ai_state;
+
 use std::time::Duration;
 
-use rurel::mdp::{Agent, State};
+pub use ai_action::AiAction;
+pub use ai_agent::AiAgent;
+pub use ai_state::AiState;
+use rand::seq::SliceRandom;
+use rurel::{
+    mdp::State,
+    strategy::{explore::RandomExploration, learn::QLearning, terminate::FixedIterations},
+    AgentTrainer,
+};
 
 use crate::{
+    config::{load_airports, PlanesConfig},
     model::{
-        commands::{
-            BuyLandingRightsCommand, BuyPlaneCommand, Command, CreateBaseCommand,
-            ScheduleFlightCommand,
-        },
+        commands::{BuyLandingRightsCommand, BuyPlaneCommand, Command, CreateBaseCommand},
         Aerodrome, Environment, PlaneType,
     },
     simulation::Simulation,
 };
 
-#[derive(Debug, Clone, Hash, PartialEq, Eq)]
-pub enum AiAction {
-    NoOp,
-    BuyPlane {
-        plane_type: u8,
-        base_id: u64,
-    },
-    CreateBase {
-        aerodrome_id: u64,
-    },
-    BuyLandingRights {
-        aerodrome_id: u64,
-    },
-    ScheduleFlight {
-        plane_id: u64,
-        origin_id: u64,
-        destination_id: u64,
-    },
+pub struct AiManager {
+    pub trainer: AgentTrainer<AiState>,
+    no_op_counter: u32,
 }
 
-impl AiAction {
-    pub fn to_command(
-        &self,
-        environment: &Environment,
-        plane_types: &Vec<PlaneType>,
-        aerodromes: &Vec<Aerodrome>,
-    ) -> Option<Box<dyn Command>> {
-        match self {
-            AiAction::BuyPlane {
-                plane_type,
-                base_id,
-            } => Some(Box::new(BuyPlaneCommand {
-                plane_type: plane_types[*plane_type as usize].clone(),
-                home_base_id: *base_id,
-            })),
-            AiAction::CreateBase { aerodrome_id } => {
-                match aerodromes
-                    .iter()
-                    .find(|aerodrome| aerodrome.id == *aerodrome_id)
-                {
-                    Some(aerodrome) => Some(Box::new(CreateBaseCommand {
-                        aerodrome: aerodrome.clone(),
-                    })),
-                    None => return None,
-                }
-            }
-            AiAction::BuyLandingRights { aerodrome_id } => {
-                match aerodromes
-                    .iter()
-                    .find(|aerodrome| aerodrome.id == *aerodrome_id)
-                {
-                    Some(aerodrome) => Some(Box::new(BuyLandingRightsCommand {
-                        aerodrome: aerodrome.clone(),
-                    })),
-                    None => return None,
-                }
-            }
-            AiAction::ScheduleFlight {
-                plane_id,
-                origin_id,
-                destination_id,
-            } => {
-                let airplane = environment
-                    .planes
-                    .iter()
-                    .find(|plane| plane.id == *plane_id)
-                    .unwrap()
-                    .clone();
-
-                let origin_aerodrome: Aerodrome = environment
-                    .bases
-                    .iter()
-                    .find(|base| base.id == *origin_id)
-                    .unwrap()
-                    .aerodrome
-                    .clone();
-
-                let destination_aerodrome: Aerodrome = environment
-                    .landing_rights
-                    .iter()
-                    .find(|landing_rights| landing_rights.aerodrome.id == *destination_id)
-                    .unwrap()
-                    .aerodrome
-                    .clone();
-
-                Some(Box::new(ScheduleFlightCommand {
-                    airplane,
-                    origin_aerodrome,
-                    destination_aerodrome,
-                    departure_time: environment.timestamp,
-                }))
-            }
-            AiAction::NoOp => None,
-        }
+impl Default for AiManager {
+    fn default() -> Self {
+        Self::new()
     }
 }
 
-#[derive(Debug, Clone, Hash, PartialEq, Eq)]
-struct AiState {
-    cash: u64,
-    planes: Vec<u64>,
-    bases: Vec<u64>,
-    landing_rights: Vec<u64>,
-}
-
-impl State for AiState {
-    type A = AiAction;
-
-    fn reward(&self) -> f64 {
-        self.cash as f64
-    }
-
-    fn actions(&self) -> Vec<Self::A> {
-        let mut actions = vec![AiAction::NoOp];
-        if self.cash >= 350_000 {
-            for base_id in &self.bases {
-                for plane_type in 0..3 {
-                    actions.push(AiAction::BuyPlane {
-                        plane_type,
-                        base_id: *base_id,
-                    });
-                }
-            }
-        }
-        if self.cash >= 800_000 {
-            for aerodrome_id in 0..1000 {
-                actions.push(AiAction::CreateBase { aerodrome_id });
-            }
-        }
-        if self.cash >= 150_000
-            && self.bases.len() > 0
-            && self.planes.len() > self.landing_rights.len()
-        {
-            for aerodrome_id in 0..1000 {
-                actions.push(AiAction::BuyLandingRights { aerodrome_id });
-            }
-        }
-        if self.cash >= 500 {
-            for plane_id in &self.planes {
-                for origin_id in &self.bases {
-                    for destination_id in &self.landing_rights {
-                        if origin_id != destination_id {
-                            actions.push(AiAction::ScheduleFlight {
-                                plane_id: *plane_id,
-                                origin_id: *origin_id,
-                                destination_id: *destination_id,
-                            });
-                        }
-                    }
-                }
-            }
-        }
-        actions
-    }
-}
-
-struct AiAgent<'a> {
-    state: AiState,
-    simulation: &'a mut Simulation,
-    plane_types: Vec<PlaneType>,
-    aerodromes: Vec<Aerodrome>,
-}
-
-impl<'a> AiAgent<'a> {
-    pub fn new(
-        simulation: &'a mut Simulation,
-        plane_types: Vec<PlaneType>,
-        aerodromes: Vec<Aerodrome>,
-    ) -> Self {
-        let environment = &simulation.environment;
+impl AiManager {
+    pub fn new() -> Self {
+        let trainer = AgentTrainer::new();
         Self {
-            state: AiState {
-                cash: environment.company_finances.cash(environment.timestamp) as u64,
-                planes: environment.planes.iter().map(|plane| plane.id).collect(),
-                bases: environment.bases.iter().map(|base| base.id).collect(),
-                landing_rights: environment
-                    .landing_rights
-                    .iter()
-                    .map(|landing_rights| landing_rights.aerodrome.id)
-                    .collect(),
-            },
-            simulation,
-            plane_types,
-            aerodromes,
+            trainer,
+            no_op_counter: 0,
         }
     }
 
-    fn update_state(&mut self) {
-        let environment = &self.simulation.environment;
-        self.state = AiState {
-            cash: environment.company_finances.cash(environment.timestamp) as u64,
-            planes: environment.planes.iter().map(|plane| plane.id).collect(),
-            bases: environment.bases.iter().map(|base| base.id).collect(),
-            landing_rights: environment
-                .landing_rights
-                .iter()
-                .map(|landing_rights| landing_rights.aerodrome.id)
-                .collect(),
-        }
-    }
-}
-
-impl Agent<AiState> for AiAgent<'_> {
-    fn current_state(&self) -> &AiState {
-        &self.state
-    }
-
-    fn take_action(&mut self, action: &<AiState as State>::A) {
-        let command = action.to_command(
-            &self.simulation.environment,
-            &self.plane_types,
-            &self.aerodromes,
-        );
-        println!("Taking action: {:?}", action);
-        match command {
-            Some(command) => self.simulation.add_command(command),
-            None => {}
-        }
-        self.simulation.update(Duration::from_secs(1));
-        self.update_state();
-    }
-}
-
-#[cfg(test)]
-mod tests {
-    use std::time::Duration;
-
-    use rurel::{
-        strategy::{explore::RandomExploration, learn::QLearning, terminate::FixedIterations},
-        AgentTrainer,
-    };
-
-    use crate::{
-        config::{load_airports, PlanesConfig},
-        model::{
-            commands::{BuyLandingRightsCommand, BuyPlaneCommand, CreateBaseCommand},
-            Aerodrome,
-        },
-        simulation::Simulation,
-    };
-
-    #[test]
-    fn test_ai_agent() {
+    pub fn train(&mut self, iterations: u32) {
         let aerodromes = load_airports(
             include_str!("../../assets/airports.dat"),
             include_str!("../../assets/passengers.csv"),
@@ -308,19 +96,60 @@ mod tests {
 
         // Start training
 
-        let mut agent = super::AiAgent::new(&mut simulation, planes_config.planes, aerodromes);
+        let mut agent = AiAgent::new(&mut simulation, planes_config.planes, aerodromes);
 
-        let mut trainer = AgentTrainer::new();
-        trainer.train(
+        self.trainer.train(
             &mut agent,
             &QLearning::new(0.2, 0.01, 2.0),
-            &mut FixedIterations::new(1000),
+            &mut FixedIterations::new(iterations),
             &RandomExploration::new(),
         );
-
         println!("{:?}", agent.state);
         println!("Planes: {:#?}", simulation.environment.planes);
         println!("Bases: {:#?}", simulation.environment.bases);
+    }
 
+    pub fn best_command(
+        &mut self,
+        environment: &Environment,
+        plane_types: &Vec<PlaneType>,
+        aerodromes: &Vec<Aerodrome>,
+    ) -> Option<Box<dyn Command>> {
+        let ai_state: AiState = environment.into();
+        let action = self.trainer.best_action(&ai_state);
+
+        let action = if let None = action {
+            self.no_op_counter += 1;
+            if self.no_op_counter > 100 {
+                let actions = ai_state.actions();
+                self.no_op_counter = 0;
+                actions.choose(&mut rand::thread_rng()).cloned()
+            } else {
+                None
+            }
+        } else {
+            self.no_op_counter = 0;
+            action
+        };
+        match action {
+            Some(action) => {
+                let command = action.to_command(environment, plane_types, aerodromes);
+                match command {
+                    Some(command) => Some(command),
+                    None => None,
+                }
+            }
+            None => None,
+        }
+    }
+}
+
+#[cfg(test)]
+mod tests {
+
+    #[test]
+    fn test_ai_manager() {
+        let mut ai_manager = super::AiManager::new();
+        ai_manager.train(1000);
     }
 }

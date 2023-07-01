@@ -8,8 +8,8 @@ use bevy::{
 use crate::{game::GameResource, simulation::DEFAULT_TIME_MULTIPLIER, ui::UiState};
 
 use super::{
-    AerodromesButton, AnalyticsButton, PauseButton, PlayButton, ScheduleButton, SettingsButton,
-    SimulationControl, SimulationControlAction, SkipButton, SpeedUpButton,
+    AerodromesButton, AnalyticsButton, OfficeButton, PauseButton, PlayButton, ScheduleButton,
+    SettingsButton, SimulationControl, SimulationControlAction, SkipButton, SpeedUpButton,
 };
 
 pub fn play_button_system(
@@ -131,6 +131,20 @@ pub fn aerodromes_button_system(
         match *interaction {
             Interaction::Clicked => {
                 ui_state_next_state.set(UiState::Aerodromes);
+            }
+            _ => {}
+        }
+    }
+}
+
+pub fn office_button_system(
+    mut interaction_query: Query<(&Interaction, &OfficeButton)>,
+    mut ui_state_next_state: ResMut<NextState<UiState>>,
+) {
+    for (interaction, _) in interaction_query.iter_mut() {
+        match *interaction {
+            Interaction::Clicked => {
+                ui_state_next_state.set(UiState::Office);
             }
             _ => {}
         }

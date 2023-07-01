@@ -11,6 +11,8 @@ use actions::{
 };
 use layout::{despawn_simulation_control_buttons, spawn_simulation_control_buttons};
 
+use self::actions::office_button_system;
+
 #[derive(Default, Resource)]
 pub struct SimulationControl {
     pub action: SimulationControlAction,
@@ -49,6 +51,9 @@ pub struct ScheduleButton;
 #[derive(Component)]
 pub struct AerodromesButton;
 
+#[derive(Component)]
+pub struct OfficeButton;
+
 pub struct SimulationControlPlugin;
 
 impl Plugin for SimulationControlPlugin {
@@ -65,6 +70,7 @@ impl Plugin for SimulationControlPlugin {
                     analytics_button_system,
                     schedule_button_system,
                     aerodromes_button_system,
+                    office_button_system,
                 )
                     .in_set(OnUpdate(GameState::Playing)),
             )

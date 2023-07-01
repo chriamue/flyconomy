@@ -10,6 +10,9 @@ mod plane;
 pub mod projection;
 pub mod world_heritage_site;
 
+#[cfg(feature = "ai")]
+pub mod manager;
+
 use bevy::prelude::IntoSystemConfigs;
 use bevy_common_assets::yaml::YamlAssetPlugin;
 use bevy_egui::EguiPlugin;
@@ -106,6 +109,8 @@ pub fn setup_game(app: &mut App, game_resource: GameResource) {
         .add_plugin(ui::UiPlugin)
         .add_plugin(plane::PlanePlugin)
         .add_plugin(earth3d::Earth3dPlugin);
+    #[cfg(feature = "ai")]
+    app.add_plugin(manager::ManagerPlugin);
 }
 
 fn setup(mut commands: Commands) {

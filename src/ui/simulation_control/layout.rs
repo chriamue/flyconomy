@@ -1,5 +1,5 @@
 use super::{
-    styles::IMAGE_STYLE, AerodromesButton, AnalyticsButton, PauseButton, PlayButton,
+    styles::IMAGE_STYLE, AerodromesButton, AnalyticsButton, OfficeButton, PauseButton, PlayButton,
     ScheduleButton, SettingsButton, SkipButton, SpeedUpButton,
 };
 use bevy::prelude::*;
@@ -37,6 +37,7 @@ pub fn build_simulation_control(
                 &asset_server,
                 AerodromesButton,
             );
+            spawn_control_button(parent, "icons/desk.png", &asset_server, OfficeButton);
             spawn_control_button(
                 parent,
                 "icons/plane-pilot.png",

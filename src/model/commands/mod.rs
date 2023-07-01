@@ -12,7 +12,7 @@ mod timestamped_command;
 
 pub use timestamped_command::TimestampedCommand;
 
-pub trait Command: Send + Sync {
+pub trait Command: Send + Sync + std::fmt::Debug {
     fn as_any(&self) -> &dyn Any;
     fn execute(
         &self,
