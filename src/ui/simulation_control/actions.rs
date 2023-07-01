@@ -1,14 +1,15 @@
 use std::time::Duration;
 
 use bevy::{
-    prelude::{Query, ResMut},
+    prelude::{NextState, Query, ResMut},
     ui::Interaction,
 };
 
-use crate::{game::GameResource, simulation::DEFAULT_TIME_MULTIPLIER};
+use crate::{game::GameResource, simulation::DEFAULT_TIME_MULTIPLIER, ui::UiState};
 
 use super::{
-    PauseButton, PlayButton, SimulationControl, SimulationControlAction, SkipButton, SpeedUpButton,
+    AerodromesButton, AnalyticsButton, PauseButton, PlayButton, ScheduleButton, SettingsButton,
+    SimulationControl, SimulationControlAction, SkipButton, SpeedUpButton,
 };
 
 pub fn play_button_system(
@@ -74,6 +75,62 @@ pub fn pause_button_system(
             Interaction::Clicked => {
                 game_resource.simulation.time_multiplier = 0.0;
                 simulation_control.action = SimulationControlAction::Pause;
+            }
+            _ => {}
+        }
+    }
+}
+
+pub fn settings_button_system(
+    mut interaction_query: Query<(&Interaction, &SettingsButton)>,
+    mut ui_state_next_state: ResMut<NextState<UiState>>,
+) {
+    for (interaction, _) in interaction_query.iter_mut() {
+        match *interaction {
+            Interaction::Clicked => {
+                ui_state_next_state.set(UiState::Settings);
+            }
+            _ => {}
+        }
+    }
+}
+
+pub fn analytics_button_system(
+    mut interaction_query: Query<(&Interaction, &AnalyticsButton)>,
+    mut ui_state_next_state: ResMut<NextState<UiState>>,
+) {
+    for (interaction, _) in interaction_query.iter_mut() {
+        match *interaction {
+            Interaction::Clicked => {
+                ui_state_next_state.set(UiState::Analytics);
+            }
+            _ => {}
+        }
+    }
+}
+
+pub fn schedule_button_system(
+    mut interaction_query: Query<(&Interaction, &ScheduleButton)>,
+    mut ui_state_next_state: ResMut<NextState<UiState>>,
+) {
+    for (interaction, _) in interaction_query.iter_mut() {
+        match *interaction {
+            Interaction::Clicked => {
+                ui_state_next_state.set(UiState::Schedule);
+            }
+            _ => {}
+        }
+    }
+}
+
+pub fn aerodromes_button_system(
+    mut interaction_query: Query<(&Interaction, &AerodromesButton)>,
+    mut ui_state_next_state: ResMut<NextState<UiState>>,
+) {
+    for (interaction, _) in interaction_query.iter_mut() {
+        match *interaction {
+            Interaction::Clicked => {
+                ui_state_next_state.set(UiState::Aerodromes);
             }
             _ => {}
         }

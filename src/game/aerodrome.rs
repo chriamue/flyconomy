@@ -3,7 +3,6 @@ use bevy::prelude::{
     shape, App, Assets, Color, Commands, Component, Entity, EventReader, EventWriter, Mesh,
     PbrBundle, Plugin, Query, Res, ResMut, Resource, StandardMaterial, Transform, Vec3, With,
 };
-use bevy::transform;
 use bevy_mod_picking::{
     prelude::{Click, ListenedEvent, OnPointer, RaycastPickTarget},
     PickableBundle,

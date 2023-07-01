@@ -7,6 +7,8 @@ use bevy_egui::{egui, EguiContexts};
 #[cfg(target_arch = "wasm32")]
 use wasm_bindgen::prelude::*;
 
+use super::UiState;
+
 pub struct ReplayPlugin;
 
 impl Plugin for ReplayPlugin {
@@ -14,7 +16,11 @@ impl Plugin for ReplayPlugin {
         app.insert_resource(UiInputReplayFilename {
             replay_filename: "last.replay.yaml".to_string(),
         })
-        .add_systems((save_replay_system,).in_set(OnUpdate(GameState::Playing)));
+        .add_systems(
+            (save_replay_system,)
+                .in_set(OnUpdate(GameState::Playing))
+                .in_set(OnUpdate(UiState::Settings)),
+        );
     }
 }
 
@@ -68,7 +74,7 @@ pub fn save_replay_system(
     use web_sys::HtmlAnchorElement;
 
     egui::Window::new("Save Replay")
-        .default_open(false)
+        .default_open(true)
         .show(contexts.ctx_mut(), |ui| {
             ui.horizontal(|ui| {
                 ui.label("Filename:");

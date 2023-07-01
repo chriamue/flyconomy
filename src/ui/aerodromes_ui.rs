@@ -4,8 +4,11 @@ use crate::model::commands::{BuyLandingRightsCommand, CreateBaseCommand};
 use crate::model::Base;
 use bevy::prelude::*;
 use bevy::prelude::{App, OnUpdate, Plugin, ResMut};
+use bevy_egui::egui::{vec2, Align2};
 use bevy_egui::{egui, EguiContexts};
 use bevy_panorbit_camera::PanOrbitCamera;
+
+use super::UiState;
 
 pub struct AerodromesUiPlugin;
 
@@ -14,9 +17,11 @@ impl Plugin for AerodromesUiPlugin {
         app.insert_resource(UiInput {
             search_string: String::new(),
         })
+        .add_systems((selected_aerodrome_info_ui_system,).in_set(OnUpdate(GameState::Playing)))
         .add_systems(
-            (aerodromes_ui_system, selected_aerodrome_info_ui_system)
-                .in_set(OnUpdate(GameState::Playing)),
+            (aerodromes_ui_system,)
+                .in_set(OnUpdate(GameState::Playing))
+                .in_set(OnUpdate(UiState::Aerodromes)),
         );
     }
 }
@@ -30,6 +35,7 @@ pub fn aerodromes_ui_system(
 ) {
     if let Some(aerodromes) = config_resource.aerodromes.as_ref() {
         egui::Window::new("Aerodromes")
+            .anchor(Align2::LEFT_TOP, vec2(0.0, 100.0))
             .default_open(false)
             .show(contexts.ctx_mut(), |ui| {
                 ui.label("Available Aerodromes:");
@@ -85,6 +91,7 @@ fn selected_aerodrome_info_ui_system(
         };
 
         egui::Window::new("Selected Aerodrome")
+            .anchor(Align2::LEFT_CENTER, vec2(0.0, 0.0))
             .default_open(true)
             .show(contexts.ctx_mut(), |ui| {
                 if ui

@@ -1,6 +1,6 @@
-use bevy::prelude::{App, EventWriter, OnUpdate, Query, Res, ResMut, Resource, Transform};
+use bevy::prelude::{App, EventWriter, OnUpdate, Query, Res, ResMut, Resource, States, Transform};
 use bevy::prelude::{IntoSystemConfigs, Plugin};
-use bevy::time::Time;
+use bevy_egui::egui::{vec2, Align2};
 use bevy_egui::{egui, EguiContexts};
 use bevy_panorbit_camera::PanOrbitCamera;
 
@@ -29,6 +29,7 @@ pub struct UiPlugin;
 
 impl Plugin for UiPlugin {
     fn build(&self, app: &mut App) {
+        app.add_state::<UiState>();
         app.insert_resource(FlightPlanningInput::default());
         app.add_plugin(hud::HudPlugin);
         app.add_plugin(welcome_screen::WelcomeScreenPlugin);
@@ -40,42 +41,25 @@ impl Plugin for UiPlugin {
         app.add_plugin(simulation_control::SimulationControlPlugin);
         app.add_plugin(analytics_ui::AnalyticsPlugin);
         app.add_systems(
-            (
-                company_hud,
-                planes_purchase_ui,
-                bases_info_ui,
-                flight_planning_ui,
-            )
-                .in_set(OnUpdate(GameState::Playing)),
+            (planes_purchase_ui, bases_info_ui)
+                .in_set(OnUpdate(GameState::Playing))
+                .in_set(OnUpdate(UiState::Aerodromes)),
+        );
+        app.add_systems(
+            (flight_planning_ui, bases_info_ui)
+                .in_set(OnUpdate(GameState::Playing))
+                .in_set(OnUpdate(UiState::Schedule)),
         );
     }
 }
 
-fn company_hud(mut contexts: EguiContexts, game_resource: Res<GameResource>) {
-    egui::Window::new("Company")
-        .default_open(false)
-        .show(contexts.ctx_mut(), |ui| {
-            let environment = &game_resource.simulation.environment;
-            ui.horizontal(|ui| {
-                ui.label(format!(
-                    "Cash: ${:.2}",
-                    environment.company_finances.cash(environment.timestamp)
-                ));
-                ui.label(format!("Planes: {}", environment.planes.len()));
-                ui.label(format!(
-                    "Total Income: ${:.2}",
-                    environment
-                        .company_finances
-                        .total_income(environment.timestamp)
-                ));
-                ui.label(format!(
-                    "Total Expenses: ${:.2}",
-                    environment
-                        .company_finances
-                        .total_expenses(environment.timestamp)
-                ));
-            });
-        });
+#[derive(States, Debug, Clone, Copy, Eq, PartialEq, Hash, Default)]
+pub enum UiState {
+    #[default]
+    Aerodromes,
+    Settings,
+    Analytics,
+    Schedule,
 }
 
 pub fn planes_purchase_ui(
@@ -84,25 +68,29 @@ pub fn planes_purchase_ui(
     config_resource: Res<ConfigResource>,
     mut game_resource: ResMut<GameResource>,
 ) {
-    if let Some(planes_config) = config_resource.planes_config.as_ref() {
-        egui::Window::new("Buy Planes").show(contexts.ctx_mut(), |ui| {
-            ui.label("Available Planes:");
+    if let (Some(selected_aerodrome), Some(planes_config)) = (
+        &selected_aerodrome.aerodrome,
+        config_resource.planes_config.as_ref(),
+    ) {
+        egui::Window::new("Buy Planes")
+            .anchor(Align2::RIGHT_BOTTOM, vec2(0.0, 0.0))
+            .show(contexts.ctx_mut(), |ui| {
+                ui.label("Available Planes:");
 
-            for plane in &planes_config.planes {
-                ui.horizontal(|ui| {
-                    ui.label(&plane.name);
-                    ui.label(format!("Cost: ${:.2}", plane.cost));
-                    ui.label(format!("Monthly Income: ${:.2}", plane.monthly_income));
-                    ui.label(format!("Range: {} km", plane.range));
-                    ui.label(format!("Speed: {} km/h", plane.speed));
-                    ui.label(format!("Capacity: {} passengers", plane.seats));
-                    ui.label(format!(
-                        "Fuel Consumption: {} L/km",
-                        plane.fuel_consumption_per_km
-                    ));
+                for plane in &planes_config.planes {
+                    ui.horizontal(|ui| {
+                        ui.label(&plane.name);
+                        ui.label(format!("Cost: ${:.2}", plane.cost));
+                        ui.label(format!("Monthly Income: ${:.2}", plane.monthly_income));
+                        ui.label(format!("Range: {} km", plane.range));
+                        ui.label(format!("Speed: {} km/h", plane.speed));
+                        ui.label(format!("Capacity: {} passengers", plane.seats));
+                        ui.label(format!(
+                            "Fuel Consumption: {} L/km",
+                            plane.fuel_consumption_per_km
+                        ));
 
-                    if ui.button("Buy").clicked() {
-                        if let Some(selected_aerodrome) = &selected_aerodrome.aerodrome {
+                        if ui.button("Buy").clicked() {
                             let home_base_id = game_resource
                                 .simulation
                                 .environment
@@ -117,10 +105,9 @@ pub fn planes_purchase_ui(
                             };
                             game_resource.simulation.add_command(Box::new(buy_plane));
                         }
-                    }
-                });
-            }
-        });
+                    });
+                }
+            });
     }
 }
 
@@ -131,6 +118,7 @@ pub fn bases_info_ui(
     mut pan_orbit_query: Query<(&mut PanOrbitCamera, &mut Transform)>,
 ) {
     egui::Window::new("Bases Info")
+        .anchor(Align2::RIGHT_TOP, vec2(0.0, 100.0))
         .default_open(true)
         .show(contexts.ctx_mut(), |ui| {
             let environment = &game_resource.simulation.environment;
@@ -164,10 +152,10 @@ pub fn flight_planning_ui(
     selected_aerodrome: Res<SelectedAerodrome>,
     mut game_resource: ResMut<GameResource>,
     mut flight_planning_input: ResMut<FlightPlanningInput>,
-    time: Res<Time>,
 ) {
     if let Some(selected_aerodrome) = &selected_aerodrome.aerodrome {
         egui::Window::new("Flight Planning")
+            .pivot(Align2::RIGHT_CENTER)
             .default_open(true)
             .show(contexts.ctx_mut(), |ui| {
                 ui.label(format!("Selected Aerodrome: {}", selected_aerodrome.name));
@@ -269,7 +257,10 @@ pub fn flight_planning_ui(
                                         airplane: airplane.clone(),
                                         origin_aerodrome: origin_aerodrome.clone(),
                                         destination_aerodrome: destination_aerodrome.clone(),
-                                        departure_time: time.elapsed().as_millis(),
+                                        departure_time: game_resource
+                                            .simulation
+                                            .environment
+                                            .timestamp,
                                         arrival_time: None,
                                         state: Default::default(),
                                     };
@@ -290,8 +281,8 @@ pub fn flight_planning_ui(
                                             destination_aerodrome: destination_aerodrome.clone(),
                                             departure_time: game_resource
                                                 .simulation
-                                                .elapsed_time
-                                                .as_millis(),
+                                                .environment
+                                                .timestamp,
                                         };
                                         game_resource
                                             .simulation

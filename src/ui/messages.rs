@@ -1,6 +1,6 @@
 use crate::game::GameResource;
 use bevy::prelude::{App, Plugin, Res};
-use bevy_egui::{egui, EguiContexts};
+use bevy_egui::{egui::Window, EguiContexts};
 
 pub struct MessagesPlugin;
 
@@ -16,7 +16,7 @@ pub fn show_error_messages(mut contexts: EguiContexts, game_resource: Res<GameRe
     let time_multiplier = game_resource.simulation.time_multiplier;
 
     if !game_resource.simulation.error_messages.is_empty() {
-        egui::Window::new("Error Book")
+        Window::new("Error Book")
             .default_open(true)
             .show(contexts.ctx_mut(), |ui| {
                 for message in &game_resource.simulation.error_messages {
@@ -34,7 +34,7 @@ pub fn show_event_messages(mut contexts: EguiContexts, game_resource: Res<GameRe
     let time_multiplier = game_resource.simulation.time_multiplier;
 
     if !game_resource.simulation.event_messages.is_empty() {
-        egui::Window::new("Log Book")
+        Window::new("Log Book")
             .default_open(true)
             .show(contexts.ctx_mut(), |ui| {
                 for message in &game_resource.simulation.event_messages {

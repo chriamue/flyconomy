@@ -1,4 +1,7 @@
-use super::{styles::IMAGE_STYLE, PauseButton, PlayButton, SkipButton, SpeedUpButton};
+use super::{
+    styles::IMAGE_STYLE, AerodromesButton, AnalyticsButton, PauseButton, PlayButton,
+    ScheduleButton, SettingsButton, SkipButton, SpeedUpButton,
+};
 use bevy::prelude::*;
 
 use super::styles::{ITEM_STYLE, SIMULATION_CONTROL_STYLE};
@@ -26,6 +29,20 @@ pub fn build_simulation_control(
                 SpeedUpButton,
             );
             spawn_control_button(parent, "icons/next-button.png", &asset_server, SkipButton);
+            spawn_control_button(parent, "icons/cog.png", &asset_server, SettingsButton);
+            spawn_control_button(parent, "icons/diagram.png", &asset_server, AnalyticsButton);
+            spawn_control_button(
+                parent,
+                "icons/control-tower.png",
+                &asset_server,
+                AerodromesButton,
+            );
+            spawn_control_button(
+                parent,
+                "icons/plane-pilot.png",
+                &asset_server,
+                ScheduleButton,
+            );
         })
         .id();
 
@@ -62,6 +79,7 @@ pub fn despawn_simulation_control_buttons(
             With<SpeedUpButton>,
             With<SkipButton>,
             With<PauseButton>,
+            With<SettingsButton>,
         )>,
     >,
 ) {

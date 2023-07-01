@@ -6,7 +6,8 @@ mod layout;
 mod styles;
 
 use actions::{
-    pause_button_system, play_button_system, skip_button_system, speed_up_button_system,
+    aerodromes_button_system, analytics_button_system, pause_button_system, play_button_system,
+    schedule_button_system, settings_button_system, skip_button_system, speed_up_button_system,
 };
 use layout::{despawn_simulation_control_buttons, spawn_simulation_control_buttons};
 
@@ -36,6 +37,18 @@ pub struct SkipButton;
 #[derive(Component)]
 pub struct PauseButton;
 
+#[derive(Component)]
+pub struct SettingsButton;
+
+#[derive(Component)]
+pub struct AnalyticsButton;
+
+#[derive(Component)]
+pub struct ScheduleButton;
+
+#[derive(Component)]
+pub struct AerodromesButton;
+
 pub struct SimulationControlPlugin;
 
 impl Plugin for SimulationControlPlugin {
@@ -48,6 +61,10 @@ impl Plugin for SimulationControlPlugin {
                     speed_up_button_system,
                     skip_button_system,
                     pause_button_system,
+                    settings_button_system,
+                    analytics_button_system,
+                    schedule_button_system,
+                    aerodromes_button_system,
                 )
                     .in_set(OnUpdate(GameState::Playing)),
             )
