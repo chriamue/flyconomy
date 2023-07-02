@@ -1,6 +1,9 @@
 use rurel::mdp::State;
 
-use crate::model::Timestamp;
+use crate::model::{
+    commands::{BuyLandingRightsCommand, BuyPlaneCommand, CreateBaseCommand},
+    Timestamp,
+};
 
 use super::AiAction;
 
@@ -55,10 +58,11 @@ impl State for AiState {
     fn actions(&self) -> Vec<Self::A> {
         let mut actions = vec![AiAction::NoOp];
         if self.cash >= 350_000 {
+            let plane_id = BuyPlaneCommand::generate_id();
             for base_id in &self.bases {
                 for plane_type in 0..3 {
                     actions.push(AiAction::BuyPlane {
-                        plane_id: 1,
+                        plane_id,
                         plane_type,
                         base_id: *base_id,
                     });
@@ -66,9 +70,10 @@ impl State for AiState {
             }
         }
         if self.cash >= 800_000 {
+            let base_id = CreateBaseCommand::generate_id();
             for aerodrome_id in 0..8000 {
                 actions.push(AiAction::CreateBase {
-                    base_id: 1,
+                    base_id,
                     aerodrome_id,
                 });
             }
@@ -77,9 +82,10 @@ impl State for AiState {
             && self.bases.len() > 0
             && self.planes.len() > self.landing_rights.len()
         {
+            let landing_rights_id = BuyLandingRightsCommand::generate_id();
             for aerodrome_id in 0..8000 {
                 actions.push(AiAction::BuyLandingRights {
-                    landing_rights_id: 0,
+                    landing_rights_id,
                     aerodrome_id,
                 });
             }
@@ -87,7 +93,8 @@ impl State for AiState {
         if self.cash >= 500 {
             for plane_id in &self.planes {
                 for origin_id in &self.bases {
-                    for destination_id in &self.landing_rights {
+                    // destination_id is either a base or a landing rights
+                    for destination_id in self.bases.iter().chain(&self.landing_rights) {
                         if origin_id != destination_id {
                             actions.push(AiAction::ScheduleFlight {
                                 plane_id: *plane_id,

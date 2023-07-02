@@ -68,8 +68,8 @@ impl Simulation {
 
         let mut to_execute = vec![];
         self.commands.retain(|command| {
-            if self.elapsed_time.as_millis() >= command.timestamp {
-                to_execute.push(command.command.clone());
+            if self.environment.timestamp >= command.timestamp {
+                to_execute.push(command.clone());
                 false
             } else {
                 true
@@ -115,11 +115,11 @@ impl Simulation {
     }
 
     pub fn add_command_timed(&mut self, command: TimestampedCommand) {
-        self.command_history.push(command.clone());
         self.commands.push(command);
     }
 
-    pub fn execute_command(&mut self, command: Box<dyn Command>) {
+    pub fn execute_command(&mut self, timestamped_command: TimestampedCommand) {
+        let command = &timestamped_command.command;
         match command.execute(&mut self.environment) {
             Ok(_message) => {
                 if let Some(command) = command
@@ -147,6 +147,7 @@ impl Simulation {
                             aerodrome: command.aerodrome.clone(),
                         }));
                 }
+                self.command_history.push(timestamped_command.clone());
             }
             Err(error) => {
                 println!("{}", error);

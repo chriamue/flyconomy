@@ -55,6 +55,8 @@ pub enum BuyPlaneError {
     InsufficientFunds { needed: f64, has: f64 },
     #[error("Base not found")]
     BaseNotFound { base_id: u64 },
+    #[error("No space at base: {name}")]
+    NoSpaceAtBase { name: String },
 }
 
 impl Command for BuyPlaneCommand {
@@ -79,18 +81,25 @@ impl Command for BuyPlaneCommand {
             .iter_mut()
             .find(|base| base.id == self.home_base_id)
         {
-            Some(base) => base.airplane_ids.push(airplane.id),
+            Some(base) => {
+                if base.airplane_ids.len() >= 5 {
+                    return Err(Box::new(BuyPlaneError::NoSpaceAtBase {
+                        name: base.aerodrome.name.clone(),
+                    }));
+                }
+                base.airplane_ids.push(airplane.id);
+            }
             None => {
                 return Err(Box::new(BuyPlaneError::BaseNotFound {
                     base_id: self.home_base_id,
                 }))
             }
         }
+        environment.planes.push(airplane);
 
         environment
             .company_finances
             .add_expense(environment.timestamp, self.plane_type.cost.into());
-        environment.planes.push(airplane);
         Ok(None)
     }
 
@@ -247,6 +256,8 @@ pub enum ScheduleFlightError {
     AirplaneInUse,
     #[error("Cannot schedule the flight because the distance is beyond the airplane's range")]
     DistanceBeyondRange,
+    #[error("The airplane is not located at the origin aerodrome")]
+    AirplaneNotLocatedAtOrigin,
 }
 
 impl Command for ScheduleFlightCommand {
@@ -254,8 +265,8 @@ impl Command for ScheduleFlightCommand {
         &self,
         environment: &mut Environment,
     ) -> Result<Option<String>, Box<dyn std::error::Error>> {
-        // Check if the airplane is already in use for an ongoing flight
         let airplane_id = self.airplane.id;
+
         let is_airplane_in_use = environment
             .flights
             .iter()
@@ -280,6 +291,14 @@ impl Command for ScheduleFlightCommand {
         let distance = flight.calculate_distance();
         if distance > self.airplane.plane_type.range as f64 {
             return Err(Box::new(ScheduleFlightError::DistanceBeyondRange));
+        }
+
+        let is_airplane_located_at_origin = environment.bases.iter().any(|base| {
+            self.origin_aerodrome.id == base.aerodrome.id
+                && base.airplane_ids.contains(&airplane_id)
+        });
+        if !is_airplane_located_at_origin {
+            return Err(Box::new(ScheduleFlightError::AirplaneNotLocatedAtOrigin));
         }
 
         let profit = flight.calculate_profit();
