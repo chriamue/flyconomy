@@ -8,6 +8,9 @@ use std::time::Duration;
 pub use ai_action::AiAction;
 pub use ai_agent::AiAgent;
 pub use ai_state::AiState;
+
+use replay_agent::{ReplayAgent, ReplayStrategy, ReplayTerminationStrategy};
+
 use rurel::{
     mdp::{Agent, State},
     strategy::{
@@ -19,11 +22,13 @@ use rurel::{
 };
 
 use crate::{
+    config,
     model::{
         commands::{BuyLandingRightsCommand, BuyPlaneCommand, Command, CreateBaseCommand},
         Aerodrome, Environment, PlaneType,
     },
-    simulation::Simulation, config,
+    simulation::Simulation,
+    Replay,
 };
 
 struct AiUpdateAgent {
@@ -137,6 +142,35 @@ impl AiManager {
         println!("{:?}", agent.state);
         println!("Planes: {:#?}", simulation.environment.planes);
         println!("Bases: {:#?}", simulation.environment.bases);
+    }
+
+    pub fn train_simulation(&mut self, simulation: &Simulation) {
+        let replay = Replay::new(
+            simulation.environment.config.clone(),
+            simulation.command_history.clone(),
+        );
+
+        let mut simulation = Simulation::new(
+            replay.initial_config.clone(),
+            config::aerodromes(),
+            config::plane_types(),
+        );
+        simulation.time_multiplier = 1.0;
+        println!(
+            "Replaying simulation {:?}",
+            replay.command_history.last().unwrap().timestamp
+        );
+
+        let mut replay_agent = ReplayAgent::new(replay.clone(), &mut simulation);
+        let replay_strategy = ReplayStrategy::new(replay.clone());
+        let mut replay_termination_strategy = ReplayTerminationStrategy::new(replay);
+        let mut trainer = AgentTrainer::new();
+        trainer.train(
+            &mut replay_agent,
+            &QLearning::new(0.02, 0.5, 0.7),
+            &mut replay_termination_strategy,
+            &replay_strategy,
+        );
     }
 
     pub fn best_command(

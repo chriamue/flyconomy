@@ -417,6 +417,7 @@ mod tests {
         });
 
         let cmd = ScheduleFlightCommand {
+            flight_id: ScheduleFlightCommand::generate_id(),
             airplane: airplane.clone(),
             origin_aerodrome: aerodrome.clone(),
             destination_aerodrome: aerodrome.clone(),
