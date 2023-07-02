@@ -1,5 +1,5 @@
 use crate::{
-    config::PlanesConfig,
+    config::{aerodromes, plane_types, PlanesConfig},
     model::{
         commands::{
             BuyLandingRightsCommand, BuyPlaneCommand, CreateBaseCommand, ScheduleFlightCommand,
@@ -12,7 +12,7 @@ use super::*;
 
 #[test]
 fn test_simulation() {
-    let mut simulation = Simulation::new(Default::default());
+    let mut simulation = Simulation::new(Default::default(), aerodromes(), plane_types());
     simulation.setup();
 
     let paris_aerodrome = Aerodrome::new(
@@ -35,10 +35,12 @@ fn test_simulation() {
         serde_yaml::from_str(include_str!("../../assets/planes.yaml")).unwrap();
 
     let create_base_command = CreateBaseCommand {
+        base_id: CreateBaseCommand::generate_id(),
         aerodrome: frankfurt_aerodrome.clone(),
     };
 
     let buy_landing_rights_command = BuyLandingRightsCommand {
+        landing_rights_id: BuyLandingRightsCommand::generate_id(),
         aerodrome: paris_aerodrome.clone(),
     };
 
@@ -49,6 +51,7 @@ fn test_simulation() {
     simulation.update(Duration::from_secs(1));
 
     let buy_plane_command = BuyPlaneCommand {
+        plane_id: BuyPlaneCommand::generate_id(),
         plane_type: planes_config.planes[0].clone(),
         home_base_id: simulation.environment.bases[0].id,
     };
@@ -63,6 +66,7 @@ fn test_simulation() {
     assert_eq!(simulation.environment.flights.len(), 0);
 
     let flight_command = ScheduleFlightCommand {
+        flight_id: ScheduleFlightCommand::generate_id(),
         airplane: simulation.environment.planes[0].clone(),
         origin_aerodrome: frankfurt_aerodrome.clone(),
         destination_aerodrome: paris_aerodrome.clone(),

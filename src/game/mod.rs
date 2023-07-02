@@ -19,7 +19,7 @@ use bevy_egui::EguiPlugin;
 use bevy_mod_picking::DefaultPickingPlugins;
 pub use game_state::GameState;
 
-use crate::config::{parse_world_heritage_site_csv, LevelConfig};
+use crate::config::{self, parse_world_heritage_site_csv, LevelConfig};
 use crate::model::WorldHeritageSite;
 use crate::{
     config::{load_airports, AerodromeConfig, PlanesConfig},
@@ -46,13 +46,21 @@ impl GameResource {
 
         Self {
             level,
-            simulation: Simulation::new(level_config.environment),
+            simulation: Simulation::new(
+                level_config.environment,
+                config::aerodromes(),
+                config::plane_types(),
+            ),
             replay: None,
         }
     }
 
     pub fn from_replay(replay: Replay) -> Self {
-        let mut simulation = Simulation::new(replay.initial_config.clone());
+        let mut simulation = Simulation::new(
+            replay.initial_config.clone(),
+            config::aerodromes(),
+            config::plane_types(),
+        );
         for timestamped_command in &replay.command_history {
             simulation.add_command_timed(timestamped_command.clone());
         }
@@ -69,7 +77,11 @@ impl Default for GameResource {
     fn default() -> Self {
         Self {
             level: String::from("default"),
-            simulation: Simulation::new(LevelConfig::default().environment),
+            simulation: Simulation::new(
+                LevelConfig::default().environment,
+                config::aerodromes(),
+                config::plane_types(),
+            ),
             replay: None,
         }
     }

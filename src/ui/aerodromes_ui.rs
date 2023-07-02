@@ -135,6 +135,7 @@ fn selected_aerodrome_info_ui_system(
                 } else {
                     let environment = &game_resource.simulation.environment;
                     let buy_command = CreateBaseCommand {
+                        base_id: 0,
                         aerodrome: selected_aerodrome.clone(),
                     };
                     ui.label(format!(
@@ -145,12 +146,14 @@ fn selected_aerodrome_info_ui_system(
 
                     if ui.button("Create Base").clicked() {
                         let buy_plane = CreateBaseCommand {
+                            base_id: CreateBaseCommand::generate_id(),
                             aerodrome: selected_aerodrome.clone(),
                         };
                         game_resource.simulation.add_command(Box::new(buy_plane));
                     }
                     if ui.button("Buy Landing Rights").clicked() {
                         let buy_plane = BuyLandingRightsCommand {
+                            landing_rights_id: BuyLandingRightsCommand::generate_id(),
                             aerodrome: selected_aerodrome.clone(),
                         };
                         game_resource.simulation.add_command(Box::new(buy_plane));

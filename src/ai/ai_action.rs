@@ -9,13 +9,16 @@ use crate::model::{
 pub enum AiAction {
     NoOp,
     BuyPlane {
+        plane_id: u64,
         plane_type: u32,
         base_id: u64,
     },
     CreateBase {
+        base_id: u64,
         aerodrome_id: u64,
     },
     BuyLandingRights {
+        landing_rights_id: u64,
         aerodrome_id: u64,
     },
     ScheduleFlight {
@@ -29,34 +32,44 @@ impl AiAction {
     pub fn to_command(
         &self,
         environment: &Environment,
-        plane_types: &Vec<PlaneType>,
         aerodromes: &Vec<Aerodrome>,
+        plane_types: &Vec<PlaneType>,
     ) -> Option<Box<dyn Command>> {
         match self {
             AiAction::BuyPlane {
+                plane_id,
                 plane_type,
                 base_id,
             } => Some(Box::new(BuyPlaneCommand {
+                plane_id: *plane_id,
                 plane_type: plane_types[*plane_type as usize].clone(),
                 home_base_id: *base_id,
             })),
-            AiAction::CreateBase { aerodrome_id } => {
+            AiAction::CreateBase {
+                base_id,
+                aerodrome_id,
+            } => {
                 match aerodromes
                     .iter()
                     .find(|aerodrome| aerodrome.id == *aerodrome_id)
                 {
                     Some(aerodrome) => Some(Box::new(CreateBaseCommand {
+                        base_id: *base_id,
                         aerodrome: aerodrome.clone(),
                     })),
                     None => return None,
                 }
             }
-            AiAction::BuyLandingRights { aerodrome_id } => {
+            AiAction::BuyLandingRights {
+                landing_rights_id,
+                aerodrome_id,
+            } => {
                 match aerodromes
                     .iter()
                     .find(|aerodrome| aerodrome.id == *aerodrome_id)
                 {
                     Some(aerodrome) => Some(Box::new(BuyLandingRightsCommand {
+                        landing_rights_id: *landing_rights_id,
                         aerodrome: aerodrome.clone(),
                     })),
                     None => return None,
@@ -83,6 +96,7 @@ impl AiAction {
                         let origin_aerodrome = base.aerodrome.clone();
                         let destination_aerodrome = landing_rights.aerodrome.clone();
                         Some(Box::new(ScheduleFlightCommand {
+                            flight_id: ScheduleFlightCommand::generate_id(),
                             airplane,
                             origin_aerodrome,
                             destination_aerodrome,
@@ -102,15 +116,18 @@ impl From<&Box<dyn Command>> for AiAction {
     fn from(value: &Box<dyn Command>) -> Self {
         if let Some(command) = value.as_any().downcast_ref::<BuyPlaneCommand>() {
             AiAction::BuyPlane {
+                plane_id: command.plane_id,
                 plane_type: command.plane_type.id,
                 base_id: command.home_base_id,
             }
         } else if let Some(command) = value.as_any().downcast_ref::<CreateBaseCommand>() {
             AiAction::CreateBase {
+                base_id: command.base_id,
                 aerodrome_id: command.aerodrome.id,
             }
         } else if let Some(command) = value.as_any().downcast_ref::<BuyLandingRightsCommand>() {
             AiAction::BuyLandingRights {
+                landing_rights_id: command.landing_rights_id,
                 aerodrome_id: command.aerodrome.id,
             }
         } else if let Some(command) = value.as_any().downcast_ref::<ScheduleFlightCommand>() {

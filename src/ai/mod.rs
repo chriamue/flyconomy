@@ -1,6 +1,7 @@
 mod ai_action;
 mod ai_agent;
 mod ai_state;
+mod replay_agent;
 
 use std::time::Duration;
 
@@ -18,12 +19,11 @@ use rurel::{
 };
 
 use crate::{
-    config::{load_airports, PlanesConfig},
     model::{
         commands::{BuyLandingRightsCommand, BuyPlaneCommand, Command, CreateBaseCommand},
         Aerodrome, Environment, PlaneType,
     },
-    simulation::{Simulation},
+    simulation::Simulation, config,
 };
 
 struct AiUpdateAgent {
@@ -75,15 +75,11 @@ impl AiManager {
     }
 
     pub fn train(&mut self, iterations: u32) {
-        let aerodromes = load_airports(
-            include_str!("../../assets/airports.dat"),
-            include_str!("../../assets/passengers.csv"),
+        let mut simulation = Simulation::new(
+            Default::default(),
+            config::aerodromes(),
+            config::plane_types(),
         );
-
-        let planes_config: PlanesConfig =
-            serde_yaml::from_str(include_str!("../../assets/planes.yaml")).unwrap();
-
-        let mut simulation = Simulation::new(Default::default());
         simulation.setup();
 
         let paris_aerodrome = Aerodrome::new(
@@ -103,10 +99,12 @@ impl AiManager {
         );
 
         let create_base_command = CreateBaseCommand {
+            base_id: CreateBaseCommand::generate_id(),
             aerodrome: frankfurt_aerodrome.clone(),
         };
 
         let buy_landing_rights_command = BuyLandingRightsCommand {
+            landing_rights_id: BuyLandingRightsCommand::generate_id(),
             aerodrome: paris_aerodrome.clone(),
         };
 
@@ -117,7 +115,8 @@ impl AiManager {
         simulation.update(Duration::from_secs(1));
 
         let buy_plane_command = BuyPlaneCommand {
-            plane_type: planes_config.planes[0].clone(),
+            plane_id: BuyPlaneCommand::generate_id(),
+            plane_type: simulation.plane_types[0].clone(),
             home_base_id: simulation.environment.bases[0].id,
         };
 
@@ -127,7 +126,7 @@ impl AiManager {
 
         // Start training
 
-        let mut agent = AiAgent::new(&mut simulation, planes_config.planes, aerodromes);
+        let mut agent = AiAgent::new(&mut simulation);
 
         self.trainer.train(
             &mut agent,
@@ -168,7 +167,7 @@ impl AiManager {
 
         action.as_ref().and_then(|action| {
             self.last_state_action = Some((ai_state, action.clone()));
-            action.to_command(environment, plane_types, aerodromes)
+            action.to_command(environment, aerodromes, plane_types)
         })
     }
 

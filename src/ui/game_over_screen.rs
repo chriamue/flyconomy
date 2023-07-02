@@ -1,7 +1,7 @@
+use crate::config::{aerodromes, plane_types};
 use crate::game::{GameResource, GameState};
 use crate::simulation::Simulation;
-use bevy::prelude::*;
-use bevy::prelude::{App, NextState, OnUpdate, Plugin, ResMut};
+use bevy::prelude::{App, IntoSystemConfigs, NextState, OnUpdate, Plugin, ResMut};
 use bevy_egui::{egui, EguiContexts};
 
 pub struct GameOverScreenPlugin;
@@ -36,7 +36,8 @@ pub fn game_over_screen_system(
         ui.label("Thank you for playing Flyconomy!");
 
         if ui.button("Restart Game").clicked() {
-            game_resources.simulation = Simulation::new(Default::default());
+            game_resources.simulation =
+                Simulation::new(Default::default(), aerodromes(), plane_types());
             game_state_next_state.set(GameState::Welcome);
         }
         #[cfg(not(target_arch = "wasm32"))]

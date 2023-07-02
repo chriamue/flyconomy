@@ -35,8 +35,18 @@ static PLANE_ID_COUNTER: AtomicUsize = AtomicUsize::new(0);
 
 #[derive(Debug, Clone, Serialize, Deserialize)]
 pub struct BuyPlaneCommand {
+    pub plane_id: u64,
     pub plane_type: PlaneType,
     pub home_base_id: u64,
+}
+
+impl BuyPlaneCommand {
+    pub fn generate_id() -> u64 {
+        PLANE_ID_COUNTER
+            .fetch_add(1, Ordering::SeqCst)
+            .try_into()
+            .unwrap()
+    }
 }
 
 #[derive(Debug, Error)]
@@ -58,12 +68,8 @@ impl Command for BuyPlaneCommand {
                 has: environment.company_finances.cash(environment.timestamp),
             }));
         }
-        let airplane_id: u64 = PLANE_ID_COUNTER
-            .fetch_add(1, Ordering::SeqCst)
-            .try_into()
-            .unwrap();
         let airplane = AirPlane {
-            id: airplane_id,
+            id: self.plane_id,
             base_id: self.home_base_id,
             plane_type: self.plane_type.clone(),
         };
@@ -73,7 +79,7 @@ impl Command for BuyPlaneCommand {
             .iter_mut()
             .find(|base| base.id == self.home_base_id)
         {
-            Some(base) => base.airplane_ids.push(airplane_id),
+            Some(base) => base.airplane_ids.push(airplane.id),
             None => {
                 return Err(Box::new(BuyPlaneError::BaseNotFound {
                     base_id: self.home_base_id,
@@ -101,10 +107,18 @@ static BASE_ID_COUNTER: AtomicUsize = AtomicUsize::new(0);
 
 #[derive(Debug, Clone, Serialize, Deserialize)]
 pub struct CreateBaseCommand {
+    pub base_id: u64,
     pub aerodrome: Aerodrome,
 }
 
 impl CreateBaseCommand {
+    pub fn generate_id() -> u64 {
+        BASE_ID_COUNTER
+            .fetch_add(1, Ordering::SeqCst)
+            .try_into()
+            .unwrap()
+    }
+
     pub fn base_cost(&self, environment: &Environment) -> f64 {
         match self.aerodrome.passengers {
             Some(passengers) => environment.config.base_cost + passengers as f64 / 20.0,
@@ -134,9 +148,8 @@ impl Command for CreateBaseCommand {
         environment
             .company_finances
             .add_expense(environment.timestamp, self.base_cost(environment));
-        let base_id = BASE_ID_COUNTER.fetch_add(1, Ordering::SeqCst);
         environment.bases.push(Base {
-            id: base_id.try_into().unwrap(),
+            id: self.base_id,
             aerodrome: self.aerodrome.clone(),
             airplane_ids: vec![],
         });
@@ -156,7 +169,17 @@ static LANDING_RIGHTS_ID_COUNTER: AtomicUsize = AtomicUsize::new(0);
 
 #[derive(Debug, Clone, Serialize, Deserialize)]
 pub struct BuyLandingRightsCommand {
+    pub landing_rights_id: u64,
     pub aerodrome: Aerodrome,
+}
+
+impl BuyLandingRightsCommand {
+    pub fn generate_id() -> u64 {
+        LANDING_RIGHTS_ID_COUNTER
+            .fetch_add(1, Ordering::SeqCst)
+            .try_into()
+            .unwrap()
+    }
 }
 
 #[derive(Debug, Error)]
@@ -184,10 +207,7 @@ impl Command for BuyLandingRightsCommand {
         );
         environment.landing_rights.push(LandingRights {
             aerodrome: self.aerodrome.clone(),
-            id: LANDING_RIGHTS_ID_COUNTER
-                .fetch_add(1, Ordering::SeqCst)
-                .try_into()
-                .unwrap(),
+            id: self.landing_rights_id.try_into()?,
         });
         Ok(None)
     }
@@ -205,10 +225,20 @@ static FLIGHT_ID_COUNTER: AtomicUsize = AtomicUsize::new(0);
 
 #[derive(Debug, Clone, Serialize, Deserialize)]
 pub struct ScheduleFlightCommand {
+    pub flight_id: u64,
     pub airplane: AirPlane,
     pub origin_aerodrome: Aerodrome,
     pub destination_aerodrome: Aerodrome,
     pub departure_time: Timestamp,
+}
+
+impl ScheduleFlightCommand {
+    pub fn generate_id() -> u64 {
+        FLIGHT_ID_COUNTER
+            .fetch_add(1, Ordering::SeqCst)
+            .try_into()
+            .unwrap()
+    }
 }
 
 #[derive(Debug, Error)]
@@ -236,10 +266,8 @@ impl Command for ScheduleFlightCommand {
             return Err(Box::new(ScheduleFlightError::AirplaneInUse));
         }
 
-        let flight_id = FLIGHT_ID_COUNTER.fetch_add(1, Ordering::SeqCst);
-
         let flight = Flight {
-            flight_id: flight_id.try_into().unwrap(),
+            flight_id: self.flight_id,
             airplane: self.airplane.clone(),
             origin_aerodrome: self.origin_aerodrome.clone(),
             destination_aerodrome: self.destination_aerodrome.clone(),
@@ -288,6 +316,7 @@ mod tests {
         let plane_type = PlaneType::default();
 
         let cmd = BuyPlaneCommand {
+            plane_id: BuyPlaneCommand::generate_id(),
             plane_type: plane_type.clone(),
             home_base_id: 0,
         };
@@ -308,6 +337,7 @@ mod tests {
         let plane_type = PlaneType::default();
 
         let cmd = BuyPlaneCommand {
+            plane_id: BuyPlaneCommand::generate_id(),
             plane_type: plane_type.clone(),
             home_base_id: 0, // Base with id 0 does not exist
         };
@@ -330,6 +360,7 @@ mod tests {
         let aerodrome = Aerodrome::default();
 
         let cmd = CreateBaseCommand {
+            base_id: CreateBaseCommand::generate_id(),
             aerodrome: aerodrome.clone(),
         };
 
@@ -351,6 +382,7 @@ mod tests {
         let aerodrome = Aerodrome::default();
 
         let cmd = BuyLandingRightsCommand {
+            landing_rights_id: BuyLandingRightsCommand::generate_id(),
             aerodrome: aerodrome.clone(),
         };
 
@@ -412,6 +444,7 @@ mod tests {
         destination_aerodrome.lon += 50.0;
 
         let cmd = ScheduleFlightCommand {
+            flight_id: ScheduleFlightCommand::generate_id(),
             airplane: airplane.clone(),
             origin_aerodrome: origin_aerodrome.clone(),
             destination_aerodrome: destination_aerodrome.clone(),

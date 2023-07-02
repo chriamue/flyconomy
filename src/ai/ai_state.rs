@@ -58,6 +58,7 @@ impl State for AiState {
             for base_id in &self.bases {
                 for plane_type in 0..3 {
                     actions.push(AiAction::BuyPlane {
+                        plane_id: 1,
                         plane_type,
                         base_id: *base_id,
                     });
@@ -66,7 +67,10 @@ impl State for AiState {
         }
         if self.cash >= 800_000 {
             for aerodrome_id in 0..8000 {
-                actions.push(AiAction::CreateBase { aerodrome_id });
+                actions.push(AiAction::CreateBase {
+                    base_id: 1,
+                    aerodrome_id,
+                });
             }
         }
         if self.cash >= 150_000
@@ -74,7 +78,10 @@ impl State for AiState {
             && self.planes.len() > self.landing_rights.len()
         {
             for aerodrome_id in 0..8000 {
-                actions.push(AiAction::BuyLandingRights { aerodrome_id });
+                actions.push(AiAction::BuyLandingRights {
+                    landing_rights_id: 0,
+                    aerodrome_id,
+                });
             }
         }
         if self.cash >= 500 {

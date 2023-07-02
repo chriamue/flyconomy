@@ -1,6 +1,6 @@
 use serde::{Deserialize, Serialize};
 
-use crate::model::{EnvironmentConfig, PlaneType};
+use crate::model::{Aerodrome, EnvironmentConfig, PlaneType};
 
 mod aerodrome_config;
 mod world_heritage_site_config;
@@ -30,6 +30,19 @@ impl Default for LevelConfig {
             environment: Default::default(),
         }
     }
+}
+
+pub fn plane_types() -> Vec<PlaneType> {
+    let yaml_content = include_str!("../../assets/planes.yaml");
+    let planes: PlanesConfig = serde_yaml::from_str(yaml_content).unwrap();
+    planes.planes
+}
+
+pub fn aerodromes() -> Vec<Aerodrome> {
+    load_airports(
+        include_str!("../../assets/airports.dat"),
+        include_str!("../../assets/passengers.csv"),
+    )
 }
 
 #[cfg(test)]

@@ -14,6 +14,7 @@ use crate::model::EnvironmentConfig;
 
 use crate::model::Timestamp;
 
+#[derive(Clone)]
 pub struct Replay {
     pub initial_config: EnvironmentConfig,
     pub command_history: Vec<TimestampedCommand>,

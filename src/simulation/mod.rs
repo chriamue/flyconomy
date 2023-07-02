@@ -7,7 +7,7 @@ use crate::model::{
         AirplaneTakeoffEventHandler, BuyLandingRightsEvent, BuyPlaneEvent, CreateBaseEvent,
         EventManager,
     },
-    Environment, EnvironmentConfig, FlightState, Timestamp,
+    Aerodrome, Environment, EnvironmentConfig, FlightState, PlaneType, Timestamp,
 };
 
 pub mod replay;
@@ -19,6 +19,8 @@ pub const DEFAULT_TIME_MULTIPLIER: f64 = 1.0 * 5.0 * 60.0; // 1 second = 5 minut
 
 pub struct Simulation {
     pub environment: Environment,
+    pub aerodromes: Vec<Aerodrome>,
+    pub plane_types: Vec<PlaneType>,
     pub elapsed_time: Duration,
     pub commands: Vec<TimestampedCommand>,
     pub time_multiplier: f64,
@@ -29,9 +31,15 @@ pub struct Simulation {
 }
 
 impl Simulation {
-    pub fn new(config: EnvironmentConfig) -> Self {
+    pub fn new(
+        config: EnvironmentConfig,
+        aerodromes: Vec<Aerodrome>,
+        plane_types: Vec<PlaneType>,
+    ) -> Self {
         let mut simulation = Self {
             environment: Environment::new(config),
+            aerodromes,
+            plane_types,
             elapsed_time: Duration::from_secs(0),
             commands: vec![],
             time_multiplier: DEFAULT_TIME_MULTIPLIER, // 1 second = 5 minutes

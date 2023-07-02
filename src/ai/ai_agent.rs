@@ -2,32 +2,21 @@ use std::time::Duration;
 
 use rurel::mdp::{Agent, State};
 
-use crate::{
-    model::{Aerodrome, PlaneType},
-    simulation::Simulation,
-};
+use crate::simulation::Simulation;
 
 use super::AiState;
 
 pub struct AiAgent<'a> {
     pub state: AiState,
     simulation: &'a mut Simulation,
-    plane_types: Vec<PlaneType>,
-    aerodromes: Vec<Aerodrome>,
 }
 
 impl<'a> AiAgent<'a> {
-    pub fn new(
-        simulation: &'a mut Simulation,
-        plane_types: Vec<PlaneType>,
-        aerodromes: Vec<Aerodrome>,
-    ) -> Self {
+    pub fn new(simulation: &'a mut Simulation) -> Self {
         let environment = &simulation.environment;
         Self {
             state: environment.into(),
             simulation,
-            plane_types,
-            aerodromes,
         }
     }
 
@@ -45,8 +34,8 @@ impl Agent<AiState> for AiAgent<'_> {
     fn take_action(&mut self, action: &<AiState as State>::A) {
         let command = action.to_command(
             &self.simulation.environment,
-            &self.plane_types,
-            &self.aerodromes,
+            &self.simulation.aerodromes,
+            &self.simulation.plane_types,
         );
         match command {
             Some(command) => self.simulation.add_command(command),

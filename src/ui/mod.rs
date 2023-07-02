@@ -103,6 +103,7 @@ pub fn planes_purchase_ui(
                                 .map(|base| base.id);
 
                             let buy_plane = BuyPlaneCommand {
+                                plane_id: BuyPlaneCommand::generate_id(),
                                 plane_type: plane.clone(),
                                 home_base_id: home_base_id.unwrap_or_default(),
                             };
@@ -318,6 +319,7 @@ pub fn flight_planning_ui(
 
                                     if ui.button("Plan Flight").clicked() {
                                         let schedule_flight = ScheduleFlightCommand {
+                                            flight_id: ScheduleFlightCommand::generate_id(),
                                             airplane,
                                             origin_aerodrome,
                                             destination_aerodrome: destination_aerodrome.clone(),
