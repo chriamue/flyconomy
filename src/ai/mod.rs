@@ -9,7 +9,8 @@ pub use ai_action::AiAction;
 pub use ai_agent::AiAgent;
 pub use ai_manager::AiManager;
 pub use ai_state::AiState;
-pub use ai_trainer::AiTrainer;
+pub use ai_trainer::{AiTrainer, AiTrainerType};
+
 use rurel::{
     mdp::{Agent, State},
     strategy::explore::ExplorationStrategy,

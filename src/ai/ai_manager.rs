@@ -33,13 +33,13 @@ unsafe impl Sync for AiManager {}
 
 impl Default for AiManager {
     fn default() -> Self {
-        Self::new()
+        Self::new(AiTrainerType::AgentTrainer)
     }
 }
 
 impl AiManager {
-    pub fn new() -> Self {
-        let trainer = AiTrainerType::AgentTrainer.create_trainer();
+    pub fn new(trainer_type: AiTrainerType) -> Self {
+        let trainer = trainer_type.create_trainer();
         Self {
             trainer,
             no_op_counter: 0,
@@ -180,10 +180,11 @@ impl AiManager {
 
 #[cfg(test)]
 mod tests {
+    use crate::ai::ai_trainer::AiTrainerType;
 
     #[test]
     fn test_ai_manager() {
-        let mut ai_manager = super::AiManager::new();
+        let mut ai_manager = super::AiManager::new(AiTrainerType::AgentTrainer);
         ai_manager.train(1000);
     }
 }
