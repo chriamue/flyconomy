@@ -114,7 +114,7 @@ fn setup(
                 // Set the water to have a low roughness, while surface has high roughness.
                 metallic_roughness_texture: Some(assets.load(ROUGH_MAP)),
                 // How "deep" to displace stuff
-                height_depth: 0.01,
+                height_depth: 0.005,
                 // Use the quality algo, for show.
                 algorithm: ParallaxAlgo::ParallaxOcclusionMapping,
                 // This is an unreasonably high value, but since we expect to inspect up close
@@ -141,13 +141,4 @@ fn setup(
             ..default()
         })
         .insert((Earth, Spin(SPIN), Name::new("Earth")));
-
-    commands.spawn(PointLightBundle {
-        point_light: PointLight {
-            intensity: 500.0,
-            ..default()
-        },
-        transform: Transform::from_xyz(2.0, 0.5, 2.0),
-        ..default()
-    });
 }

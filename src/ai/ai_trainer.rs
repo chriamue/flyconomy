@@ -41,7 +41,7 @@ impl AiTrainer for AgentTrainer<AiState> {
         AgentTrainer::train(
             self,
             agent,
-            &QLearning::new(0.02, 0.05, 0.7),
+            &QLearning::new(0.02, 0.5, 0.7),
             termination_strategy,
             exploration_strategy,
         );

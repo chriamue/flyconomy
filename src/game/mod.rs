@@ -110,7 +110,7 @@ pub fn setup_game(app: &mut App, game_resource: GameResource) {
         .add_state::<GameState>()
         .insert_resource(game_resource)
         .insert_resource(ConfigResource::default())
-        .add_startup_system(setup)
+        .add_startup_system(setup_lights)
         .add_startup_system(load_config_assets)
         .add_system(config_assets_loaded)
         .add_systems((update_simulation_system,).in_set(OnUpdate(GameState::Playing)))
@@ -120,25 +120,48 @@ pub fn setup_game(app: &mut App, game_resource: GameResource) {
         .add_plugin(world_heritage_site::WorldHeritageSitePlugin)
         .add_plugin(ui::UiPlugin)
         .add_plugin(plane::PlanePlugin)
-        .add_plugin(earth3d::Earth3dPlugin);
+        .add_plugin(earth3d::Earth3dPlugin)
+        .add_system(spin)
+        .register_type::<Spin>();
     #[cfg(feature = "ai")]
     app.add_plugin(manager::ManagerPlugin);
 }
 
-fn setup(mut commands: Commands) {
+#[derive(Component, PartialEq, Reflect)]
+struct Spin {
+    angular_velocity: f32,
+    radius: f32,
+    current_angle: f32,
+}
+
+fn spin(time: Res<Time>, mut query: Query<(&mut Transform, &mut Spin)>) {
+    for (mut transform, mut spin) in query.iter_mut() {
+        spin.current_angle += spin.angular_velocity * time.delta_seconds();
+        let (sin, cos) = spin.current_angle.sin_cos();
+        transform.translation.x = cos * spin.radius;
+        transform.translation.z = sin * spin.radius;
+    }
+}
+
+fn setup_lights(mut commands: Commands) {
     commands.insert_resource(AmbientLight {
         color: Color::WHITE,
-        brightness: 0.7,
+        brightness: 0.3,
     });
-    commands.spawn(PointLightBundle {
-        transform: Transform::from_xyz(0.0, 500.0, 100.0),
-        point_light: PointLight {
-            intensity: 1000.0,
-            range: 1000.0,
+    commands
+        .spawn(PointLightBundle {
+            transform: Transform::from_xyz(5.0, 0.5, 5.0),
+            point_light: PointLight {
+                intensity: 2000.0,
+                ..Default::default()
+            },
             ..Default::default()
-        },
-        ..Default::default()
-    });
+        })
+        .insert(Spin {
+            angular_velocity: 0.02, // Angular velocity in radians per second
+            radius: 5.0,            // Radius of the orbit
+            current_angle: 0.0,
+        });
 }
 
 fn load_config_assets(asset_server: Res<AssetServer>, mut config_resource: ResMut<ConfigResource>) {
