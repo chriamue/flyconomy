@@ -120,6 +120,7 @@ impl Simulation {
 
     pub fn execute_command(&mut self, timestamped_command: TimestampedCommand) {
         let command = &timestamped_command.command;
+        self.command_history.push(timestamped_command.clone());
         match command.execute(&mut self.environment) {
             Ok(_message) => {
                 if let Some(command) = command
@@ -147,12 +148,17 @@ impl Simulation {
                             aerodrome: command.aerodrome.clone(),
                         }));
                 }
-                self.command_history.push(timestamped_command.clone());
             }
             Err(error) => {
                 println!("{}", error);
                 self.error_messages
                     .push((self.elapsed_time.as_millis(), error.to_string()));
+
+                self.environment.last_errors = self.error_messages.clone();
+                // If more than 10 error messages in environment, remove the oldest one
+                if self.environment.last_errors.len() > 10 {
+                    self.environment.last_errors.remove(0);
+                }
             }
         }
     }

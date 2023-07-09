@@ -15,10 +15,11 @@ pub struct AiState {
     pub bases: Vec<u64>,
     pub landing_rights: Vec<u64>,
     pub timestamp: Timestamp,
+    pub error_indicator: u64,
 }
 
-impl Into<[f32; 6]> for AiState {
-    fn into(self) -> [f32; 6] {
+impl Into<[f32; 7]> for AiState {
+    fn into(self) -> [f32; 7] {
         [
             self.cash as f32,
             self.total_turnover as f32,
@@ -26,6 +27,7 @@ impl Into<[f32; 6]> for AiState {
             self.bases.len() as f32,
             self.landing_rights.len() as f32,
             (self.timestamp as f32).log2(),
+            self.error_indicator as f32,
         ]
     }
 }
@@ -51,6 +53,7 @@ impl From<&crate::model::Environment> for AiState {
                 .map(|landing_rights| landing_rights.aerodrome.id)
                 .collect(),
             timestamp: environment.timestamp,
+            error_indicator: environment.get_errors_indicator(),
         }
     }
 }
@@ -65,6 +68,7 @@ impl State for AiState {
         reward += (self.planes.len() * 5) as f64;
         reward += self.bases.len() as f64;
         reward += (self.landing_rights.len() * 2) as f64;
+        reward -= self.error_indicator as f64;
         reward
     }
 

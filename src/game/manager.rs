@@ -44,7 +44,7 @@ impl GameManagerType {
                 timer: Timer::from_seconds(0.5, bevy::time::TimerMode::Repeating),
             },
         };
-        manager.ai_manager.train(3_000);
+        manager.ai_manager.train(5_000);
         manager
     }
 }

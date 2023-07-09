@@ -34,10 +34,22 @@ pub fn show_manager_action_system(
     mut game_managers: ResMut<GameManagers>,
     game_resource: Res<GameResource>,
 ) {
+    use bevy_egui::egui::ProgressBar;
+
     Window::new("Managers")
         .anchor(Align2::RIGHT_TOP, vec2(0.0, 0.0))
         .default_open(true)
         .show(contexts.ctx_mut(), |ui| {
+            let error_indicator = game_resource.simulation.environment.get_errors_indicator();
+            ui.label(format!("Managers - Error Indicator {}", error_indicator));
+            let max_error_indicator = 100; // Define a reasonable maximum for the error indicator
+            ui.add(
+                ProgressBar::new(error_indicator as f32 / max_error_indicator as f32)
+                    .text(format!("{}/{}", error_indicator, max_error_indicator)),
+            );
+
+            ui.separator();
+
             for manager_type in GameManagerType::iter() {
                 if ui.button(format!("Hire {:?}", manager_type)).clicked() {
                     let new_manager = manager_type.create_manager();
