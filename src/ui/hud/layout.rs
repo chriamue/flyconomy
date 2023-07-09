@@ -1,8 +1,8 @@
 use bevy::prelude::*;
 
 use super::{
-    styles::{get_text_style, HUD_STYLE, IMAGE_STYLE, ITEM_STYLE},
-    CashText, ExpensesText, IncomeText, PlanesText, HUD,
+    styles::{get_text_style, HUD_STYLE, IMAGE_STYLE, ITEM_STYLE, TEXT_STYLE},
+    CalendarText, CashText, ExpensesText, IncomeText, PlanesText, HUD,
 };
 
 pub fn spawn_hud(mut commands: Commands, asset_server: Res<AssetServer>) {
@@ -19,6 +19,13 @@ pub fn build_hud(commands: &mut Commands, asset_server: &Res<AssetServer>) -> En
             HUD {},
         ))
         .with_children(|parent| {
+            spawn_hud_item(
+                parent,
+                "Calendar: ",
+                "icons/calendar.png",
+                &asset_server,
+                CalendarText,
+            );
             spawn_hud_item(parent, "Cash: ", "icons/cash.png", &asset_server, CashText);
             spawn_hud_item(
                 parent,
@@ -63,9 +70,7 @@ fn spawn_hud_item(
             // Text
             parent.spawn((
                 TextBundle {
-                    style: Style {
-                        ..Default::default()
-                    },
+                    style: TEXT_STYLE,
                     text: Text::from_section(text, get_text_style(asset_server)),
                     ..Default::default()
                 },

@@ -38,6 +38,7 @@ bevy_mod_picking = { version = "0.13.0", default-features = false, features = ["
 bevy_obj = { version = "0.10.1" }
 bevy_panorbit_camera = { version = "0.5.2", features = ["bevy_egui"] }
 bevy_polyline = { version = "0.6.0" }
+chrono = "0.4"
 csv = "1.2.2"
 geo = "0.25.0"
 rurel = { version = "0.4.0", optional = true }

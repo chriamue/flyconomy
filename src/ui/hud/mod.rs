@@ -11,11 +11,15 @@ use layout::{despawn_hud, spawn_hud};
 use bevy::prelude::Component;
 
 use self::updates::{
-    update_cash_system, update_expenses_system, update_income_system, update_planes_system,
+    update_calendar_system, update_cash_system, update_expenses_system, update_income_system,
+    update_planes_system,
 };
 
 #[derive(Component)]
 pub struct HUD;
+
+#[derive(Component)]
+pub struct CalendarText;
 
 #[derive(Component)]
 pub struct CashText;
@@ -36,6 +40,7 @@ impl Plugin for HudPlugin {
         app.add_system(spawn_hud.in_schedule(OnEnter(GameState::Playing)))
             .add_systems(
                 (
+                    update_calendar_system,
                     update_cash_system,
                     update_planes_system,
                     update_income_system,
