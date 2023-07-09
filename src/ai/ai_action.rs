@@ -28,6 +28,86 @@ pub enum AiAction {
     },
 }
 
+impl Into<[f32; 8]> for AiAction {
+    fn into(self) -> [f32; 8] {
+        match self {
+            AiAction::NoOp => [1.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0],
+            AiAction::BuyPlane {
+                plane_id,
+                plane_type,
+                base_id,
+            } => [0.0, 1.0, 0.0, 0.0, 0.0, plane_id as f32, plane_type as f32, base_id as f32],
+            AiAction::CreateBase {
+                base_id,
+                aerodrome_id,
+            } => [0.0, 0.0, 1.0, 0.0, 0.0, base_id as f32, aerodrome_id as f32, 0.0],
+            AiAction::BuyLandingRights {
+                landing_rights_id,
+                aerodrome_id,
+            } => [
+                0.0,
+                0.0,
+                0.0,
+                1.0,
+                0.0,
+                landing_rights_id as f32,
+                aerodrome_id as f32,
+                0.0,
+            ],
+            AiAction::ScheduleFlight {
+                plane_id,
+                origin_id,
+                destination_id,
+            } => [
+                0.0,
+                0.0,
+                0.0,
+                0.0,
+                1.0,
+                plane_id as f32,
+                origin_id as f32,
+                destination_id as f32,
+            ],
+            _ => panic!("Invalid action"),
+        }
+    }
+}
+
+impl From<[f32; 8]> for AiAction {
+    fn from(v: [f32; 8]) -> Self {
+        // Find the index of the maximum value
+        let max_index = v[0..4]
+            .iter()
+            .enumerate()
+            .max_by(|a, b| a.1.partial_cmp(b.1).unwrap())
+            .unwrap()
+            .0;
+
+        match max_index {
+            0 => AiAction::NoOp,
+            1 => AiAction::BuyPlane {
+                plane_id: v[5] as u64,
+                plane_type: v[6] as u32,
+                base_id: v[7] as u64,
+            },
+            2 => AiAction::CreateBase {
+                base_id: v[5] as u64,
+                aerodrome_id: v[6] as u64,
+            },
+            3 => AiAction::BuyLandingRights {
+                landing_rights_id: v[5] as u64,
+                aerodrome_id: v[6] as u64,
+            },
+            4 => AiAction::ScheduleFlight {
+                plane_id: v[5] as u64,
+                origin_id: v[6] as u64,
+                destination_id: v[7] as u64,
+            },
+            _ => panic!("Invalid action index"),
+        }
+    }
+}
+
 impl AiAction {
     pub fn to_command(
         &self,

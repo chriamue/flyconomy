@@ -17,6 +17,19 @@ pub struct AiState {
     pub timestamp: Timestamp,
 }
 
+impl Into<[f32; 6]> for AiState {
+    fn into(self) -> [f32; 6] {
+        [
+            self.cash as f32,
+            self.total_turnover as f32,
+            self.planes.len() as f32,
+            self.bases.len() as f32,
+            self.landing_rights.len() as f32,
+            (self.timestamp as f32).log2(),
+        ]
+    }
+}
+
 // ai state from environment
 impl From<&crate::model::Environment> for AiState {
     fn from(environment: &crate::model::Environment) -> Self {

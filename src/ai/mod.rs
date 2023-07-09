@@ -164,8 +164,7 @@ impl AiManager {
         let mut replay_agent = ReplayAgent::new(replay.clone(), &mut simulation);
         let replay_strategy = ReplayStrategy::new(replay.clone());
         let mut replay_termination_strategy = ReplayTerminationStrategy::new(replay);
-        let mut trainer = AgentTrainer::new();
-        trainer.train(
+        self.trainer.train(
             &mut replay_agent,
             &QLearning::new(0.02, 0.5, 0.7),
             &mut replay_termination_strategy,
