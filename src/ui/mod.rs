@@ -10,6 +10,7 @@ mod game_over_screen;
 mod hud;
 mod messages;
 mod office_ui;
+mod planes_ui;
 mod replay;
 mod simulation_control;
 mod welcome_screen;
@@ -18,12 +19,9 @@ mod world_heritage_site_ui;
 use crate::{
     game::{
         aerodrome::{SelectedAerodrome, SelectedAerodromeChangeEvent},
-        ConfigResource, GameResource, GameState,
+        GameResource, GameState,
     },
-    model::{
-        commands::{BuyPlaneCommand, ScheduleFlightCommand},
-        Flight,
-    },
+    model::{commands::ScheduleFlightCommand, Flight},
 };
 
 pub struct UiPlugin;
@@ -38,12 +36,13 @@ impl Plugin for UiPlugin {
         app.add_plugin(aerodromes_ui::AerodromesUiPlugin);
         app.add_plugin(world_heritage_site_ui::WorldHeritageSiteUiPlugin);
         app.add_plugin(messages::MessagesPlugin);
+        app.add_plugin(planes_ui::PlanesUiPlugin);
         app.add_plugin(replay::ReplayPlugin);
         app.add_plugin(simulation_control::SimulationControlPlugin);
         app.add_plugin(analytics_ui::AnalyticsPlugin);
         app.add_plugin(office_ui::OfficePlugin);
         app.add_systems(
-            (planes_purchase_ui, bases_info_ui, landing_rights_info_ui)
+            (bases_info_ui, landing_rights_info_ui)
                 .in_set(OnUpdate(GameState::Playing))
                 .in_set(OnUpdate(UiState::Aerodromes)),
         );
@@ -63,56 +62,6 @@ pub enum UiState {
     Analytics,
     Schedule,
     Office,
-}
-
-pub fn planes_purchase_ui(
-    mut contexts: EguiContexts,
-    selected_aerodrome: Res<SelectedAerodrome>,
-    config_resource: Res<ConfigResource>,
-    mut game_resource: ResMut<GameResource>,
-) {
-    if let (Some(selected_aerodrome), Some(planes_config)) = (
-        &selected_aerodrome.aerodrome,
-        config_resource.planes_config.as_ref(),
-    ) {
-        egui::Window::new("Buy Planes")
-            .anchor(Align2::RIGHT_BOTTOM, vec2(0.0, 0.0))
-            .show(contexts.ctx_mut(), |ui| {
-                ui.label("Available Planes:");
-
-                for plane in &planes_config.planes {
-                    ui.horizontal(|ui| {
-                        ui.label(&plane.name);
-                        ui.label(format!("Cost: ${:.2}", plane.cost));
-                        ui.label(format!("Monthly Income: ${:.2}", plane.monthly_income));
-                        ui.label(format!("Range: {} km", plane.range));
-                        ui.label(format!("Speed: {} km/h", plane.speed));
-                        ui.label(format!("Capacity: {} passengers", plane.seats));
-                        ui.label(format!(
-                            "Fuel Consumption: {} L/km",
-                            plane.fuel_consumption_per_km
-                        ));
-
-                        if ui.button("Buy").clicked() {
-                            let home_base_id = game_resource
-                                .simulation
-                                .environment
-                                .bases
-                                .iter()
-                                .find(|base| base.aerodrome.id == selected_aerodrome.id)
-                                .map(|base| base.id);
-
-                            let buy_plane = BuyPlaneCommand {
-                                plane_id: BuyPlaneCommand::generate_id(),
-                                plane_type: plane.clone(),
-                                home_base_id: home_base_id.unwrap_or_default(),
-                            };
-                            game_resource.simulation.add_command(Box::new(buy_plane));
-                        }
-                    });
-                }
-            });
-    }
 }
 
 pub fn bases_info_ui(

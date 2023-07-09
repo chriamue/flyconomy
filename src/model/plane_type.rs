@@ -1,6 +1,6 @@
 use serde::{Deserialize, Serialize};
 
-#[derive(Serialize, Deserialize, Debug, Clone)]
+#[derive(Serialize, Deserialize, Debug, Clone, PartialEq)]
 pub struct PlaneType {
     pub id: u32,
     pub name: String,
@@ -16,7 +16,7 @@ impl Default for PlaneType {
     fn default() -> Self {
         Self {
             id: 0,
-            name: String::from("Generic Plane"),
+            name: String::from("Small Plane"),
             cost: 100000.0,
             monthly_income: 0.0,
             speed: 800.0,
