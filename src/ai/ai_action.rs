@@ -36,11 +36,29 @@ impl Into<[f32; 8]> for AiAction {
                 plane_id,
                 plane_type,
                 base_id,
-            } => [0.0, 1.0, 0.0, 0.0, 0.0, plane_id as f32, plane_type as f32, base_id as f32],
+            } => [
+                0.0,
+                1.0,
+                0.0,
+                0.0,
+                0.0,
+                plane_id as f32,
+                plane_type as f32,
+                base_id as f32,
+            ],
             AiAction::CreateBase {
                 base_id,
                 aerodrome_id,
-            } => [0.0, 0.0, 1.0, 0.0, 0.0, base_id as f32, aerodrome_id as f32, 0.0],
+            } => [
+                0.0,
+                0.0,
+                1.0,
+                0.0,
+                0.0,
+                base_id as f32,
+                aerodrome_id as f32,
+                0.0,
+            ],
             AiAction::BuyLandingRights {
                 landing_rights_id,
                 aerodrome_id,
@@ -68,7 +86,6 @@ impl Into<[f32; 8]> for AiAction {
                 origin_id as f32,
                 destination_id as f32,
             ],
-            _ => panic!("Invalid action"),
         }
     }
 }

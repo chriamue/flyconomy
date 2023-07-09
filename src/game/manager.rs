@@ -12,10 +12,6 @@ impl Plugin for ManagerPlugin {
     fn build(&self, app: &mut App) {
         let mut manager_action = ManagerAction::default();
         manager_action.ai_manager.train(3_000);
-        println!(
-            "Manager Action: {:?}",
-            manager_action.ai_manager.trainer.learned_values()
-        );
         app.insert_resource(ManagerTimer::default());
         app.insert_resource(manager_action);
         app.add_system(manager_action_system);
