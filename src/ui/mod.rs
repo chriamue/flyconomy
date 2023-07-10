@@ -1,11 +1,15 @@
-use bevy::prelude::{App, EventWriter, OnUpdate, Query, Res, ResMut, Resource, States, Transform};
+use bevy::prelude::{App, EventWriter, OnUpdate, Query, Res, States, Transform};
 use bevy::prelude::{IntoSystemConfigs, Plugin};
 use bevy_egui::egui::{vec2, Align2};
 use bevy_egui::{egui, EguiContexts};
 use bevy_panorbit_camera::PanOrbitCamera;
 
+use crate::game::aerodrome::SelectedAerodromeChangeEvent;
+use crate::game::{GameResource, GameState};
+
 mod aerodromes_ui;
 mod analytics_ui;
+mod flights_ui;
 mod game_over_screen;
 mod hud;
 mod messages;
@@ -16,22 +20,11 @@ mod simulation_control;
 mod welcome_screen;
 mod world_heritage_site_ui;
 
-use crate::algorithms::calculate_interest_score;
-use crate::game::ConfigResource;
-use crate::{
-    game::{
-        aerodrome::{SelectedAerodrome, SelectedAerodromeChangeEvent},
-        GameResource, GameState,
-    },
-    model::{commands::ScheduleFlightCommand, Flight},
-};
-
 pub struct UiPlugin;
 
 impl Plugin for UiPlugin {
     fn build(&self, app: &mut App) {
         app.add_state::<UiState>();
-        app.insert_resource(FlightPlanningInput::default());
         app.add_plugin(hud::HudPlugin);
         app.add_plugin(welcome_screen::WelcomeScreenPlugin);
         app.add_plugin(game_over_screen::GameOverScreenPlugin);
@@ -39,6 +32,7 @@ impl Plugin for UiPlugin {
         app.add_plugin(world_heritage_site_ui::WorldHeritageSiteUiPlugin);
         app.add_plugin(messages::MessagesPlugin);
         app.add_plugin(planes_ui::PlanesUiPlugin);
+        app.add_plugin(flights_ui::FlightsUiPlugin);
         app.add_plugin(replay::ReplayPlugin);
         app.add_plugin(simulation_control::SimulationControlPlugin);
         app.add_plugin(analytics_ui::AnalyticsPlugin);
@@ -49,7 +43,7 @@ impl Plugin for UiPlugin {
                 .in_set(OnUpdate(UiState::Aerodromes)),
         );
         app.add_systems(
-            (flight_planning_ui, bases_info_ui, landing_rights_info_ui)
+            (bases_info_ui, landing_rights_info_ui)
                 .in_set(OnUpdate(GameState::Playing))
                 .in_set(OnUpdate(UiState::Schedule)),
         );
@@ -139,180 +133,4 @@ pub fn landing_rights_info_ui(
                 });
             }
         });
-}
-
-pub fn flight_planning_ui(
-    mut contexts: EguiContexts,
-    selected_aerodrome: Res<SelectedAerodrome>,
-    mut game_resource: ResMut<GameResource>,
-    mut flight_planning_input: ResMut<FlightPlanningInput>,
-    config_resource: Res<ConfigResource>,
-) {
-    if let Some(selected_aerodrome) = &selected_aerodrome.aerodrome {
-        egui::Window::new("Flight Planning")
-            .pivot(Align2::RIGHT_CENTER)
-            .default_open(true)
-            .show(contexts.ctx_mut(), |ui| {
-                ui.label(format!("Selected Aerodrome: {}", selected_aerodrome.name));
-
-                ui.label("Select Airplane:");
-                let environment = &game_resource.simulation.environment;
-                let base = environment
-                    .bases
-                    .iter()
-                    .find(|base| base.aerodrome.id == selected_aerodrome.id);
-
-                if let Some(base) = base {
-                    for airplane_id in &base.airplane_ids {
-                        let airplane = environment
-                            .planes
-                            .iter()
-                            .find(|plane| &plane.id == airplane_id);
-
-                        if let Some(airplane) = airplane {
-                            if ui
-                                .selectable_label(
-                                    flight_planning_input.selected_airplane_id == Some(airplane.id),
-                                    format!(
-                                        "Airplane ID: {}, Type: {}",
-                                        airplane.id, airplane.plane_type.name
-                                    ),
-                                )
-                                .clicked()
-                            {
-                                flight_planning_input.selected_airplane_id = Some(airplane.id);
-                            }
-                        }
-                    }
-                } else {
-                    ui.label("No airplanes available at this base.");
-                }
-
-                ui.label("Select Destination Aerodrome:");
-                ui.text_edit_singleline(&mut flight_planning_input.search_string);
-
-                let mut available_aerodromes: Vec<_> = environment
-                    .bases
-                    .iter()
-                    .map(|base| &base.aerodrome)
-                    .collect();
-
-                available_aerodromes.extend(
-                    environment
-                        .landing_rights
-                        .iter()
-                        .map(|landing_rights| &landing_rights.aerodrome),
-                );
-
-                available_aerodromes.sort_by_key(|a| a.id);
-                available_aerodromes.dedup_by_key(|a| a.id);
-
-                let filtered_aerodromes: Vec<_> = available_aerodromes
-                    .iter()
-                    .filter(|a| a.name.contains(&flight_planning_input.search_string))
-                    .collect();
-
-                for aerodrome in filtered_aerodromes.iter() {
-                    if ui
-                        .selectable_label(
-                            flight_planning_input.selected_destination_id == Some(aerodrome.id),
-                            &aerodrome.name,
-                        )
-                        .clicked()
-                    {
-                        flight_planning_input.selected_destination_id = Some(aerodrome.id);
-                    }
-                }
-
-                if let Some(selected_airplane_id) = flight_planning_input.selected_airplane_id {
-                    if let Some(selected_destination_id) =
-                        flight_planning_input.selected_destination_id
-                    {
-                        if let Some(base) = environment
-                            .bases
-                            .iter()
-                            .find(|base| base.aerodrome.id == selected_aerodrome.id)
-                        {
-                            if let Some(airplane) = environment
-                                .planes
-                                .iter()
-                                .find(|plane| plane.id == selected_airplane_id)
-                                .cloned()
-                            {
-                                let origin_aerodrome = base.aerodrome.clone();
-
-                                let destination_aerodrome = available_aerodromes
-                                    .iter()
-                                    .find(|a| a.id == selected_destination_id)
-                                    .cloned();
-
-                                if let Some(destination_aerodrome) = destination_aerodrome {
-                                    // interest score
-                                    let heritage_sites: Vec<(f64, f64, f64)> = config_resource
-                                        .world_heritage_sites
-                                        .as_ref()
-                                        .unwrap()
-                                        .iter()
-                                        .map(|site| (site.lat, site.lon, 1.0f64))
-                                        .collect();
-                                    let interest_score = calculate_interest_score(
-                                        selected_aerodrome.lat,
-                                        selected_aerodrome.lon,
-                                        &heritage_sites,
-                                        250_000.0,
-                                    );
-
-                                    let flight = Flight {
-                                        flight_id: 0, // Dummy ID as it is only being used for calculation
-                                        airplane: airplane.clone(),
-                                        origin_aerodrome: origin_aerodrome.clone(),
-                                        destination_aerodrome: destination_aerodrome.clone(),
-                                        departure_time: game_resource
-                                            .simulation
-                                            .environment
-                                            .timestamp,
-                                        arrival_time: None,
-                                        state: Default::default(),
-                                        interest_score,
-                                    };
-
-                                    let profit = flight.calculate_profit();
-
-                                    let distance_in_kilometers = flight.calculate_distance();
-                                    ui.label(format!(
-                                        "Estimated Distance: {:.3} km",
-                                        distance_in_kilometers
-                                    ));
-                                    ui.label(format!("Estimated Profit: ${:.2}", profit));
-
-                                    if ui.button("Plan Flight").clicked() {
-                                        let schedule_flight = ScheduleFlightCommand {
-                                            flight_id: ScheduleFlightCommand::generate_id(),
-                                            airplane,
-                                            origin_aerodrome,
-                                            destination_aerodrome: destination_aerodrome.clone(),
-                                            departure_time: game_resource
-                                                .simulation
-                                                .environment
-                                                .timestamp,
-                                            interest_score,
-                                        };
-                                        game_resource
-                                            .simulation
-                                            .add_command(Box::new(schedule_flight));
-                                    }
-                                }
-                            }
-                        }
-                    }
-                }
-            });
-    }
-}
-
-#[derive(Resource, Default)]
-pub struct FlightPlanningInput {
-    pub search_string: String,
-    pub selected_airplane_id: Option<u64>,
-    pub selected_destination_id: Option<u64>,
 }
