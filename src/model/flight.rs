@@ -32,17 +32,21 @@ impl Flight {
             self.destination_aerodrome.lon,
             self.destination_aerodrome.lat,
         );
-
         let distance_in_meters = origin_point.vincenty_distance(&destination_point).unwrap();
-
         distance_in_meters / 1000.0
+    }
+
+    pub fn calculate_booked_seats(&self) -> u32 {
+        let seats = self.airplane.plane_type.seats as f64;
+        let interest_score_5 = 1.0 + 4.0 * self.interest_score;
+        let booked_seats = seats * interest_score_5 / 5.0;
+        booked_seats.round() as u32
     }
 
     pub fn calculate_profit(&self) -> f64 {
         let distance_in_kilometers = self.calculate_distance();
-        let seats = self.airplane.plane_type.seats as f64;
-        let interest_score_5 = 1.0 + self.interest_score;
-        let profit = distance_in_kilometers * PROFIT_PER_KILOMETER * seats * interest_score_5;
+        let seats = self.calculate_booked_seats() as f64;
+        let profit = distance_in_kilometers * PROFIT_PER_KILOMETER * seats;
 
         profit
     }

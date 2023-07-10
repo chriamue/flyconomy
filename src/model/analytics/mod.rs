@@ -1,4 +1,4 @@
-use super::{Environment, Timestamp};
+use super::{Environment, FlightState, Timestamp};
 
 pub fn calculate_cash_history(environment: &Environment) -> Vec<(Timestamp, f64)> {
     let mut cash_history = vec![];
@@ -12,4 +12,78 @@ pub fn calculate_cash_history(environment: &Environment) -> Vec<(Timestamp, f64)
     }
 
     cash_history
+}
+
+pub fn calculate_total_flight_distance(environment: &Environment) -> Vec<(Timestamp, f64)> {
+    let mut flight_distance_history = vec![];
+
+    let total_timestamps = environment.timestamp;
+    let sample_interval = (total_timestamps / 100).max(1);
+
+    for timestamp in (0..total_timestamps + sample_interval).step_by(sample_interval as usize) {
+        let total_distance = environment
+            .flights
+            .iter()
+            .filter(|flight| {
+                flight.state == FlightState::Landed && flight.arrival_time.unwrap() <= timestamp
+            })
+            .map(|flight| flight.calculate_distance())
+            .sum();
+        flight_distance_history.push((timestamp, total_distance));
+    }
+
+    flight_distance_history
+}
+
+pub fn calculate_transported_passengers(environment: &Environment) -> Vec<(Timestamp, u32)> {
+    let mut transported_passengers_history = vec![];
+
+    let total_timestamps = environment.timestamp;
+    let sample_interval = (total_timestamps / 100).max(1);
+
+    for timestamp in (0..total_timestamps + sample_interval).step_by(sample_interval as usize) {
+        let total_passengers = environment
+            .flights
+            .iter()
+            .filter(|flight| {
+                flight.state == FlightState::Landed && flight.arrival_time.unwrap() <= timestamp
+            })
+            .map(|flight| flight.calculate_booked_seats())
+            .sum();
+        transported_passengers_history.push((timestamp, total_passengers));
+    }
+
+    transported_passengers_history
+}
+
+pub fn calculate_average_profit_per_flight(environment: &Environment) -> Vec<(Timestamp, f64)> {
+    let mut average_profit_history = vec![];
+
+    let total_timestamps = environment.timestamp;
+    let sample_interval = (total_timestamps / 100).max(1);
+    let seven_days_in_timestamps = 7 * 24 * 60 * 60 * 1000;
+
+    for timestamp in (0..total_timestamps + sample_interval).step_by(sample_interval as usize) {
+        let flights_in_last_seven_days = environment.flights.iter().filter(|flight| {
+            flight.state == FlightState::Landed
+                && flight.arrival_time.unwrap() <= timestamp
+                && flight.arrival_time.unwrap() > timestamp - seven_days_in_timestamps
+        });
+
+        let flight_count = flights_in_last_seven_days.clone().count() as f64;
+
+        let total_profit: f64 = flights_in_last_seven_days
+            .map(|flight| flight.calculate_profit())
+            .sum();
+
+        let average_profit = if flight_count > 0.0 {
+            total_profit / flight_count
+        } else {
+            0.0
+        };
+
+        average_profit_history.push((timestamp, average_profit));
+    }
+
+    average_profit_history
 }
