@@ -34,14 +34,20 @@ bevy = { version = "0.10.1", default-features = false, features = [
 bevy_common_assets = { version = "0.6.0", features = ["yaml", "json"] }
 bevy_egui = { version = "0.20.2" }
 bevy_mod_paramap = { git = "https://github.com/nicopap/bevy_mod_paramap" }
-bevy_mod_picking = { version = "0.13.0", default-features = false, features = ["selection", "backend_raycast", "backend_egui"] }
+bevy_mod_picking = { version = "0.13.0", default-features = false, features = [
+    "selection",
+    "backend_raycast",
+    "backend_egui",
+] }
 bevy_obj = { version = "0.10.1" }
 bevy_panorbit_camera = { version = "0.5.2", features = ["bevy_egui"] }
 bevy_polyline = { version = "0.6.0" }
 chrono = "0.4"
 csv = "1.2.2"
 geo = "0.25.0"
-rurel = { version = "0.4.0", optional = true }
+rurel = { git = "https://github.com/chriamue/rurel.git", branch = "dqn", version = "0.4.0", features = [
+    "dqn",
+], optional = true }
 serde = { version = "1.0", features = ["derive"] }
 serde_yaml = "0.8"
 serde_json = "1.0"
@@ -52,5 +58,10 @@ thiserror = "1.0"
 [target.'cfg(target_arch = "wasm32")'.dependencies]
 wasm-bindgen = "0.2"
 console_error_panic_hook = "0.1"
-web-sys = { version = "0.3", features = ['Blob', 'Url', 'Window', 'HtmlAnchorElement'] }
+web-sys = { version = "0.3", features = [
+    'Blob',
+    'Url',
+    'Window',
+    'HtmlAnchorElement',
+] }
 js-sys = "0.3"

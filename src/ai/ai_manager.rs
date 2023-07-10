@@ -8,7 +8,6 @@ use rurel::{
 use crate::{
     ai::AiAgent,
     config,
-    game::world_heritage_site,
     model::{
         commands::{BuyLandingRightsCommand, BuyPlaneCommand, Command, CreateBaseCommand},
         Aerodrome, Environment, PlaneType, WorldHeritageSite,

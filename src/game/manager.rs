@@ -22,29 +22,39 @@ static MANAGER_ID_COUNTER: AtomicUsize = AtomicUsize::new(1);
 
 #[derive(Debug, EnumIter)]
 pub enum GameManagerType {
-    Manager1,
-    Manager2,
+    QManager1,
+    QManager2,
+    DQNManger,
 }
 
 impl GameManagerType {
     pub fn create_manager(&self) -> GameManager {
         let mut manager = match self {
-            Self::Manager1 => GameManager {
+            Self::QManager1 => GameManager {
                 id: MANAGER_ID_COUNTER.fetch_add(1, Ordering::SeqCst),
                 ai_manager: AiManager::new(AiTrainerType::AgentTrainer),
                 is_working: false,
                 manager_action: "".to_string(),
                 timer: Timer::from_seconds(2.5, bevy::time::TimerMode::Repeating),
             },
-            Self::Manager2 => GameManager {
+            Self::QManager2 => GameManager {
                 id: MANAGER_ID_COUNTER.fetch_add(1, Ordering::SeqCst),
                 ai_manager: AiManager::new(AiTrainerType::AgentTrainer),
                 is_working: false,
                 manager_action: "".to_string(),
                 timer: Timer::from_seconds(0.5, bevy::time::TimerMode::Repeating),
             },
+            Self::DQNManger => GameManager {
+                id: MANAGER_ID_COUNTER.fetch_add(1, Ordering::SeqCst),
+                ai_manager: AiManager::new(AiTrainerType::DQNAgentTrainer),
+                is_working: false,
+                manager_action: "".to_string(),
+                timer: Timer::from_seconds(1.0, bevy::time::TimerMode::Repeating),
+            },
         };
-        manager.ai_manager.train(5_000);
+        for _epoch in 0..5 {
+            manager.ai_manager.train(2500);
+        }
         manager
     }
 }
