@@ -8,6 +8,7 @@ use crate::model::{
         EventManager,
     },
     Aerodrome, Environment, EnvironmentConfig, FlightState, PlaneType, Timestamp,
+    WorldHeritageSite,
 };
 
 pub mod replay;
@@ -21,6 +22,7 @@ pub struct Simulation {
     pub environment: Environment,
     pub aerodromes: Vec<Aerodrome>,
     pub plane_types: Vec<PlaneType>,
+    pub world_heritage_sites: Vec<WorldHeritageSite>,
     pub elapsed_time: Duration,
     pub commands: Vec<TimestampedCommand>,
     pub time_multiplier: f64,
@@ -35,11 +37,13 @@ impl Simulation {
         config: EnvironmentConfig,
         aerodromes: Vec<Aerodrome>,
         plane_types: Vec<PlaneType>,
+        world_heritage_sites: Vec<WorldHeritageSite>,
     ) -> Self {
         let mut simulation = Self {
             environment: Environment::new(config),
             aerodromes,
             plane_types,
+            world_heritage_sites,
             elapsed_time: Duration::from_secs(0),
             commands: vec![],
             time_multiplier: DEFAULT_TIME_MULTIPLIER, // 1 second = 5 minutes

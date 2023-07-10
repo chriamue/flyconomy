@@ -1,8 +1,12 @@
-use crate::model::{
-    commands::{
-        BuyLandingRightsCommand, BuyPlaneCommand, Command, CreateBaseCommand, ScheduleFlightCommand,
+use crate::{
+    algorithms::calculate_interest_score,
+    model::{
+        commands::{
+            BuyLandingRightsCommand, BuyPlaneCommand, Command, CreateBaseCommand,
+            ScheduleFlightCommand,
+        },
+        Aerodrome, Environment, PlaneType, WorldHeritageSite,
     },
-    Aerodrome, Environment, PlaneType,
 };
 
 #[derive(Debug, Clone, Hash, PartialEq, Eq)]
@@ -131,6 +135,7 @@ impl AiAction {
         environment: &Environment,
         aerodromes: &Vec<Aerodrome>,
         plane_types: &Vec<PlaneType>,
+        world_heritage_sites: &Vec<WorldHeritageSite>,
     ) -> Option<Box<dyn Command>> {
         match self {
             AiAction::BuyPlane {
@@ -192,12 +197,23 @@ impl AiAction {
                         let airplane = airplane.clone();
                         let origin_aerodrome = base.aerodrome.clone();
                         let destination_aerodrome = landing_rights.aerodrome.clone();
+                        let heritage_sites: Vec<(f64, f64, f64)> = world_heritage_sites
+                            .iter()
+                            .map(|site| (site.lat, site.lon, 1.0f64))
+                            .collect();
+                        let interest_score = calculate_interest_score(
+                            base.aerodrome.lat,
+                            base.aerodrome.lon,
+                            &heritage_sites,
+                            250_000.0,
+                        );
                         Some(Box::new(ScheduleFlightCommand {
                             flight_id: ScheduleFlightCommand::generate_id(),
                             airplane,
                             origin_aerodrome,
                             destination_aerodrome,
                             departure_time: environment.timestamp,
+                            interest_score,
                         }))
                     }
                     _ => None, // return None if any of the required components are not found

@@ -14,6 +14,7 @@ pub struct Flight {
     pub departure_time: Timestamp,
     pub arrival_time: Option<Timestamp>,
     pub state: FlightState,
+    pub interest_score: f64,
 }
 
 #[derive(Default, Debug, Clone, PartialEq)]
@@ -40,7 +41,8 @@ impl Flight {
     pub fn calculate_profit(&self) -> f64 {
         let distance_in_kilometers = self.calculate_distance();
         let seats = self.airplane.plane_type.seats as f64;
-        let profit = distance_in_kilometers * PROFIT_PER_KILOMETER * seats;
+        let interest_score_5 = 1.0 + self.interest_score;
+        let profit = distance_in_kilometers * PROFIT_PER_KILOMETER * seats * interest_score_5;
 
         profit
     }
@@ -117,6 +119,7 @@ mod tests {
             departure_time: 0,
             arrival_time: None,
             state: Default::default(),
+            interest_score: 0.0,
         };
 
         let distance = flight.calculate_distance();

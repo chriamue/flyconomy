@@ -36,6 +36,7 @@ impl Agent<AiState> for AiAgent<'_> {
             &self.simulation.environment,
             &self.simulation.aerodromes,
             &self.simulation.plane_types,
+            &self.simulation.world_heritage_sites,
         );
         match command {
             Some(command) => self.simulation.add_command(command),

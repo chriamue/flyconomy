@@ -74,13 +74,17 @@ pub fn manager_action_system(
         if manager.timer.finished() && manager.is_working {
             let environment = &game_resource.simulation.environment;
 
-            if let (Some(plane_types), Some(aerodromes)) =
-                (&config_resource.planes_config, &config_resource.aerodromes)
-            {
-                let command =
-                    manager
-                        .ai_manager
-                        .best_command(environment, &plane_types.planes, aerodromes);
+            if let (Some(plane_types), Some(aerodromes), Some(world_heritage_sites)) = (
+                &config_resource.planes_config,
+                &config_resource.aerodromes,
+                &config_resource.world_heritage_sites,
+            ) {
+                let command = manager.ai_manager.best_command(
+                    environment,
+                    &plane_types.planes,
+                    aerodromes,
+                    world_heritage_sites,
+                );
                 if let Some(command) = command {
                     manager.manager_action = format!("{:#?}", command);
                     game_resource.simulation.add_command(command);

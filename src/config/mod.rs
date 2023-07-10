@@ -1,12 +1,12 @@
 use serde::{Deserialize, Serialize};
 
-use crate::model::{Aerodrome, EnvironmentConfig, PlaneType};
+use crate::model::{Aerodrome, EnvironmentConfig, PlaneType, WorldHeritageSite};
 
 mod aerodrome_config;
 mod world_heritage_site_config;
 
 pub use aerodrome_config::{load_airports, AerodromeConfig};
-pub use world_heritage_site_config::{parse_world_heritage_site_csv, WorldHeritageSiteConfig};
+pub use world_heritage_site_config::parse_world_heritage_site_csv;
 
 #[derive(Serialize, Deserialize, Debug, bevy::reflect::TypeUuid, Clone)]
 #[uuid = "0f597d24-3263-4083-ace3-f971d2a820b7"]
@@ -43,6 +43,10 @@ pub fn aerodromes() -> Vec<Aerodrome> {
         include_str!("../../assets/airports.dat"),
         include_str!("../../assets/passengers.csv"),
     )
+}
+
+pub fn world_heritage_sites() -> Vec<WorldHeritageSite> {
+    parse_world_heritage_site_csv(include_str!("../../assets/whc-sites-2019.csv"))
 }
 
 #[cfg(test)]

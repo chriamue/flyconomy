@@ -1,3 +1,4 @@
+use crate::algorithms::calculate_interest_score;
 use crate::game::aerodrome::{SelectedAerodrome, SelectedAerodromeChangeEvent};
 use crate::game::{ConfigResource, GameResource, GameState};
 use crate::model::commands::{BuyLandingRightsCommand, CreateBaseCommand};
@@ -71,6 +72,7 @@ fn selected_aerodrome_info_ui_system(
     selected_aerodrome: Res<SelectedAerodrome>,
     mut game_resource: ResMut<GameResource>,
     mut pan_orbit_query: Query<(&mut PanOrbitCamera, &mut Transform)>,
+    config_resource: Res<ConfigResource>,
 ) {
     if let Some(selected_aerodrome) = &selected_aerodrome.aerodrome {
         let (is_base, base) = {
@@ -112,6 +114,30 @@ fn selected_aerodrome_info_ui_system(
                 if let Some(passengers) = selected_aerodrome.passengers {
                     ui.label(format!("Passengers: {}", passengers));
                 }
+
+                // interest score
+                let heritage_sites: Vec<(f64, f64, f64)> = config_resource
+                    .world_heritage_sites
+                    .as_ref()
+                    .unwrap()
+                    .iter()
+                    .map(|site| (site.lat, site.lon, 1.0f64))
+                    .collect();
+                let interest_score = calculate_interest_score(
+                    selected_aerodrome.lat,
+                    selected_aerodrome.lon,
+                    &heritage_sites,
+                    250_000.0,
+                );
+
+                let interest_score_5 = 1.0 + interest_score as f32 * 4.0;
+
+                // Create a progress bar with the new score
+                let progress_bar =
+                    egui::ProgressBar::new(interest_score_5 / 5.0) // normalize the score to [0, 1] for the ProgressBar
+                        .text(format!("Interest Score {:.2} / 5.0", interest_score_5));
+
+                ui.add(progress_bar);
 
                 if is_base {
                     ui.label("This is one of your bases.");

@@ -119,7 +119,7 @@ impl TerminationStrategy<AiState> for ReplayTerminationStrategy {
 mod tests {
     use super::*;
     use crate::{
-        config::{aerodromes, plane_types},
+        config::{aerodromes, plane_types, world_heritage_sites},
         model::{
             commands::{
                 BuyLandingRightsCommand, BuyPlaneCommand, CreateBaseCommand, ScheduleFlightCommand,
@@ -133,7 +133,12 @@ mod tests {
 
     #[test]
     fn test_replay_agent() {
-        let mut simulation = Simulation::new(Default::default(), aerodromes(), plane_types());
+        let mut simulation = Simulation::new(
+            Default::default(),
+            aerodromes(),
+            plane_types(),
+            world_heritage_sites(),
+        );
         simulation.setup();
 
         let paris_aerodrome = Aerodrome::new(
@@ -189,6 +194,7 @@ mod tests {
             origin_aerodrome: frankfurt_aerodrome.clone(),
             destination_aerodrome: paris_aerodrome.clone(),
             departure_time: (simulation.elapsed_time + Duration::from_secs(1)).as_millis(),
+            interest_score: 0.0,
         };
 
         simulation.add_command(Box::new(flight_command));
@@ -200,8 +206,12 @@ mod tests {
             simulation.command_history.clone(),
         );
 
-        let mut simulation =
-            Simulation::new(replay.initial_config.clone(), aerodromes(), plane_types());
+        let mut simulation = Simulation::new(
+            replay.initial_config.clone(),
+            aerodromes(),
+            plane_types(),
+            world_heritage_sites(),
+        );
         simulation.time_multiplier = 1.0;
         println!(
             "Replaying simulation {:?}",

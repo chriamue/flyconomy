@@ -1,5 +1,5 @@
 use crate::{
-    config::{aerodromes, plane_types, PlanesConfig},
+    config::{aerodromes, plane_types, world_heritage_sites, PlanesConfig},
     model::{
         commands::{
             BuyLandingRightsCommand, BuyPlaneCommand, CreateBaseCommand, ScheduleFlightCommand,
@@ -12,7 +12,12 @@ use super::*;
 
 #[test]
 fn test_simulation() {
-    let mut simulation = Simulation::new(Default::default(), aerodromes(), plane_types());
+    let mut simulation = Simulation::new(
+        Default::default(),
+        aerodromes(),
+        plane_types(),
+        world_heritage_sites(),
+    );
     simulation.setup();
 
     let paris_aerodrome = Aerodrome::new(
@@ -71,6 +76,7 @@ fn test_simulation() {
         origin_aerodrome: frankfurt_aerodrome.clone(),
         destination_aerodrome: paris_aerodrome.clone(),
         departure_time: (simulation.elapsed_time + Duration::from_secs(1)).as_millis(),
+        interest_score: 0.0,
     };
 
     simulation.add_command(Box::new(flight_command));

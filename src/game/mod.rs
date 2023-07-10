@@ -50,6 +50,7 @@ impl GameResource {
                 level_config.environment,
                 config::aerodromes(),
                 config::plane_types(),
+                config::world_heritage_sites(),
             ),
             replay: None,
         }
@@ -60,6 +61,7 @@ impl GameResource {
             replay.initial_config.clone(),
             config::aerodromes(),
             config::plane_types(),
+            config::world_heritage_sites(),
         );
         for timestamped_command in &replay.command_history {
             simulation.add_command_timed(timestamped_command.clone());
@@ -81,6 +83,7 @@ impl Default for GameResource {
                 LevelConfig::default().environment,
                 config::aerodromes(),
                 config::plane_types(),
+                config::world_heritage_sites(),
             ),
             replay: None,
         }

@@ -16,6 +16,8 @@ mod simulation_control;
 mod welcome_screen;
 mod world_heritage_site_ui;
 
+use crate::algorithms::calculate_interest_score;
+use crate::game::ConfigResource;
 use crate::{
     game::{
         aerodrome::{SelectedAerodrome, SelectedAerodromeChangeEvent},
@@ -144,6 +146,7 @@ pub fn flight_planning_ui(
     selected_aerodrome: Res<SelectedAerodrome>,
     mut game_resource: ResMut<GameResource>,
     mut flight_planning_input: ResMut<FlightPlanningInput>,
+    config_resource: Res<ConfigResource>,
 ) {
     if let Some(selected_aerodrome) = &selected_aerodrome.aerodrome {
         egui::Window::new("Flight Planning")
@@ -244,6 +247,21 @@ pub fn flight_planning_ui(
                                     .cloned();
 
                                 if let Some(destination_aerodrome) = destination_aerodrome {
+                                    // interest score
+                                    let heritage_sites: Vec<(f64, f64, f64)> = config_resource
+                                        .world_heritage_sites
+                                        .as_ref()
+                                        .unwrap()
+                                        .iter()
+                                        .map(|site| (site.lat, site.lon, 1.0f64))
+                                        .collect();
+                                    let interest_score = calculate_interest_score(
+                                        selected_aerodrome.lat,
+                                        selected_aerodrome.lon,
+                                        &heritage_sites,
+                                        250_000.0,
+                                    );
+
                                     let flight = Flight {
                                         flight_id: 0, // Dummy ID as it is only being used for calculation
                                         airplane: airplane.clone(),
@@ -255,6 +273,7 @@ pub fn flight_planning_ui(
                                             .timestamp,
                                         arrival_time: None,
                                         state: Default::default(),
+                                        interest_score,
                                     };
 
                                     let profit = flight.calculate_profit();
@@ -276,6 +295,7 @@ pub fn flight_planning_ui(
                                                 .simulation
                                                 .environment
                                                 .timestamp,
+                                            interest_score,
                                         };
                                         game_resource
                                             .simulation

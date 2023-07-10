@@ -1,5 +1,6 @@
 #[cfg(feature = "ai")]
 mod ai;
+mod algorithms;
 mod config;
 mod game;
 mod model;
