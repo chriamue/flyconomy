@@ -123,7 +123,7 @@ mod tests {
             departure_time: 0,
             arrival_time: None,
             state: Default::default(),
-            interest_score: 0.0,
+            interest_score: 1.0,
         };
 
         let distance = flight.calculate_distance();
