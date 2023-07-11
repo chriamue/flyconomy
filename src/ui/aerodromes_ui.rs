@@ -277,12 +277,6 @@ pub fn landing_rights_info_ui(
                     "Selected Aerodrome: {}",
                     landing_rights.aerodrome.name
                 ));
-                if ui.button("Sell Landing Rights").clicked() {
-                    let cmd = SellLandingRightsCommand {
-                        landing_rights_id: landing_rights.id,
-                    };
-                    game_resource.simulation.add_command(Box::new(cmd));
-                }
                 if ui.button("Go to Landing Rights").clicked() {
                     ev_selected_aerodrome_change.send(SelectedAerodromeChangeEvent(
                         landing_rights.aerodrome.clone(),
@@ -295,6 +289,13 @@ pub fn landing_rights_info_ui(
                         pan_orbit.radius = Some(1.5);
                         pan_orbit.force_update = true;
                     }
+                }
+                if ui.button("Sell Landing Rights").clicked() {
+                    let cmd = SellLandingRightsCommand {
+                        landing_rights_id: landing_rights.id.into(),
+                    };
+                    game_resource.simulation.add_command(Box::new(cmd));
+                    landing_rights_input.selected_landing_rights = None;
                 }
             }
         });

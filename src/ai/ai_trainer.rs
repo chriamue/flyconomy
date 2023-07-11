@@ -30,7 +30,7 @@ impl AiTrainerType {
                 Box::new(trainer)
             }
             Self::DQNAgentTrainer => {
-                let trainer: DQNAgentTrainer<AiState, 7, 9, 64> = DQNAgentTrainer::new(0.7, 1e-3);
+                let trainer: DQNAgentTrainer<AiState, 7, 10, 64> = DQNAgentTrainer::new(0.7, 1e-3);
                 Box::new(trainer)
             }
         }
@@ -58,7 +58,7 @@ impl AiTrainer for AgentTrainer<AiState> {
     }
 }
 
-impl AiTrainer for DQNAgentTrainer<AiState, 7, 9, 64> {
+impl AiTrainer for DQNAgentTrainer<AiState, 7, 10, 64> {
     fn train<'a>(
         &mut self,
         agent: &'a mut dyn Agent<AiState>,

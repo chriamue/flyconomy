@@ -119,7 +119,6 @@ impl TerminationStrategy<AiState> for ReplayTerminationStrategy {
 mod tests {
     use super::*;
     use crate::{
-        config::{aerodromes, plane_types, world_heritage_sites},
         model::{
             commands::{
                 BuyLandingRightsCommand, BuyPlaneCommand, CreateBaseCommand, ScheduleFlightCommand,

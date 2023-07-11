@@ -1,39 +1,31 @@
-use std::any::Any;
-
+use super::Command;
+use crate::model::Environment;
 use serde::{Deserialize, Serialize};
+use std::any::Any;
 use thiserror::Error;
 
-use crate::model::Environment;
-
-use super::Command;
-
 #[derive(Debug, Clone, Serialize, Deserialize)]
-pub struct SellLandingRightsCommand {
-    pub landing_rights_id: u64,
+pub struct SellPlaneCommand {
+    pub plane_id: u64,
 }
 
 #[derive(Debug, Error)]
-pub enum SellLandingRightsError {
+pub enum SellPlaneError {
     #[error("Landing rights does not exist")]
     NotExist,
 }
 
-impl Command for SellLandingRightsCommand {
+impl Command for SellPlaneCommand {
     fn execute(
         &self,
         environment: &mut Environment,
     ) -> Result<Option<String>, Box<dyn std::error::Error>> {
-        let landing_rights = environment
-            .landing_rights
-            .iter()
-            .find(|lr| lr.id == self.landing_rights_id);
-        if landing_rights.is_none() {
-            return Err(Box::new(SellLandingRightsError::NotExist));
+        let airplane = environment.planes.iter().find(|lr| lr.id == self.plane_id);
+        if airplane.is_none() {
+            return Err(Box::new(SellPlaneError::NotExist));
         }
 
-        environment
-            .landing_rights
-            .retain(|lr| lr.id != self.landing_rights_id);
+        environment.planes.retain(|lr| lr.id != self.plane_id);
 
         environment.company_finances.add_income(
             environment.timestamp,
@@ -59,14 +51,12 @@ mod tests {
     fn test_sell_landing_rights_not_exist() {
         let mut environment = Environment::default();
 
-        let cmd = SellLandingRightsCommand {
-            landing_rights_id: 42,
-        };
+        let cmd = SellPlaneCommand { plane_id: 42 };
 
         match cmd.execute(&mut environment) {
             Err(e) => {
-                let err = e.downcast::<SellLandingRightsError>().unwrap();
-                assert!(matches!(*err, SellLandingRightsError::NotExist));
+                let err = e.downcast::<SellPlaneError>().unwrap();
+                assert!(matches!(*err, SellPlaneError::NotExist));
             }
             _ => panic!("Expected an error"),
         }

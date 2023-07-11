@@ -6,7 +6,10 @@ use bevy_egui::{
 
 use crate::{
     game::{aerodrome::SelectedAerodrome, GameResource, GameState},
-    model::{commands::BuyPlaneCommand, PlaneType},
+    model::{
+        commands::{BuyPlaneCommand, SellPlaneCommand},
+        AirPlane, PlaneType,
+    },
 };
 
 use super::{aerodromes_ui::UiInput, UiState};
@@ -15,7 +18,8 @@ pub struct PlanesUiPlugin;
 
 #[derive(Default, Resource)]
 pub struct SelectedPlane {
-    plane: Option<PlaneType>,
+    plane_type: Option<PlaneType>,
+    pub airplane: Option<AirPlane>,
 }
 
 impl Plugin for PlanesUiPlugin {
@@ -25,7 +29,7 @@ impl Plugin for PlanesUiPlugin {
         })
         .insert_resource(SelectedPlane::default())
         .add_systems(
-            (planes_purchase_ui,)
+            (planes_purchase_ui, airplanes_list_ui)
                 .in_set(OnUpdate(GameState::Playing))
                 .in_set(OnUpdate(UiState::Aerodromes)),
         );
@@ -52,7 +56,7 @@ pub fn planes_purchase_ui(
                 ComboBox::from_id_source("planes_list")
                     .selected_text(
                         selected_plane
-                            .plane
+                            .plane_type
                             .as_ref()
                             .map(|p| &p.name)
                             .unwrap_or(&"Select Plane".to_string()),
@@ -60,14 +64,14 @@ pub fn planes_purchase_ui(
                     .show_ui(ui, |ui| {
                         for plane in plane_types {
                             ui.selectable_value(
-                                &mut selected_plane.plane,
+                                &mut selected_plane.plane_type,
                                 Some(plane.clone()),
                                 &plane.name,
                             );
                         }
                     });
 
-                if let Some(selected_plane) = &selected_plane.plane {
+                if let Some(selected_plane) = &selected_plane.plane_type {
                     ui.separator();
                     ui.label(format!("Cost: ${:.2}", selected_plane.cost));
                     ui.label(format!(
@@ -101,4 +105,81 @@ pub fn planes_purchase_ui(
                 }
             });
     }
+}
+
+pub fn airplanes_list_ui(
+    mut contexts: EguiContexts,
+    mut game_resource: ResMut<GameResource>,
+    mut selected_airplane: ResMut<SelectedPlane>,
+) {
+    egui::Window::new("Airplanes")
+        .pivot(Align2::RIGHT_CENTER)
+        .default_open(true)
+        .resizable(true)
+        .show(contexts.ctx_mut(), |ui| {
+            let environment = &game_resource.simulation.environment;
+
+            egui::ScrollArea::vertical().show(ui, |ui| {
+                for airplane in &environment.planes {
+                    let airplane_id = airplane.id;
+                    let base = environment
+                        .bases
+                        .iter()
+                        .find(|base| base.id == airplane.base_id);
+                    let base_name = base.as_ref().map_or("", |base| &base.aerodrome.name);
+
+                    let is_selected = selected_airplane
+                        .airplane
+                        .as_ref()
+                        .map_or(false, |a| a.id == airplane_id);
+                    if ui
+                        .selectable_label(
+                            is_selected,
+                            format!("ID: {}, Base: {}", airplane_id, base_name),
+                        )
+                        .clicked()
+                    {
+                        selected_airplane.airplane = Some(airplane.clone());
+                    }
+                }
+            });
+
+            if let Some(airplane) = &selected_airplane.airplane {
+                ui.separator();
+                ui.vertical_centered(|ui| {
+                    ui.heading("Selected Airplane Details");
+                });
+                ui.label(format!("ID: {}", airplane.id));
+                ui.label(format!("Type: {}", airplane.plane_type.name));
+                let base = environment
+                    .bases
+                    .iter()
+                    .find(|base| base.id == airplane.base_id)
+                    .unwrap();
+                ui.label(format!("Base: {}", base.aerodrome.name));
+
+                let (passengers, distance) =
+                    environment.flights.iter().fold((0, 0.0), |acc, flight| {
+                        if flight.airplane.id == airplane.id {
+                            (
+                                acc.0 + flight.calculate_booked_seats(),
+                                acc.1 + flight.calculate_distance(),
+                            )
+                        } else {
+                            acc
+                        }
+                    });
+                ui.label(format!("Transported Passengers: {}", passengers));
+                ui.label(format!("Total Distance: {:.3} km", distance));
+
+                if ui.button("Sell Airplane").clicked() {
+                    let cmd = SellPlaneCommand {
+                        plane_id: airplane.id,
+                    };
+                    game_resource.simulation.add_command(Box::new(cmd));
+
+                    selected_airplane.airplane = None;
+                }
+            }
+        });
 }
