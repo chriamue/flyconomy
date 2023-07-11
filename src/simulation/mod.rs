@@ -88,16 +88,19 @@ impl Simulation {
             let previous_state = flight.state.clone();
             flight.update_state(self.elapsed_time.as_millis());
 
-            if previous_state != FlightState::EnRoute && flight.state == FlightState::EnRoute {
-                self.event_manager.add_event(Box::new(AirplaneTakeoffEvent {
-                    flight: flight.clone(),
-                }));
-            }
-
-            if previous_state != FlightState::Landed && flight.state == FlightState::Landed {
-                self.event_manager.add_event(Box::new(AirplaneLandedEvent {
-                    flight: flight.clone(),
-                }));
+            match (previous_state, &flight.state) {
+                (FlightState::Scheduled, FlightState::EnRoute { .. }) => {
+                    self.event_manager.add_event(Box::new(AirplaneTakeoffEvent {
+                        flight: flight.clone(),
+                    }));
+                }
+                (FlightState::EnRoute { .. }, FlightState::Finished)
+                | (FlightState::Landed { .. }, FlightState::Finished) => {
+                    self.event_manager.add_event(Box::new(AirplaneLandedEvent {
+                        flight: flight.clone(),
+                    }));
+                }
+                _ => {}
             }
         }
     }

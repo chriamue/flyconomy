@@ -8,7 +8,7 @@ use chrono::{TimeZone, Utc};
 use crate::{
     algorithms::calculate_interest_score,
     game::{aerodrome::SelectedAerodrome, GameResource, GameState},
-    model::{commands::ScheduleFlightCommand, Flight},
+    model::{commands::ScheduleFlightCommand, Aerodrome, Flight},
 };
 
 use super::UiState;
@@ -25,7 +25,6 @@ impl Plugin for FlightsUiPlugin {
         );
     }
 }
-
 pub fn flight_planning_ui(
     mut contexts: EguiContexts,
     selected_aerodrome: Res<SelectedAerodrome>,
@@ -65,6 +64,7 @@ pub fn flight_planning_ui(
                                 .clicked()
                             {
                                 flight_planning_input.selected_airplane_id = Some(airplane.id);
+                                flight_planning_input.selected_stopovers.clear();
                             }
                         }
                     }
@@ -108,84 +108,99 @@ pub fn flight_planning_ui(
                     }
                 }
 
+                ui.label("Select Stopover Aerodromes:");
+                for aerodrome in available_aerodromes.iter() {
+                    let mut is_selected = flight_planning_input
+                        .selected_stopovers
+                        .contains(&aerodrome.id);
+                    if ui.checkbox(&mut is_selected, &aerodrome.name).changed() {
+                        if is_selected {
+                            flight_planning_input.selected_stopovers.push(aerodrome.id);
+                        } else {
+                            flight_planning_input
+                                .selected_stopovers
+                                .retain(|&x| x != aerodrome.id);
+                        }
+                    }
+                }
+
                 if let Some(selected_airplane_id) = flight_planning_input.selected_airplane_id {
-                    if let Some(selected_destination_id) =
-                        flight_planning_input.selected_destination_id
-                    {
-                        if let Some(base) = environment
+                    if let (Some(base), Some(airplane)) = (
+                        environment
                             .bases
                             .iter()
-                            .find(|base| base.aerodrome.id == selected_aerodrome.id)
-                        {
-                            if let Some(airplane) = environment
-                                .planes
-                                .iter()
-                                .find(|plane| plane.id == selected_airplane_id)
-                                .cloned()
-                            {
-                                let origin_aerodrome = base.aerodrome.clone();
+                            .find(|base| base.aerodrome.id == selected_aerodrome.id),
+                        environment
+                            .planes
+                            .iter()
+                            .find(|plane| plane.id == selected_airplane_id),
+                    ) {
+                        let origin_aerodrome = base.aerodrome.clone();
 
-                                let destination_aerodrome = available_aerodromes
+                        let stopovers: Vec<Aerodrome> = flight_planning_input
+                            .selected_stopovers
+                            .iter()
+                            .map(|&id| {
+                                available_aerodromes
                                     .iter()
-                                    .find(|a| a.id == selected_destination_id)
-                                    .cloned();
+                                    .find(|a| a.id == id)
+                                    .cloned()
+                                    .unwrap()
+                                    .clone()
+                            })
+                            .collect();
 
-                                if let Some(destination_aerodrome) = destination_aerodrome {
-                                    // interest score
-                                    let heritage_sites: Vec<(f64, f64, f64)> = game_resource
-                                        .simulation
-                                        .world_data_gateway
-                                        .world_heritage_sites()
-                                        .iter()
-                                        .map(|site| (site.lat, site.lon, 1.0f64))
-                                        .collect();
-                                    let interest_score = calculate_interest_score(
-                                        destination_aerodrome.lat,
-                                        destination_aerodrome.lon,
-                                        &heritage_sites,
-                                        250_000.0,
-                                    );
+                        if !stopovers.is_empty() {
+                            let heritage_sites: Vec<(f64, f64, f64)> = game_resource
+                                .simulation
+                                .world_data_gateway
+                                .world_heritage_sites()
+                                .iter()
+                                .map(|site| (site.lat, site.lon, 1.0f64))
+                                .collect();
+                            let interest_score = calculate_interest_score(
+                                origin_aerodrome.lat,
+                                origin_aerodrome.lon,
+                                &heritage_sites,
+                                250_000.0,
+                            );
 
-                                    let flight = Flight {
-                                        flight_id: 0, // Dummy ID as it is only being used for calculation
-                                        airplane: airplane.clone(),
-                                        origin_aerodrome: origin_aerodrome.clone(),
-                                        destination_aerodrome: destination_aerodrome.clone(),
-                                        departure_time: game_resource
-                                            .simulation
-                                            .environment
-                                            .timestamp,
-                                        arrival_time: None,
-                                        state: Default::default(),
-                                        interest_score,
-                                    };
+                            let flight = Flight {
+                                flight_id: 0,
+                                airplane: airplane.clone(),
+                                origin_aerodrome: origin_aerodrome.clone(),
+                                stopovers: stopovers.clone(),
+                                departure_time: game_resource.simulation.environment.timestamp,
+                                segment_departure_time: game_resource
+                                    .simulation
+                                    .environment
+                                    .timestamp,
+                                arrival_time: None,
+                                state: Default::default(),
+                                interest_score,
+                            };
 
-                                    let profit = flight.calculate_profit();
+                            let profit = flight.calculate_profit();
 
-                                    let distance_in_kilometers = flight.calculate_distance();
-                                    ui.label(format!(
-                                        "Estimated Distance: {:.3} km",
-                                        distance_in_kilometers
-                                    ));
-                                    ui.label(format!("Estimated Profit: ${:.2}", profit));
+                            let distance_in_kilometers = flight.calculate_total_distance();
+                            ui.label(format!(
+                                "Estimated Distance: {:.3} km",
+                                distance_in_kilometers
+                            ));
+                            ui.label(format!("Estimated Profit: ${:.2}", profit));
 
-                                    if ui.button("Plan Flight").clicked() {
-                                        let schedule_flight = ScheduleFlightCommand {
-                                            flight_id: ScheduleFlightCommand::generate_id(),
-                                            airplane,
-                                            origin_aerodrome,
-                                            destination_aerodrome: destination_aerodrome.clone(),
-                                            departure_time: game_resource
-                                                .simulation
-                                                .environment
-                                                .timestamp,
-                                            interest_score,
-                                        };
-                                        game_resource
-                                            .simulation
-                                            .add_command(Box::new(schedule_flight));
-                                    }
-                                }
+                            if ui.button("Plan Flight").clicked() {
+                                let schedule_flight = ScheduleFlightCommand {
+                                    flight_id: ScheduleFlightCommand::generate_id(),
+                                    airplane: airplane.clone(),
+                                    origin_aerodrome,
+                                    stopovers,
+                                    departure_time: game_resource.simulation.environment.timestamp,
+                                    interest_score,
+                                };
+                                game_resource
+                                    .simulation
+                                    .add_command(Box::new(schedule_flight));
                             }
                         }
                     }
@@ -193,12 +208,12 @@ pub fn flight_planning_ui(
             });
     }
 }
-
 #[derive(Resource, Default)]
 pub struct FlightPlanningInput {
     pub search_string: String,
     pub selected_airplane_id: Option<u64>,
     pub selected_destination_id: Option<u64>,
+    pub selected_stopovers: Vec<u64>,
     pub selected_flight: Option<Flight>,
 }
 pub fn flight_list_ui(
@@ -218,7 +233,11 @@ pub fn flight_list_ui(
                 for flight in environment.flights.iter().rev() {
                     let flight_id = flight.flight_id;
                     let from = &flight.origin_aerodrome.name;
-                    let to = &flight.destination_aerodrome.name;
+
+                    let to = flight.stopovers.iter().fold(from.clone(), |acc, stopover| {
+                        format!("{}, {}", acc, stopover.name)
+                    });
+
                     let date_time = flight.departure_time;
 
                     let start_of_2000: i64 = 946684800000;
@@ -250,14 +269,17 @@ pub fn flight_list_ui(
             if let Some(flight) = &flight_planning_input.selected_flight {
                 ui.label(format!("Profit: ${:.2}", flight.calculate_profit()));
                 ui.label(format!("Passengers: {}", flight.calculate_booked_seats()));
-                ui.label(format!("Distance: {:.3} km", flight.calculate_distance()));
+                ui.label(format!(
+                    "Distance: {:.3} km",
+                    flight.calculate_total_distance()
+                ));
                 ui.label(format!("Interest Score: {:.3}", flight.interest_score));
                 if ui.button("Replicate Flight").clicked() {
                     let new_flight = ScheduleFlightCommand {
                         flight_id: ScheduleFlightCommand::generate_id(),
                         airplane: flight.airplane.clone(),
                         origin_aerodrome: flight.origin_aerodrome.clone(),
-                        destination_aerodrome: flight.destination_aerodrome.clone(),
+                        stopovers: flight.stopovers.clone(),
                         departure_time: game_resource.simulation.environment.timestamp,
                         interest_score: flight.interest_score,
                     };

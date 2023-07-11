@@ -246,7 +246,7 @@ impl AiAction {
                             flight_id: ScheduleFlightCommand::generate_id(),
                             airplane,
                             origin_aerodrome,
-                            destination_aerodrome,
+                            stopovers: vec![destination_aerodrome],
                             departure_time: environment.timestamp,
                             interest_score,
                         }))
@@ -303,7 +303,7 @@ impl From<&Box<dyn Command>> for AiAction {
             AiAction::ScheduleFlight {
                 plane_id: command.airplane.id,
                 origin_id: command.origin_aerodrome.id,
-                destination_id: command.destination_aerodrome.id,
+                destination_id: command.stopovers[0].id,
             }
         } else if let Some(command) = value.as_any().downcast_ref::<SellLandingRightsCommand>() {
             AiAction::SellLandingRights {

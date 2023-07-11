@@ -72,7 +72,7 @@ fn test_simulation() {
         flight_id: ScheduleFlightCommand::generate_id(),
         airplane: simulation.environment.planes[0].clone(),
         origin_aerodrome: frankfurt_aerodrome.clone(),
-        destination_aerodrome: paris_aerodrome.clone(),
+        stopovers: vec![paris_aerodrome.clone()],
         departure_time: (simulation.elapsed_time + Duration::from_secs(1)).as_millis(),
         interest_score: 0.0,
     };

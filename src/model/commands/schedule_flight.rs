@@ -17,7 +17,7 @@ pub struct ScheduleFlightCommand {
     pub flight_id: u64,
     pub airplane: AirPlane,
     pub origin_aerodrome: Aerodrome,
-    pub destination_aerodrome: Aerodrome,
+    pub stopovers: Vec<Aerodrome>,
     pub departure_time: Timestamp,
     pub interest_score: f64,
 }
@@ -48,10 +48,9 @@ impl Command for ScheduleFlightCommand {
     ) -> Result<Option<String>, Box<dyn std::error::Error>> {
         let airplane_id = self.airplane.id;
 
-        let is_airplane_in_use = environment
-            .flights
-            .iter()
-            .any(|flight| flight.airplane.id == airplane_id && flight.state != FlightState::Landed);
+        let is_airplane_in_use = environment.flights.iter().any(|flight| {
+            flight.airplane.id == airplane_id && flight.state != FlightState::Finished
+        });
 
         // If the airplane is in use, return an error
         if is_airplane_in_use {
@@ -62,16 +61,16 @@ impl Command for ScheduleFlightCommand {
             flight_id: self.flight_id,
             airplane: self.airplane.clone(),
             origin_aerodrome: self.origin_aerodrome.clone(),
-            destination_aerodrome: self.destination_aerodrome.clone(),
+            stopovers: self.stopovers.clone(),
             departure_time: self.departure_time,
+            segment_departure_time: self.departure_time,
             arrival_time: None,
             state: FlightState::Scheduled,
             interest_score: self.interest_score,
         };
 
         // Check if the distance is within the airplane's range
-        let distance = flight.calculate_distance();
-        if distance > self.airplane.plane_type.range as f64 {
+        if !flight.is_plane_range_sufficient() {
             return Err(Box::new(ScheduleFlightError::DistanceBeyondRange));
         }
 
@@ -120,8 +119,9 @@ mod tests {
             flight_id: 1,
             airplane: airplane.clone(),
             origin_aerodrome: aerodrome.clone(),
-            destination_aerodrome: aerodrome.clone(),
+            stopovers: vec![aerodrome.clone()],
             departure_time: 1,
+            segment_departure_time: 1,
             arrival_time: None,
             state: FlightState::Scheduled,
             interest_score: 0.0,
@@ -131,7 +131,7 @@ mod tests {
             flight_id: ScheduleFlightCommand::generate_id(),
             airplane: airplane.clone(),
             origin_aerodrome: aerodrome.clone(),
-            destination_aerodrome: aerodrome.clone(),
+            stopovers: vec![aerodrome.clone()],
             departure_time: 2,
             interest_score: 0.0,
         };
@@ -160,7 +160,7 @@ mod tests {
             flight_id: ScheduleFlightCommand::generate_id(),
             airplane: airplane.clone(),
             origin_aerodrome: origin_aerodrome.clone(),
-            destination_aerodrome: destination_aerodrome.clone(),
+            stopovers: vec![destination_aerodrome.clone()],
             departure_time: 1,
             interest_score: 0.0,
         };

@@ -1,6 +1,5 @@
-use std::any::Any;
-
 use super::{Aerodrome, Flight, PlaneType};
+use std::any::Any;
 
 mod event_handlers;
 mod event_manager;
@@ -27,7 +26,8 @@ impl Event for AirplaneLandedEvent {
     fn message(&self) -> String {
         format!(
             "Flight {} landed in {}",
-            self.flight.flight_id, self.flight.destination_aerodrome.name
+            self.flight.flight_id,
+            self.flight.current_origin().name
         )
     }
 }

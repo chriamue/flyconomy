@@ -41,24 +41,24 @@ pub fn plane_system(
     // Loop through flights
     for flight in game_resource.simulation.environment.flights.iter() {
         let should_display = match flight.state {
-            FlightState::Scheduled | FlightState::EnRoute => true,
-            FlightState::Landed => false,
+            FlightState::EnRoute { .. } => true,
+            _ => false,
         };
 
         if should_display {
-            if let Some((current_lat, current_lon)) = flight.estimate_current_position(current_time)
-            {
+            if let (Some((current_lat, current_lon)), Some(destination)) = (
+                flight.estimate_current_position(current_time),
+                flight.current_destination(),
+            ) {
                 let position =
                     wgs84_to_xyz(current_lat, current_lon, 10_000.0) * earth3d::SCALE_FACTOR as f32;
                 // Calculate the look-at rotation
-                let destination = wgs84_to_xyz(
-                    flight.destination_aerodrome.lat,
-                    flight.destination_aerodrome.lon,
-                    1_000.0,
-                ) * earth3d::SCALE_FACTOR as f32;
+                let destination = wgs84_to_xyz(destination.lat, destination.lon, 1_000.0)
+                    * earth3d::SCALE_FACTOR as f32;
 
                 if let Some(entity) = visualized_flights.get(&flight.flight_id) {
                     // Update the position of an existing plane
+
                     if let Ok(mut transform) = query.get_component_mut::<Transform>(*entity) {
                         transform.translation = position;
                         transform.look_at(destination, Vec3::Y);
@@ -100,8 +100,9 @@ pub fn plane_system(
                         });
                 }
             }
-        } else if let Some(entity) = visualized_flights.remove(&flight.flight_id) {
-            commands.entity(entity).despawn_recursive();
+        } else if let Some(entity) = visualized_flights.get(&flight.flight_id) {
+            commands.entity(*entity).remove::<FlightVisual>();
+            commands.entity(*entity).despawn_recursive();
         }
     }
 }

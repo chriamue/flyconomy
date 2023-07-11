@@ -163,7 +163,7 @@ pub fn airplanes_list_ui(
                         if flight.airplane.id == airplane.id {
                             (
                                 acc.0 + flight.calculate_booked_seats(),
-                                acc.1 + flight.calculate_distance(),
+                                acc.1 + flight.calculate_total_distance(),
                             )
                         } else {
                             acc

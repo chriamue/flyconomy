@@ -25,9 +25,9 @@ pub fn calculate_total_flight_distance(environment: &Environment) -> Vec<(Timest
             .flights
             .iter()
             .filter(|flight| {
-                flight.state == FlightState::Landed && flight.arrival_time.unwrap() <= timestamp
+                flight.state == FlightState::Finished && flight.arrival_time.unwrap() <= timestamp
             })
-            .map(|flight| flight.calculate_distance())
+            .map(|flight| flight.calculate_total_distance())
             .sum();
         flight_distance_history.push((timestamp, total_distance));
     }
@@ -46,7 +46,7 @@ pub fn calculate_transported_passengers(environment: &Environment) -> Vec<(Times
             .flights
             .iter()
             .filter(|flight| {
-                flight.state == FlightState::Landed && flight.arrival_time.unwrap() <= timestamp
+                flight.state == FlightState::Finished && flight.arrival_time.unwrap() <= timestamp
             })
             .map(|flight| flight.calculate_booked_seats())
             .sum();
@@ -65,7 +65,7 @@ pub fn calculate_average_profit_per_flight(environment: &Environment) -> Vec<(Ti
 
     for timestamp in (0..total_timestamps + sample_interval).step_by(sample_interval as usize) {
         let flights_in_last_seven_days = environment.flights.iter().filter(|flight| {
-            flight.state == FlightState::Landed
+            flight.state == FlightState::Finished
                 && flight.arrival_time.unwrap() <= timestamp
                 && flight.arrival_time.unwrap() > timestamp - seven_days_in_timestamps
         });

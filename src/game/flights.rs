@@ -40,41 +40,45 @@ pub fn draw_flight_paths_system(
 
     let flight_query = game_resource.simulation.environment.flights.iter();
 
-    for flight in flight_query.filter(|flight| flight.state == FlightState::EnRoute) {
-        let origin = &flight.origin_aerodrome;
-        let destination = &flight.destination_aerodrome;
-        let start_gps = (origin.lat, origin.lon);
-        let end_gps = (destination.lat, destination.lon);
-        // Intermediate points in GPS
-        let mut intermediate_gps_points = Vec::new();
-        let num_intermediate = 32;
-        for i in 1..=num_intermediate {
-            let t = i as f32 / (num_intermediate + 1) as f32; // Divide by total segments
-            let intermediate_lat = start_gps.0 + (end_gps.0 - start_gps.0) * t as f64;
-            let intermediate_lon = start_gps.1 + (end_gps.1 - start_gps.1) * t as f64;
-            intermediate_gps_points.push((intermediate_lat, intermediate_lon));
-        }
+    for flight in flight_query {
+        if let FlightState::EnRoute { .. } = flight.state {
+            if let Some(destination) = flight.current_destination() {
+                let origin = flight.current_origin();
+                let start_gps = (origin.lat, origin.lon);
+                let end_gps = (destination.lat, destination.lon);
+                // Intermediate points in GPS
+                let mut intermediate_gps_points = Vec::new();
+                let num_intermediate = 32;
+                for i in 1..=num_intermediate {
+                    let t = i as f32 / (num_intermediate + 1) as f32; // Divide by total segments
+                    let intermediate_lat = start_gps.0 + (end_gps.0 - start_gps.0) * t as f64;
+                    let intermediate_lon = start_gps.1 + (end_gps.1 - start_gps.1) * t as f64;
+                    intermediate_gps_points.push((intermediate_lat, intermediate_lon));
+                }
 
-        // Convert points to XYZ
-        let mut points =
-            vec![wgs84_to_xyz(start_gps.0, start_gps.1, 0.0) * earth3d::SCALE_FACTOR as f32];
-        for gps in intermediate_gps_points {
-            points.push(wgs84_to_xyz(gps.0, gps.1, 0.0) * earth3d::SCALE_FACTOR as f32);
-        }
-        points.push(wgs84_to_xyz(end_gps.0, end_gps.1, 0.0) * earth3d::SCALE_FACTOR as f32);
+                // Convert points to XYZ
+                let mut points = vec![
+                    wgs84_to_xyz(start_gps.0, start_gps.1, 0.0) * earth3d::SCALE_FACTOR as f32,
+                ];
+                for gps in intermediate_gps_points {
+                    points.push(wgs84_to_xyz(gps.0, gps.1, 0.0) * earth3d::SCALE_FACTOR as f32);
+                }
+                points.push(wgs84_to_xyz(end_gps.0, end_gps.1, 0.0) * earth3d::SCALE_FACTOR as f32);
 
-        commands
-            .spawn(PolylineBundle {
-                polyline: polylines.add(Polyline { vertices: points }),
-                material: polyline_materials.add(PolylineMaterial {
-                    width: 2.0,
-                    color: Color::RED,
-                    perspective: false,
-                    depth_bias: -0.0002,
-                }),
-                ..Default::default()
-            })
-            .insert(FlightLine);
+                commands
+                    .spawn(PolylineBundle {
+                        polyline: polylines.add(Polyline { vertices: points }),
+                        material: polyline_materials.add(PolylineMaterial {
+                            width: 2.0,
+                            color: Color::RED,
+                            perspective: false,
+                            depth_bias: -0.0002,
+                        }),
+                        ..Default::default()
+                    })
+                    .insert(FlightLine);
+            }
+        }
     }
 }
 
@@ -95,53 +99,56 @@ pub fn draw_flight_paths_analytics_system(
     let mut route_counts: HashMap<(u64, u64), u32> = HashMap::new();
     let mut max_count = 0;
 
-    for flight in flight_query.clone() {
-        let origin_id = flight.origin_aerodrome.id;
-        let destination_id = flight.destination_aerodrome.id;
-        let count = route_counts.entry((origin_id, destination_id)).or_insert(0);
-        *count += 1;
-        max_count = max_count.max(*count);
-    }
-
     for flight in flight_query {
-        let origin_id = flight.origin_aerodrome.id;
-        let destination_id = flight.destination_aerodrome.id;
-        let count = route_counts.get(&(origin_id, destination_id)).unwrap_or(&0);
-        let intensity = *count as f32 / max_count as f32;
+        let mut aerodromes = vec![flight.origin_aerodrome.clone()];
+        aerodromes.extend_from_slice(&flight.stopovers);
+        aerodromes.push(flight.origin_aerodrome.clone());
 
-        let color = Color::rgb(intensity, 0.0, 1.0 - intensity);
+        for aerodromes in aerodromes.windows(2) {
+            let origin = &aerodromes[0];
+            let destination = &aerodromes[1];
 
-        let origin = &flight.origin_aerodrome;
-        let destination = &flight.destination_aerodrome;
-        let start_gps = (origin.lat, origin.lon);
-        let end_gps = (destination.lat, destination.lon);
-        let mut intermediate_gps_points = Vec::new();
-        let num_intermediate = 32;
-        for i in 1..=num_intermediate {
-            let t = i as f32 / (num_intermediate + 1) as f32; // Divide by total segments
-            let intermediate_lat = start_gps.0 + (end_gps.0 - start_gps.0) * t as f64;
-            let intermediate_lon = start_gps.1 + (end_gps.1 - start_gps.1) * t as f64;
-            intermediate_gps_points.push((intermediate_lat, intermediate_lon));
+            let origin_id = origin.id;
+            let destination_id = destination.id;
+
+            let count = route_counts.get(&(origin_id, destination_id)).unwrap_or(&0);
+            let intensity = *count as f32 / max_count as f32;
+            let color = Color::rgb(intensity, 0.0, 1.0 - intensity);
+
+            let start_gps = (origin.lat, origin.lon);
+            let end_gps = (destination.lat, destination.lon);
+
+            let mut intermediate_gps_points = Vec::new();
+            let num_intermediate = 32;
+
+            for i in 1..=num_intermediate {
+                let t = i as f32 / (num_intermediate + 1) as f32; // Divide by total segments
+                let intermediate_lat = start_gps.0 + (end_gps.0 - start_gps.0) * t as f64;
+                let intermediate_lon = start_gps.1 + (end_gps.1 - start_gps.1) * t as f64;
+                intermediate_gps_points.push((intermediate_lat, intermediate_lon));
+            }
+
+            let mut points =
+                vec![wgs84_to_xyz(start_gps.0, start_gps.1, 0.0) * earth3d::SCALE_FACTOR as f32];
+
+            for gps in intermediate_gps_points {
+                points.push(wgs84_to_xyz(gps.0, gps.1, 0.0) * earth3d::SCALE_FACTOR as f32);
+            }
+
+            points.push(wgs84_to_xyz(end_gps.0, end_gps.1, 0.0) * earth3d::SCALE_FACTOR as f32);
+
+            commands
+                .spawn(PolylineBundle {
+                    polyline: polylines.add(Polyline { vertices: points }),
+                    material: polyline_materials.add(PolylineMaterial {
+                        width: 2.0,
+                        color,
+                        perspective: false,
+                        depth_bias: -0.0002,
+                    }),
+                    ..Default::default()
+                })
+                .insert(FlightLine);
         }
-
-        let mut points =
-            vec![wgs84_to_xyz(start_gps.0, start_gps.1, 0.0) * earth3d::SCALE_FACTOR as f32];
-        for gps in intermediate_gps_points {
-            points.push(wgs84_to_xyz(gps.0, gps.1, 0.0) * earth3d::SCALE_FACTOR as f32);
-        }
-        points.push(wgs84_to_xyz(end_gps.0, end_gps.1, 0.0) * earth3d::SCALE_FACTOR as f32);
-
-        commands
-            .spawn(PolylineBundle {
-                polyline: polylines.add(Polyline { vertices: points }),
-                material: polyline_materials.add(PolylineMaterial {
-                    width: 2.0,
-                    color,
-                    perspective: false,
-                    depth_bias: -0.0002,
-                }),
-                ..Default::default()
-            })
-            .insert(FlightLine);
     }
 }
