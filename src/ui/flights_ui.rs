@@ -202,7 +202,6 @@ pub struct FlightPlanningInput {
     pub selected_destination_id: Option<u64>,
     pub selected_flight: Option<Flight>,
 }
-
 pub fn flight_list_ui(
     mut contexts: EguiContexts,
     mut game_resource: ResMut<GameResource>,
@@ -211,12 +210,12 @@ pub fn flight_list_ui(
     egui::Window::new("Flight List")
         .pivot(Align2::RIGHT_CENTER)
         .default_open(true)
+        .resizable(true)
         .show(contexts.ctx_mut(), |ui| {
             let environment = &game_resource.simulation.environment;
             let mut new_flights = vec![];
 
             egui::ScrollArea::vertical().show(ui, |ui| {
-                // Add scrolling feature
                 for flight in environment.flights.iter().rev() {
                     let flight_id = flight.flight_id;
                     let from = &flight.origin_aerodrome.name;

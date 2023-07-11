@@ -123,6 +123,13 @@ impl State for AiState {
                 }
             }
         }
+        if self.cash < 200_000 {
+            for landing_rights_id in &self.landing_rights {
+                actions.push(AiAction::SellLandingRights {
+                    landing_rights_id: *landing_rights_id as u32,
+                });
+            }
+        }
         actions
     }
 }

@@ -3,7 +3,7 @@ use crate::{
     model::{
         commands::{
             BuyLandingRightsCommand, BuyPlaneCommand, Command, CreateBaseCommand,
-            ScheduleFlightCommand,
+            ScheduleFlightCommand, SellLandingRightsCommand,
         },
         Aerodrome, Environment, PlaneType, WorldHeritageSite,
     },
@@ -30,12 +30,15 @@ pub enum AiAction {
         origin_id: u64,
         destination_id: u64,
     },
+    SellLandingRights {
+        landing_rights_id: u32,
+    },
 }
 
-impl Into<[f32; 8]> for AiAction {
-    fn into(self) -> [f32; 8] {
+impl Into<[f32; 9]> for AiAction {
+    fn into(self) -> [f32; 9] {
         match self {
-            AiAction::NoOp => [1.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0],
+            AiAction::NoOp => [1.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0],
             AiAction::BuyPlane {
                 plane_id,
                 plane_type,
@@ -43,6 +46,7 @@ impl Into<[f32; 8]> for AiAction {
             } => [
                 0.0,
                 1.0,
+                0.0,
                 0.0,
                 0.0,
                 0.0,
@@ -59,6 +63,7 @@ impl Into<[f32; 8]> for AiAction {
                 1.0,
                 0.0,
                 0.0,
+                0.0,
                 base_id as f32,
                 aerodrome_id as f32,
                 0.0,
@@ -71,6 +76,7 @@ impl Into<[f32; 8]> for AiAction {
                 0.0,
                 0.0,
                 1.0,
+                0.0,
                 0.0,
                 landing_rights_id as f32,
                 aerodrome_id as f32,
@@ -86,16 +92,28 @@ impl Into<[f32; 8]> for AiAction {
                 0.0,
                 0.0,
                 1.0,
+                0.0,
                 plane_id as f32,
                 origin_id as f32,
                 destination_id as f32,
+            ],
+            AiAction::SellLandingRights { landing_rights_id } => [
+                0.0,
+                0.0,
+                0.0,
+                0.0,
+                0.0,
+                1.0,
+                landing_rights_id as f32,
+                0.0,
+                0.0,
             ],
         }
     }
 }
 
-impl From<[f32; 8]> for AiAction {
-    fn from(v: [f32; 8]) -> Self {
+impl From<[f32; 9]> for AiAction {
+    fn from(v: [f32; 9]) -> Self {
         // Find the index of the maximum value
         let max_index = v[0..4]
             .iter()
@@ -107,22 +125,25 @@ impl From<[f32; 8]> for AiAction {
         match max_index {
             0 => AiAction::NoOp,
             1 => AiAction::BuyPlane {
-                plane_id: v[5] as u64,
-                plane_type: v[6] as u32,
-                base_id: v[7] as u64,
+                plane_id: v[6] as u64,
+                plane_type: v[7] as u32,
+                base_id: v[8] as u64,
             },
             2 => AiAction::CreateBase {
-                base_id: v[5] as u64,
-                aerodrome_id: v[6] as u64,
+                base_id: v[6] as u64,
+                aerodrome_id: v[7] as u64,
             },
             3 => AiAction::BuyLandingRights {
-                landing_rights_id: v[5] as u64,
-                aerodrome_id: v[6] as u64,
+                landing_rights_id: v[6] as u64,
+                aerodrome_id: v[7] as u64,
             },
             4 => AiAction::ScheduleFlight {
-                plane_id: v[5] as u64,
-                origin_id: v[6] as u64,
-                destination_id: v[7] as u64,
+                plane_id: v[6] as u64,
+                origin_id: v[7] as u64,
+                destination_id: v[8] as u64,
+            },
+            5 => AiAction::SellLandingRights {
+                landing_rights_id: v[6] as u32,
             },
             _ => panic!("Invalid action index"),
         }
@@ -219,6 +240,18 @@ impl AiAction {
                     _ => None, // return None if any of the required components are not found
                 }
             }
+            AiAction::SellLandingRights { landing_rights_id } => {
+                match environment
+                    .landing_rights
+                    .iter()
+                    .find(|landing_rights| landing_rights.id == *landing_rights_id)
+                {
+                    Some(landing_rights) => Some(Box::new(SellLandingRightsCommand {
+                        landing_rights_id: landing_rights.id,
+                    })),
+                    None => return None,
+                }
+            }
 
             AiAction::NoOp => None,
         }
@@ -248,6 +281,10 @@ impl From<&Box<dyn Command>> for AiAction {
                 plane_id: command.airplane.id,
                 origin_id: command.origin_aerodrome.id,
                 destination_id: command.destination_aerodrome.id,
+            }
+        } else if let Some(command) = value.as_any().downcast_ref::<SellLandingRightsCommand>() {
+            AiAction::SellLandingRights {
+                landing_rights_id: command.landing_rights_id,
             }
         } else {
             AiAction::NoOp
