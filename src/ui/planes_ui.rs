@@ -5,7 +5,7 @@ use bevy_egui::{
 };
 
 use crate::{
-    game::{aerodrome::SelectedAerodrome, ConfigResource, GameResource, GameState},
+    game::{aerodrome::SelectedAerodrome, GameResource, GameState},
     model::{commands::BuyPlaneCommand, PlaneType},
 };
 
@@ -35,14 +35,15 @@ impl Plugin for PlanesUiPlugin {
 pub fn planes_purchase_ui(
     mut contexts: EguiContexts,
     selected_aerodrome: Res<SelectedAerodrome>,
-    config_resource: Res<ConfigResource>,
     mut game_resource: ResMut<GameResource>,
     mut selected_plane: ResMut<SelectedPlane>,
 ) {
-    if let (Some(selected_aerodrome), Some(planes_config)) = (
-        &selected_aerodrome.aerodrome,
-        config_resource.planes_config.as_ref(),
-    ) {
+    let plane_types = game_resource
+        .simulation
+        .world_data_gateway
+        .plane_types()
+        .clone();
+    if let Some(selected_aerodrome) = &selected_aerodrome.aerodrome {
         egui::Window::new("Buy Planes")
             .anchor(Align2::RIGHT_BOTTOM, vec2(0.0, 0.0))
             .show(contexts.ctx_mut(), |ui| {
@@ -57,7 +58,7 @@ pub fn planes_purchase_ui(
                             .unwrap_or(&"Select Plane".to_string()),
                     )
                     .show_ui(ui, |ui| {
-                        for plane in &planes_config.planes {
+                        for plane in plane_types {
                             ui.selectable_value(
                                 &mut selected_plane.plane,
                                 Some(plane.clone()),

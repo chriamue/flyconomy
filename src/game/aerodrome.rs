@@ -13,7 +13,7 @@ use crate::{
     model::Aerodrome,
 };
 
-use super::ConfigResource;
+use super::GameResource;
 
 const AERODROME_COLOR: Color = Color::rgb(0.0, 0.0, 1.0);
 const AERODROME_COLOR_SELECTED: Color = Color::rgb(1.0, 0.0, 0.0);
@@ -51,52 +51,51 @@ fn setup(
     mut commands: Commands,
     mut meshes: ResMut<Assets<Mesh>>,
     mut materials: ResMut<Assets<StandardMaterial>>,
-    config_resource: Res<ConfigResource>,
     mut aerodrome_system: ResMut<AerodromeSystem>,
+    game_resource: Res<GameResource>,
 ) {
     if !aerodrome_system.setup_done {
-        if let Some(aerodromes) = config_resource.aerodromes.as_ref() {
-            for aerodrome in aerodromes {
-                let position =
-                    wgs84_to_xyz(aerodrome.lat, aerodrome.lon, 0.0) * earth3d::SCALE_FACTOR as f32;
-                let mesh_handle = meshes.add(
-                    Mesh::try_from(shape::Icosphere {
-                        radius: 12_000.0 * earth3d::SCALE_FACTOR as f32,
-                        subdivisions: 1,
-                    })
-                    .unwrap(),
-                );
-                let material_handle = materials.add(StandardMaterial {
-                    base_color: AERODROME_COLOR,
-                    ..Default::default()
-                });
-                let mut transform = Transform::from_translation(position);
-                match aerodrome.passengers {
-                    Some(passengers) => {
-                        transform.scale = Vec3::splat(1.0)
-                            + Vec3::splat(1.0) * (passengers as f32 / 50_000_000.0);
-                    }
-                    None => {
-                        transform.scale = Vec3::splat(1.0);
-                    }
+        let aerodromes = game_resource.simulation.world_data_gateway.aerodromes();
+        for aerodrome in aerodromes {
+            let position =
+                wgs84_to_xyz(aerodrome.lat, aerodrome.lon, 0.0) * earth3d::SCALE_FACTOR as f32;
+            let mesh_handle = meshes.add(
+                Mesh::try_from(shape::Icosphere {
+                    radius: 12_000.0 * earth3d::SCALE_FACTOR as f32,
+                    subdivisions: 1,
+                })
+                .unwrap(),
+            );
+            let material_handle = materials.add(StandardMaterial {
+                base_color: AERODROME_COLOR,
+                ..Default::default()
+            });
+            let mut transform = Transform::from_translation(position);
+            match aerodrome.passengers {
+                Some(passengers) => {
+                    transform.scale =
+                        Vec3::splat(1.0) + Vec3::splat(1.0) * (passengers as f32 / 50_000_000.0);
                 }
-
-                commands
-                    .spawn((
-                        PbrBundle {
-                            mesh: mesh_handle,
-                            material: material_handle,
-                            transform,
-                            ..Default::default()
-                        },
-                        PickableBundle::default(),
-                        RaycastPickTarget::default(),
-                        OnPointer::<Click>::send_event::<AerodromeSelectedEvent>(),
-                    ))
-                    .insert(AerodromeComponent(aerodrome.clone()));
+                None => {
+                    transform.scale = Vec3::splat(1.0);
+                }
             }
-            aerodrome_system.setup_done = true;
+
+            commands
+                .spawn((
+                    PbrBundle {
+                        mesh: mesh_handle,
+                        material: material_handle,
+                        transform,
+                        ..Default::default()
+                    },
+                    PickableBundle::default(),
+                    RaycastPickTarget::default(),
+                    OnPointer::<Click>::send_event::<AerodromeSelectedEvent>(),
+                ))
+                .insert(AerodromeComponent(aerodrome.clone()));
         }
+        aerodrome_system.setup_done = true;
     }
 }
 

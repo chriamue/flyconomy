@@ -13,7 +13,7 @@ use crate::{
     model::WorldHeritageSite,
 };
 
-use super::ConfigResource;
+use super::GameResource;
 
 const SITE_COLOR: Color = Color::rgb(1.0, 1.0, 0.0);
 const SITE_COLOR_SELECTED: Color = Color::rgb(1.0, 0.0, 0.0);
@@ -51,41 +51,43 @@ fn setup(
     mut commands: Commands,
     mut meshes: ResMut<Assets<Mesh>>,
     mut materials: ResMut<Assets<StandardMaterial>>,
-    config_resource: Res<ConfigResource>,
     mut site_system: ResMut<WorldHeritageSiteSystem>,
+    game_resource: Res<GameResource>,
 ) {
     if !site_system.setup_done {
-        if let Some(sites) = config_resource.world_heritage_sites.as_ref() {
-            for site in sites {
-                let position = wgs84_to_xyz(site.lat, site.lon, 0.0) * earth3d::SCALE_FACTOR as f32;
-                let mesh_handle = meshes.add(
-                    Mesh::try_from(shape::Icosphere {
-                        radius: 12_000.0 * earth3d::SCALE_FACTOR as f32,
-                        subdivisions: 1,
-                    })
-                    .unwrap(),
-                );
-                let material_handle = materials.add(StandardMaterial {
-                    base_color: SITE_COLOR,
-                    ..Default::default()
-                });
+        let sites = game_resource
+            .simulation
+            .world_data_gateway
+            .world_heritage_sites();
+        for site in sites {
+            let position = wgs84_to_xyz(site.lat, site.lon, 0.0) * earth3d::SCALE_FACTOR as f32;
+            let mesh_handle = meshes.add(
+                Mesh::try_from(shape::Icosphere {
+                    radius: 12_000.0 * earth3d::SCALE_FACTOR as f32,
+                    subdivisions: 1,
+                })
+                .unwrap(),
+            );
+            let material_handle = materials.add(StandardMaterial {
+                base_color: SITE_COLOR,
+                ..Default::default()
+            });
 
-                commands
-                    .spawn((
-                        PbrBundle {
-                            mesh: mesh_handle,
-                            material: material_handle,
-                            transform: Transform::from_translation(position),
-                            ..Default::default()
-                        },
-                        PickableBundle::default(),
-                        RaycastPickTarget::default(),
-                        OnPointer::<Click>::send_event::<WorldHeritageSiteSelectedEvent>(),
-                    ))
-                    .insert(WorldHeritageSiteComponent(site.clone()));
-            }
-            site_system.setup_done = true;
+            commands
+                .spawn((
+                    PbrBundle {
+                        mesh: mesh_handle,
+                        material: material_handle,
+                        transform: Transform::from_translation(position),
+                        ..Default::default()
+                    },
+                    PickableBundle::default(),
+                    RaycastPickTarget::default(),
+                    OnPointer::<Click>::send_event::<WorldHeritageSiteSelectedEvent>(),
+                ))
+                .insert(WorldHeritageSiteComponent(site.clone()));
         }
+        site_system.setup_done = true;
     }
 }
 

@@ -1,10 +1,10 @@
 use crate::{
-    config::{aerodromes, plane_types, world_heritage_sites, PlanesConfig},
+    config::PlanesConfig,
     model::{
         commands::{
             BuyLandingRightsCommand, BuyPlaneCommand, CreateBaseCommand, ScheduleFlightCommand,
         },
-        Aerodrome,
+        Aerodrome, StringBasedWorldData,
     },
 };
 
@@ -14,9 +14,7 @@ use super::*;
 fn test_simulation() {
     let mut simulation = Simulation::new(
         Default::default(),
-        aerodromes(),
-        plane_types(),
-        world_heritage_sites(),
+        Box::new(StringBasedWorldData::default()),
     );
     simulation.setup();
 

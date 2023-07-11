@@ -1,6 +1,6 @@
 use crate::algorithms::calculate_interest_score;
 use crate::game::aerodrome::{SelectedAerodrome, SelectedAerodromeChangeEvent};
-use crate::game::{ConfigResource, GameResource, GameState};
+use crate::game::{GameResource, GameState};
 use crate::model::commands::{
     BuyLandingRightsCommand, CreateBaseCommand, SellLandingRightsCommand,
 };
@@ -42,38 +42,37 @@ impl Plugin for AerodromesUiPlugin {
 
 pub fn aerodromes_ui_system(
     mut contexts: EguiContexts,
-    config_resource: Res<ConfigResource>,
     mut search_input: ResMut<UiInput>,
     mut ev_selected_aerodrome_change: EventWriter<SelectedAerodromeChangeEvent>,
     mut pan_orbit_query: Query<(&mut PanOrbitCamera, &mut Transform)>,
+    game_resource: Res<GameResource>,
 ) {
-    if let Some(aerodromes) = config_resource.aerodromes.as_ref() {
-        egui::Window::new("Aerodromes")
-            .anchor(Align2::LEFT_TOP, vec2(0.0, 100.0))
-            .default_open(false)
-            .show(contexts.ctx_mut(), |ui| {
-                ui.label("Available Aerodromes:");
-                ui.text_edit_singleline(&mut search_input.search_string);
+    let aerodromes = game_resource.simulation.world_data_gateway.aerodromes();
+    egui::Window::new("Aerodromes")
+        .anchor(Align2::LEFT_TOP, vec2(0.0, 100.0))
+        .default_open(false)
+        .show(contexts.ctx_mut(), |ui| {
+            ui.label("Available Aerodromes:");
+            ui.text_edit_singleline(&mut search_input.search_string);
 
-                for aerodrome in aerodromes
-                    .iter()
-                    .filter(|a| a.name.contains(&search_input.search_string))
-                {
-                    if ui.selectable_label(false, &aerodrome.name).clicked() {
-                        ev_selected_aerodrome_change
-                            .send(SelectedAerodromeChangeEvent(aerodrome.clone()));
-                        let alpha = (90.0 + aerodrome.lon).to_radians();
-                        let beta = aerodrome.lat.to_radians();
-                        for (mut pan_orbit, _transform) in pan_orbit_query.iter_mut() {
-                            pan_orbit.target_alpha = alpha as f32;
-                            pan_orbit.target_beta = beta as f32;
-                            pan_orbit.radius = Some(1.5);
-                            pan_orbit.force_update = true;
-                        }
+            for aerodrome in aerodromes
+                .iter()
+                .filter(|a| a.name.contains(&search_input.search_string))
+            {
+                if ui.selectable_label(false, &aerodrome.name).clicked() {
+                    ev_selected_aerodrome_change
+                        .send(SelectedAerodromeChangeEvent(aerodrome.clone()));
+                    let alpha = (90.0 + aerodrome.lon).to_radians();
+                    let beta = aerodrome.lat.to_radians();
+                    for (mut pan_orbit, _transform) in pan_orbit_query.iter_mut() {
+                        pan_orbit.target_alpha = alpha as f32;
+                        pan_orbit.target_beta = beta as f32;
+                        pan_orbit.radius = Some(1.5);
+                        pan_orbit.force_update = true;
                     }
                 }
-            });
-    }
+            }
+        });
 }
 
 #[derive(Resource, Default)]
@@ -85,7 +84,6 @@ fn selected_aerodrome_info_ui_system(
     selected_aerodrome: Res<SelectedAerodrome>,
     mut game_resource: ResMut<GameResource>,
     mut pan_orbit_query: Query<(&mut PanOrbitCamera, &mut Transform)>,
-    config_resource: Res<ConfigResource>,
 ) {
     if let Some(selected_aerodrome) = &selected_aerodrome.aerodrome {
         let (is_base, base) = {
@@ -129,10 +127,10 @@ fn selected_aerodrome_info_ui_system(
                 }
 
                 // interest score
-                let heritage_sites: Vec<(f64, f64, f64)> = config_resource
-                    .world_heritage_sites
-                    .as_ref()
-                    .unwrap()
+                let heritage_sites: Vec<(f64, f64, f64)> = game_resource
+                    .simulation
+                    .world_data_gateway
+                    .world_heritage_sites()
                     .iter()
                     .map(|site| (site.lat, site.lon, 1.0f64))
                     .collect();

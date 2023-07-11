@@ -19,11 +19,10 @@ use bevy_egui::EguiPlugin;
 use bevy_mod_picking::DefaultPickingPlugins;
 pub use game_state::GameState;
 
-use crate::config::{self, parse_world_heritage_site_csv, LevelConfig};
-use crate::model::WorldHeritageSite;
+use crate::config::LevelConfig;
+use crate::model::StringBasedWorldData;
 use crate::{
-    config::{load_airports, AerodromeConfig, PlanesConfig},
-    model::Aerodrome,
+    config::{AerodromeConfig, PlanesConfig},
     simulation::Simulation,
     ui, Replay,
 };
@@ -48,9 +47,7 @@ impl GameResource {
             level,
             simulation: Simulation::new(
                 level_config.environment,
-                config::aerodromes(),
-                config::plane_types(),
-                config::world_heritage_sites(),
+                Box::new(StringBasedWorldData::default()),
             ),
             replay: None,
         }
@@ -59,9 +56,7 @@ impl GameResource {
     pub fn from_replay(replay: Replay) -> Self {
         let mut simulation = Simulation::new(
             replay.initial_config.clone(),
-            config::aerodromes(),
-            config::plane_types(),
-            config::world_heritage_sites(),
+            Box::new(StringBasedWorldData::default()),
         );
         for timestamped_command in &replay.command_history {
             simulation.add_command_timed(timestamped_command.clone());
@@ -81,9 +76,7 @@ impl Default for GameResource {
             level: String::from("default"),
             simulation: Simulation::new(
                 LevelConfig::default().environment,
-                config::aerodromes(),
-                config::plane_types(),
-                config::world_heritage_sites(),
+                Box::new(StringBasedWorldData::default()),
             ),
             replay: None,
         }
@@ -92,12 +85,6 @@ impl Default for GameResource {
 
 #[derive(Default, Resource)]
 pub struct ConfigResource {
-    pub plane_handle: Option<Handle<PlanesConfig>>,
-    pub aerodrome_handle: Option<Handle<AerodromeConfig>>,
-    pub planes_config: Option<PlanesConfig>,
-    pub aerodrome_config: Option<AerodromeConfig>,
-    pub aerodromes: Option<Vec<Aerodrome>>,
-    pub world_heritage_sites: Option<Vec<WorldHeritageSite>>,
     pub level_config: Option<LevelConfig>,
 }
 
@@ -115,7 +102,6 @@ pub fn setup_game(app: &mut App, game_resource: GameResource) {
         .insert_resource(ConfigResource::default())
         .add_startup_system(setup_lights)
         .add_startup_system(load_config_assets)
-        .add_system(config_assets_loaded)
         .add_systems((update_simulation_system,).in_set(OnUpdate(GameState::Playing)))
         .add_plugin(camera::CameraPlugin)
         .add_plugin(flights::FlightsPlugin)
@@ -167,59 +153,10 @@ fn setup_lights(mut commands: Commands) {
         });
 }
 
-fn load_config_assets(asset_server: Res<AssetServer>, mut config_resource: ResMut<ConfigResource>) {
-    let handle = asset_server.load("planes.yaml");
-    config_resource.plane_handle = Some(handle);
-
-    let handle = asset_server.load("german.aerodromes.json");
-    config_resource.aerodrome_handle = Some(handle);
-
-    let aerodromes = load_airports(
-        include_str!("../../assets/airports.dat"),
-        include_str!("../../assets/passengers.csv"),
-    );
-    config_resource.aerodromes = Some(aerodromes);
-
-    let world_heritage_sites: Vec<WorldHeritageSite> =
-        parse_world_heritage_site_csv(include_str!("../../assets/whc-sites-2019.csv"));
-    config_resource.world_heritage_sites = Some(world_heritage_sites);
-
+fn load_config_assets(mut config_resource: ResMut<ConfigResource>) {
     let level_config: LevelConfig =
         serde_yaml::from_str(include_str!("../../assets/levels/level1.yaml")).unwrap();
     config_resource.level_config = Some(level_config);
-
-    #[cfg(target_arch = "wasm32")]
-    {
-        let planes_config: PlanesConfig =
-            serde_yaml::from_str(include_str!("../../assets/planes.yaml")).unwrap();
-        config_resource.planes_config = Some(planes_config);
-
-        let aerodrome_config: AerodromeConfig =
-            serde_json::from_str(include_str!("../../assets/german.aerodromes.json")).unwrap();
-        config_resource.aerodrome_config = Some(aerodrome_config);
-    }
-}
-
-fn config_assets_loaded(
-    mut config_resource: ResMut<ConfigResource>,
-    planes_config_assets: Res<Assets<PlanesConfig>>,
-    aerodrome_config_assets: Res<Assets<AerodromeConfig>>,
-) {
-    if config_resource.plane_handle.is_some() && config_resource.planes_config.is_none() {
-        if let Some(handle) = config_resource.plane_handle.take() {
-            if let Some(config) = planes_config_assets.get(&handle) {
-                config_resource.planes_config = Some(config.clone());
-            }
-        }
-    }
-
-    if config_resource.aerodrome_handle.is_some() && config_resource.aerodrome_config.is_none() {
-        if let Some(handle) = config_resource.aerodrome_handle.take() {
-            if let Some(config) = aerodrome_config_assets.get(&handle) {
-                config_resource.aerodrome_config = Some(config.clone());
-            }
-        }
-    }
 }
 
 fn update_simulation_system(

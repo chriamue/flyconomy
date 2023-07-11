@@ -1,10 +1,7 @@
-use std::time::Duration;
-
-use rurel::mdp::{Agent, State};
-
-use crate::simulation::Simulation;
-
 use super::AiState;
+use crate::simulation::Simulation;
+use rurel::mdp::{Agent, State};
+use std::time::Duration;
 
 pub struct AiAgent<'a> {
     pub state: AiState,
@@ -34,9 +31,9 @@ impl Agent<AiState> for AiAgent<'_> {
     fn take_action(&mut self, action: &<AiState as State>::A) {
         let command = action.to_command(
             &self.simulation.environment,
-            &self.simulation.aerodromes,
-            &self.simulation.plane_types,
-            &self.simulation.world_heritage_sites,
+            &self.simulation.world_data_gateway.aerodromes(),
+            &self.simulation.world_data_gateway.plane_types(),
+            &self.simulation.world_data_gateway.world_heritage_sites(),
         );
         match command {
             Some(command) => self.simulation.add_command(command),

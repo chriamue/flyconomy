@@ -1,13 +1,10 @@
-use std::sync::atomic::{AtomicUsize, Ordering};
-
-use bevy::prelude::{App, Plugin, Res, ResMut, Resource};
-use strum::EnumIter;
-
+use super::GameResource;
 use crate::ai::{AiManager, AiTrainerType};
 use bevy::prelude::Time;
+use bevy::prelude::{App, Plugin, Res, ResMut, Resource};
 use bevy::time::Timer;
-
-use super::{ConfigResource, GameResource};
+use std::sync::atomic::{AtomicUsize, Ordering};
+use strum::EnumIter;
 
 pub struct ManagerPlugin;
 
@@ -74,7 +71,6 @@ pub struct GameManager {
 
 pub fn manager_action_system(
     time: Res<Time>,
-    config_resource: Res<ConfigResource>,
     mut game_resource: ResMut<GameResource>,
     mut game_managers: ResMut<GameManagers>,
 ) {
@@ -84,21 +80,16 @@ pub fn manager_action_system(
         if manager.timer.finished() && manager.is_working {
             let environment = &game_resource.simulation.environment;
 
-            if let (Some(plane_types), Some(aerodromes), Some(world_heritage_sites)) = (
-                &config_resource.planes_config,
-                &config_resource.aerodromes,
-                &config_resource.world_heritage_sites,
-            ) {
-                let command = manager.ai_manager.best_command(
-                    environment,
-                    &plane_types.planes,
-                    aerodromes,
-                    world_heritage_sites,
-                );
-                if let Some(command) = command {
-                    manager.manager_action = format!("{:#?}", command);
-                    game_resource.simulation.add_command(command);
-                }
+            let world_data_gateway = &game_resource.simulation.world_data_gateway;
+            let command = manager.ai_manager.best_command(
+                environment,
+                world_data_gateway.plane_types(),
+                world_data_gateway.aerodromes(),
+                world_data_gateway.world_heritage_sites(),
+            );
+            if let Some(command) = command {
+                manager.manager_action = format!("{:#?}", command);
+                game_resource.simulation.add_command(command);
             }
         }
     }

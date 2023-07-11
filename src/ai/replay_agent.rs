@@ -124,7 +124,7 @@ mod tests {
             commands::{
                 BuyLandingRightsCommand, BuyPlaneCommand, CreateBaseCommand, ScheduleFlightCommand,
             },
-            Aerodrome,
+            Aerodrome, StringBasedWorldData,
         },
         simulation::Simulation,
     };
@@ -135,9 +135,7 @@ mod tests {
     fn test_replay_agent() {
         let mut simulation = Simulation::new(
             Default::default(),
-            aerodromes(),
-            plane_types(),
-            world_heritage_sites(),
+            Box::new(StringBasedWorldData::default()),
         );
         simulation.setup();
 
@@ -175,7 +173,7 @@ mod tests {
 
         let buy_plane_command = BuyPlaneCommand {
             plane_id: BuyPlaneCommand::generate_id(),
-            plane_type: simulation.plane_types[0].clone(),
+            plane_type: simulation.world_data_gateway.plane_types()[0].clone(),
             home_base_id: simulation.environment.bases[0].id,
         };
 
@@ -208,9 +206,7 @@ mod tests {
 
         let mut simulation = Simulation::new(
             replay.initial_config.clone(),
-            aerodromes(),
-            plane_types(),
-            world_heritage_sites(),
+            Box::new(StringBasedWorldData::default()),
         );
         simulation.time_multiplier = 1.0;
         println!(

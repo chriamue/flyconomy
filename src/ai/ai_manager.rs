@@ -7,10 +7,9 @@ use rurel::{
 
 use crate::{
     ai::AiAgent,
-    config,
     model::{
         commands::{BuyLandingRightsCommand, BuyPlaneCommand, Command, CreateBaseCommand},
-        Aerodrome, Environment, PlaneType, WorldHeritageSite,
+        Aerodrome, Environment, PlaneType, StringBasedWorldData, WorldHeritageSite,
     },
     simulation::Simulation,
     Replay,
@@ -50,9 +49,7 @@ impl AiManager {
     pub fn train(&mut self, iterations: u32) {
         let mut simulation = Simulation::new(
             Default::default(),
-            config::aerodromes(),
-            config::plane_types(),
-            config::world_heritage_sites(),
+            Box::new(StringBasedWorldData::default()),
         );
         simulation.setup();
 
@@ -90,7 +87,7 @@ impl AiManager {
 
         let buy_plane_command = BuyPlaneCommand {
             plane_id: BuyPlaneCommand::generate_id(),
-            plane_type: simulation.plane_types[0].clone(),
+            plane_type: simulation.world_data_gateway.plane_types()[0].clone(),
             home_base_id: simulation.environment.bases[0].id,
         };
 
@@ -120,9 +117,7 @@ impl AiManager {
 
         let mut simulation = Simulation::new(
             replay.initial_config.clone(),
-            config::aerodromes(),
-            config::plane_types(),
-            config::world_heritage_sites(),
+            Box::new(StringBasedWorldData::default()),
         );
         simulation.time_multiplier = 1.0;
         println!(

@@ -1,5 +1,5 @@
-use crate::config::{aerodromes, plane_types, world_heritage_sites};
 use crate::game::{GameResource, GameState};
+use crate::model::StringBasedWorldData;
 use crate::simulation::Simulation;
 use bevy::prelude::{App, IntoSystemConfigs, NextState, OnUpdate, Plugin, ResMut};
 use bevy_egui::{egui, EguiContexts};
@@ -38,9 +38,7 @@ pub fn game_over_screen_system(
         if ui.button("Restart Game").clicked() {
             game_resources.simulation = Simulation::new(
                 Default::default(),
-                aerodromes(),
-                plane_types(),
-                world_heritage_sites(),
+                Box::new(StringBasedWorldData::default()),
             );
             game_state_next_state.set(GameState::Welcome);
         }

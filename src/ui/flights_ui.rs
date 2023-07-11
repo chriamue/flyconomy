@@ -7,7 +7,7 @@ use chrono::{TimeZone, Utc};
 
 use crate::{
     algorithms::calculate_interest_score,
-    game::{aerodrome::SelectedAerodrome, ConfigResource, GameResource, GameState},
+    game::{aerodrome::SelectedAerodrome, GameResource, GameState},
     model::{commands::ScheduleFlightCommand, Flight},
 };
 
@@ -31,7 +31,6 @@ pub fn flight_planning_ui(
     selected_aerodrome: Res<SelectedAerodrome>,
     mut game_resource: ResMut<GameResource>,
     mut flight_planning_input: ResMut<FlightPlanningInput>,
-    config_resource: Res<ConfigResource>,
 ) {
     if let Some(selected_aerodrome) = &selected_aerodrome.aerodrome {
         egui::Window::new("Flight Planning")
@@ -133,10 +132,10 @@ pub fn flight_planning_ui(
 
                                 if let Some(destination_aerodrome) = destination_aerodrome {
                                     // interest score
-                                    let heritage_sites: Vec<(f64, f64, f64)> = config_resource
-                                        .world_heritage_sites
-                                        .as_ref()
-                                        .unwrap()
+                                    let heritage_sites: Vec<(f64, f64, f64)> = game_resource
+                                        .simulation
+                                        .world_data_gateway
+                                        .world_heritage_sites()
                                         .iter()
                                         .map(|site| (site.lat, site.lon, 1.0f64))
                                         .collect();
