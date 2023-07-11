@@ -30,8 +30,10 @@ impl Command for SellLandingRightsCommand {
         if landing_rights.is_none() {
             return Err(Box::new(SellLandingRightsError::NotExist));
         }
-        
-        environment.landing_rights.retain(|lr| lr.id != self.landing_rights_id);
+
+        environment
+            .landing_rights
+            .retain(|lr| lr.id != self.landing_rights_id);
 
         environment.company_finances.add_income(
             environment.timestamp,

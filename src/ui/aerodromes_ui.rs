@@ -1,8 +1,10 @@
 use crate::algorithms::calculate_interest_score;
 use crate::game::aerodrome::{SelectedAerodrome, SelectedAerodromeChangeEvent};
 use crate::game::{ConfigResource, GameResource, GameState};
-use crate::model::commands::{BuyLandingRightsCommand, CreateBaseCommand};
-use crate::model::Base;
+use crate::model::commands::{
+    BuyLandingRightsCommand, CreateBaseCommand, SellLandingRightsCommand,
+};
+use crate::model::{Base, LandingRights};
 use bevy::prelude::*;
 use bevy::prelude::{App, OnUpdate, Plugin, ResMut};
 use bevy_egui::egui::{vec2, Align2};
@@ -18,11 +20,22 @@ impl Plugin for AerodromesUiPlugin {
         app.insert_resource(UiInput {
             search_string: String::new(),
         })
+        .insert_resource(LandingRightsInput::default())
         .add_systems((selected_aerodrome_info_ui_system,).in_set(OnUpdate(GameState::Playing)))
         .add_systems(
             (aerodromes_ui_system,)
                 .in_set(OnUpdate(GameState::Playing))
                 .in_set(OnUpdate(UiState::Aerodromes)),
+        );
+        app.add_systems(
+            (bases_info_ui, landing_rights_info_ui)
+                .in_set(OnUpdate(GameState::Playing))
+                .in_set(OnUpdate(UiState::Aerodromes)),
+        );
+        app.add_systems(
+            (bases_info_ui, landing_rights_info_ui)
+                .in_set(OnUpdate(GameState::Playing))
+                .in_set(OnUpdate(UiState::Schedule)),
         );
     }
 }
@@ -187,4 +200,104 @@ fn selected_aerodrome_info_ui_system(
                 }
             });
     }
+}
+
+pub fn bases_info_ui(
+    mut contexts: EguiContexts,
+    game_resource: Res<GameResource>,
+    mut ev_selected_aerodrome_change: EventWriter<SelectedAerodromeChangeEvent>,
+    mut pan_orbit_query: Query<(&mut PanOrbitCamera, &mut Transform)>,
+) {
+    egui::Window::new("Bases Info")
+        .anchor(Align2::RIGHT_TOP, vec2(0.0, 100.0))
+        .default_open(true)
+        .show(contexts.ctx_mut(), |ui| {
+            let environment = &game_resource.simulation.environment;
+            ui.label("Owned Bases:");
+
+            for base in &environment.bases {
+                ui.horizontal(|ui| {
+                    if ui
+                        .selectable_label(false, format!("Aerodrome: {}", base.aerodrome.name))
+                        .clicked()
+                    {
+                        ev_selected_aerodrome_change
+                            .send(SelectedAerodromeChangeEvent(base.aerodrome.clone()));
+                        let alpha = (90.0 + base.aerodrome.lon).to_radians();
+                        let beta = base.aerodrome.lat.to_radians();
+                        for (mut pan_orbit, _transform) in pan_orbit_query.iter_mut() {
+                            pan_orbit.target_alpha = alpha as f32;
+                            pan_orbit.target_beta = beta as f32;
+                            pan_orbit.radius = Some(1.5);
+                            pan_orbit.force_update = true;
+                        }
+                    }
+                    ui.label(format!("Number of Airplanes: {}", base.airplane_ids.len()));
+                });
+            }
+        });
+}
+
+#[derive(Default, Resource)]
+pub struct LandingRightsInput {
+    pub selected_landing_rights: Option<LandingRights>,
+}
+
+pub fn landing_rights_info_ui(
+    mut contexts: EguiContexts,
+    mut game_resource: ResMut<GameResource>,
+    mut landing_rights_input: ResMut<LandingRightsInput>,
+    mut ev_selected_aerodrome_change: EventWriter<SelectedAerodromeChangeEvent>,
+    mut pan_orbit_query: Query<(&mut PanOrbitCamera, &mut Transform)>,
+) {
+    egui::Window::new("Landing Rights Info")
+        .anchor(Align2::RIGHT_TOP, vec2(0.0, 300.0))
+        .default_open(true)
+        .show(contexts.ctx_mut(), |ui| {
+            let environment = &game_resource.simulation.environment;
+            ui.label("Owned Landing Rights:");
+
+            egui::ScrollArea::vertical().show(ui, |ui| {
+                for landing_rights in &environment.landing_rights {
+                    if ui
+                        .selectable_label(
+                            landing_rights_input
+                                .selected_landing_rights
+                                .as_ref()
+                                .map_or(false, |selected| selected.id == landing_rights.id),
+                            format!("Aerodrome: {}", landing_rights.aerodrome.name),
+                        )
+                        .clicked()
+                    {
+                        landing_rights_input.selected_landing_rights = Some(landing_rights.clone());
+                    }
+                }
+            });
+
+            if let Some(landing_rights) = &landing_rights_input.selected_landing_rights {
+                ui.label(format!(
+                    "Selected Aerodrome: {}",
+                    landing_rights.aerodrome.name
+                ));
+                if ui.button("Sell Landing Rights").clicked() {
+                    let cmd = SellLandingRightsCommand {
+                        landing_rights_id: landing_rights.id,
+                    };
+                    game_resource.simulation.add_command(Box::new(cmd));
+                }
+                if ui.button("Go to Landing Rights").clicked() {
+                    ev_selected_aerodrome_change.send(SelectedAerodromeChangeEvent(
+                        landing_rights.aerodrome.clone(),
+                    ));
+                    let alpha = (90.0 + landing_rights.aerodrome.lon).to_radians();
+                    let beta = landing_rights.aerodrome.lat.to_radians();
+                    for (mut pan_orbit, _transform) in pan_orbit_query.iter_mut() {
+                        pan_orbit.target_alpha = alpha as f32;
+                        pan_orbit.target_beta = beta as f32;
+                        pan_orbit.radius = Some(1.5);
+                        pan_orbit.force_update = true;
+                    }
+                }
+            }
+        });
 }
