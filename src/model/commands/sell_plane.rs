@@ -20,17 +20,20 @@ impl Command for SellPlaneCommand {
         &self,
         environment: &mut Environment,
     ) -> Result<Option<String>, Box<dyn std::error::Error>> {
-        let airplane = environment.planes.iter().find(|lr| lr.id == self.plane_id);
-        if airplane.is_none() {
+        if let Some(airplane) = environment.planes.iter().find(|lr| lr.id == self.plane_id) {
+            environment
+                .company_finances
+                .add_income(environment.timestamp, airplane.plane_type.cost.into());
+            let base = environment
+                .bases
+                .iter_mut()
+                .find(|b| b.id == airplane.base_id)
+                .unwrap();
+            base.airplane_ids.retain(|lr| *lr != self.plane_id);
+            environment.planes.retain(|lr| lr.id != self.plane_id);
+        } else {
             return Err(Box::new(SellPlaneError::NotExist));
         }
-
-        environment.planes.retain(|lr| lr.id != self.plane_id);
-
-        environment.company_finances.add_income(
-            environment.timestamp,
-            environment.config.landing_rights_cost,
-        );
         Ok(None)
     }
 
