@@ -72,7 +72,6 @@ pub fn flight_planning_ui(
                     ui.label("No airplanes available at this base.");
                 }
 
-                ui.label("Select Destination Aerodrome:");
                 ui.text_edit_singleline(&mut flight_planning_input.search_string);
 
                 let mut available_aerodromes: Vec<_> = environment
@@ -91,25 +90,48 @@ pub fn flight_planning_ui(
                 available_aerodromes.sort_by_key(|a| a.id);
                 available_aerodromes.dedup_by_key(|a| a.id);
 
-                let filtered_aerodromes: Vec<_> = available_aerodromes
+                let filtered_aerodromes = available_aerodromes
                     .iter()
-                    .filter(|a| a.name.contains(&flight_planning_input.search_string))
-                    .collect();
+                    .filter(|a| {
+                        a.name
+                            .to_lowercase()
+                            .contains(&flight_planning_input.search_string.to_lowercase())
+                    })
+                    .cloned()
+                    .collect::<Vec<_>>();
 
-                for aerodrome in filtered_aerodromes.iter() {
-                    if ui
-                        .selectable_label(
-                            flight_planning_input.selected_destination_id == Some(aerodrome.id),
-                            &aerodrome.name,
-                        )
-                        .clicked()
+                ui.label("Selected Stopover Aerodromes:");
+                let mut last_aerodrome = selected_aerodrome.clone();
+                for stopover_id in &flight_planning_input.selected_stopovers {
+                    if let Some(stopover_aerodrome) = available_aerodromes
+                        .iter()
+                        .find(|a| a.id == *stopover_id)
+                        .as_deref()
                     {
-                        flight_planning_input.selected_destination_id = Some(aerodrome.id);
+                        // calculate the distance from the last aerodrome to this stopover
+                        let distance =
+                            Flight::calculate_distance_between(&last_aerodrome, stopover_aerodrome);
+                        ui.label(format!(
+                            "{} (Distance: {:.3} km)",
+                            stopover_aerodrome.name, distance
+                        ));
+
+                        // update the last aerodrome to the current stopover
+                        last_aerodrome = (*stopover_aerodrome).clone();
                     }
                 }
+                // calculate the distance from the last stopover back to the selected aerodrome
+                let distance =
+                    Flight::calculate_distance_between(&last_aerodrome, selected_aerodrome);
+                ui.label(format!(
+                    "{} (Distance: {:.3} km)",
+                    selected_aerodrome.name, distance
+                ));
+
+                ui.separator();
 
                 ui.label("Select Stopover Aerodromes:");
-                for aerodrome in available_aerodromes.iter() {
+                for aerodrome in filtered_aerodromes.iter() {
                     let mut is_selected = flight_planning_input
                         .selected_stopovers
                         .contains(&aerodrome.id);
@@ -212,7 +234,6 @@ pub fn flight_planning_ui(
 pub struct FlightPlanningInput {
     pub search_string: String,
     pub selected_airplane_id: Option<u64>,
-    pub selected_destination_id: Option<u64>,
     pub selected_stopovers: Vec<u64>,
     pub selected_flight: Option<Flight>,
 }

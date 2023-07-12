@@ -148,7 +148,7 @@ impl Flight {
             .sum()
     }
 
-    fn calculate_distance_between(aerodrome1: &Aerodrome, aerodrome2: &Aerodrome) -> f64 {
+    pub fn calculate_distance_between(aerodrome1: &Aerodrome, aerodrome2: &Aerodrome) -> f64 {
         let point1 = Point::new(aerodrome1.lon, aerodrome1.lat);
         let point2 = Point::new(aerodrome2.lon, aerodrome2.lat);
         let distance_in_meters = point1.vincenty_distance(&point2).unwrap();
