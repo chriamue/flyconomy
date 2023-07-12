@@ -1,0 +1,41 @@
+@startuml simulation_events
+
+title Simulation Events
+
+class Event {
+    {abstract} +as_any(): &dyn Any
+    {abstract} +message(): String
+}
+
+class AirplaneLandedEvent {
+    +flight: Flight
+    +message(): String
+}
+
+class AirplaneTakeoffEvent {
+    +flight: Flight
+    +message(): String
+}
+
+class BuyPlaneEvent {
+    +plane_type: PlaneType
+    +message(): String
+}
+
+class CreateBaseEvent {
+    +aerodrome: Aerodrome
+    +message(): String
+}
+
+class BuyLandingRightsEvent {
+    +aerodrome: Aerodrome
+    +message(): String
+}
+
+Event <|-- AirplaneLandedEvent
+Event <|-- AirplaneTakeoffEvent
+Event <|-- BuyPlaneEvent
+Event <|-- CreateBaseEvent
+Event <|-- BuyLandingRightsEvent
+
+@enduml

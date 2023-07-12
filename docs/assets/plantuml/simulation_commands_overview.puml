@@ -1,0 +1,43 @@
+@startuml simulation_commands
+
+title Simulation Commands
+
+class Environment {
+    config: EnvironmentConfig
+    company_finances: CompanyFinances
+    planes: Vec<AirPlane>
+    bases: Vec<Base>
+    landing_rights: Vec<LandingRights>
+    flights: Vec<Flight>
+    timestamp: Timestamp
+    last_errors: Vec<(Timestamp, String)>
+}
+
+interface Command {
+    +as_any() : &dyn Any
+    +execute(environment: &mut Environment) : Result<Option<String>, Box<dyn std::error::Error>>
+    +clone_box() : Box<dyn Command>
+}
+
+class BuyLandingRightsCommand {
+}
+class BuyPlaneCommand {
+}
+class CreateBaseCommand {
+}
+class ScheduleFlightCommand {
+}
+class SellLandingRightsCommand {
+}
+class SellPlaneCommand {
+}
+
+Command <|.. BuyLandingRightsCommand
+Command <|.. BuyPlaneCommand
+Command <|.. CreateBaseCommand
+Command <|.. ScheduleFlightCommand
+Command <|.. SellLandingRightsCommand
+Command <|.. SellPlaneCommand
+
+Command -- Environment: interacts with >
+@enduml

@@ -1,0 +1,29 @@
+@startuml simulation
+
+class Simulation {
+  -environment: Environment
+  -world_data_gateway: Box<dyn WorldDataGateway>
+  -elapsed_time: Duration
+  -commands: Vec<TimestampedCommand>
+  -time_multiplier: f64
+  -error_messages: Vec<(Timestamp, String)>
+  -event_messages: Vec<(Timestamp, String)>
+  -event_manager: EventManager
+  -command_history: Vec<TimestampedCommand>
+  +new(config: EnvironmentConfig, world_data_gateway: Box<dyn WorldDataGateway>): Simulation
+  +setup(): void
+  +update(delta_time: Duration): void
+  +update_flights(): void
+  +add_command(command: Box<dyn Command>): void
+  +add_command_timed(command: TimestampedCommand): void
+  +execute_command(timestamped_command: TimestampedCommand): void
+  +calculate_profit(delta_time: Duration): f64
+  +handle_events(): void
+}
+
+Simulation --> "uses" Environment
+Simulation --> "uses" WorldDataGateway
+Simulation --> "uses" Command
+Simulation --> "uses" EventManager
+
+@enduml

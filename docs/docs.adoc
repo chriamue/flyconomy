@@ -1,0 +1,66 @@
+= Flyconomy: Technical and Architectural Details
+:toc: macro
+:toc-title: Table of Contents
+:toclevels: 3
+:source-highlighter: pygments
+:plantuml-server-url: http://www.plantuml.com/plantuml
+:imagesdir: ./images
+:icons: font
+
+toc::[]
+
+== Overview
+
+Flyconomy is built using the Rust programming language and uses several open source libraries, including the Bevy engine for game logic and rendering, and EGUI for user interfaces. The simulation aspect of the game makes use of real-world airport data, pulled from OpenStreetMap, to offer a more realistic gameplay experience.
+
+== Architectural Diagrams
+
+The architecture of Flyconomy is composed of several modules, which are represented in the following diagrams:
+
+=== Simulation
+
+The Simulation module is responsible for managing the game state and the game loop. The following diagram provides an overview of the simulation module:
+
+[plantuml, simulation, png]
+----
+include::assets/plantuml/simulation.puml[]
+----
+
+=== Game Commands
+
+The Game Commands represent the actions a player can take within the game. The following diagram provides an overview of these commands:
+
+[plantuml, game_commands, png]
+----
+include::assets/plantuml/simulation_commands_overview.puml[]
+----
+
+=== Event Handling
+
+The Event Handling module is responsible for responding to in-game events such as an airplane landing or taking off. These events trigger corresponding updates in the game state. The following diagram provides an overview of the event handling module:
+
+[plantuml, event_handling, png]
+----
+include::assets/plantuml/simulation_events_overview.puml[]
+----
+
+== Key Components
+
+=== Bevy Engine
+
+Bevy is a simple, data-driven game engine built in Rust. It's used for the core game loop, the ECS system, rendering, and more.
+
+=== EGUI
+
+EGUI is a simple, efficient, immediate-mode GUI library in Rust. It's used for building the game's user interface.
+
+
+== Future Improvements
+
+There are several areas for future development and improvement:
+
+- *Multiplayer Support*: Implementing multiplayer support can offer a more engaging experience as players can compete against each other in managing their airline companies.
+
+- *Expanded Economy*: Further complexities can be added to the game's economy, such as fluctuating ticket prices and varying demands for flights, to make the gameplay more challenging.
+
+- *More Realistic Airports*: More details can be added to the airports, such as runway lengths and airport capacity, to add more depth to the game.
