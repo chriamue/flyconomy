@@ -1,10 +1,12 @@
 use super::{Environment, FlightState, Timestamp};
 
+const SAMPLES: u128 = 200;
+
 pub fn calculate_cash_history(environment: &Environment) -> Vec<(Timestamp, f64)> {
     let mut cash_history = vec![];
 
     let total_timestamps = environment.timestamp;
-    let sample_interval = (total_timestamps / 100).max(1);
+    let sample_interval = (total_timestamps / SAMPLES).max(1);
 
     for timestamp in (0..total_timestamps + sample_interval).step_by(sample_interval as usize) {
         let cash = environment.company_finances.cash(timestamp);
@@ -18,7 +20,7 @@ pub fn calculate_total_flight_distance(environment: &Environment) -> Vec<(Timest
     let mut flight_distance_history = vec![];
 
     let total_timestamps = environment.timestamp;
-    let sample_interval = (total_timestamps / 100).max(1);
+    let sample_interval = (total_timestamps / SAMPLES).max(1);
 
     for timestamp in (0..total_timestamps + sample_interval).step_by(sample_interval as usize) {
         let total_distance = environment
@@ -39,7 +41,7 @@ pub fn calculate_transported_passengers(environment: &Environment) -> Vec<(Times
     let mut transported_passengers_history = vec![];
 
     let total_timestamps = environment.timestamp;
-    let sample_interval = (total_timestamps / 100).max(1);
+    let sample_interval = (total_timestamps / SAMPLES).max(1);
 
     for timestamp in (0..total_timestamps + sample_interval).step_by(sample_interval as usize) {
         let total_passengers = environment
@@ -60,7 +62,7 @@ pub fn calculate_average_profit_per_flight(environment: &Environment) -> Vec<(Ti
     let mut average_profit_history = vec![];
 
     let total_timestamps = environment.timestamp;
-    let sample_interval = (total_timestamps / 100).max(1);
+    let sample_interval = (total_timestamps / SAMPLES).max(1);
     let seven_days_in_timestamps = 7 * 24 * 60 * 60 * 1000;
 
     for timestamp in (0..total_timestamps + sample_interval).step_by(sample_interval as usize) {
