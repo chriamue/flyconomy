@@ -14,7 +14,6 @@ pub mod world_heritage_site;
 pub mod manager;
 
 use bevy::prelude::IntoSystemConfigs;
-use bevy_common_assets::yaml::YamlAssetPlugin;
 use bevy_egui::EguiPlugin;
 use bevy_mod_picking::DefaultPickingPlugins;
 pub use game_state::GameState;
@@ -93,10 +92,6 @@ pub fn setup_game(app: &mut App, game_resource: GameResource) {
         .add_plugin(FrameTimeDiagnosticsPlugin::default())
         .add_plugin(LogDiagnosticsPlugin::default())
         .add_plugins(DefaultPickingPlugins)
-        .add_plugin(YamlAssetPlugin::<PlanesConfig>::new(&["yaml"]))
-        .add_plugin(YamlAssetPlugin::<AerodromeConfig>::new(&[
-            "aerodromes.json",
-        ]))
         .add_state::<GameState>()
         .insert_resource(game_resource)
         .insert_resource(ConfigResource::default())
