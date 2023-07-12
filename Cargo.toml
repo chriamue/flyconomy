@@ -31,8 +31,7 @@ bevy = { version = "0.10.1", default-features = false, features = [
     "bevy_winit",
     "x11",
 ] }
-bevy_egui = { version = "0.20.2" }
-bevy_mod_paramap = { git = "https://github.com/nicopap/bevy_mod_paramap" }
+bevy_egui = { version = "0.20.3" }
 bevy_mod_picking = { version = "0.13.0", default-features = false, features = [
     "selection",
     "backend_raycast",

@@ -30,9 +30,10 @@ pub fn setup_camera(mut commands: Commands) {
             radius: Some(3.0),
             alpha: Some(TAU / 4.0),
             beta: Some(TAU / 8.0),
-            zoom_sensitivity: 0.2,
+            zoom_sensitivity: 0.15,
             pan_sensitivity: 0.2,
             orbit_sensitivity: 0.2,
+            
             ..default()
         },
         RaycastPickCamera::default(),

@@ -3,8 +3,6 @@
 use std::f32::consts::TAU;
 
 use bevy::{prelude::*, render::render_resource::TextureFormat};
-use bevy_mod_paramap::{ParallaxAlgo, ParallaxMaterial, ParallaxMaterialPlugin};
-//use bevy_mod_paramap::*;
 
 pub const EARTH_RADIUS: f64 = 6_378_137.0;
 pub const SIMULATION_EARTH_RADIUS: f64 = 1.0;
@@ -22,13 +20,12 @@ pub struct Earth3dPlugin;
 
 impl Plugin for Earth3dPlugin {
     fn build(&self, app: &mut App) {
-        app.add_plugin(ParallaxMaterialPlugin)
-            .insert_resource(AmbientLight {
-                color: Color::BLACK,
-                brightness: 0.01,
-            })
-            .insert_resource(ClearColor(Color::BLACK))
-            .insert_resource(Normal(None));
+        app.insert_resource(AmbientLight {
+            color: Color::BLACK,
+            brightness: 0.01,
+        })
+        .insert_resource(ClearColor(Color::BLACK))
+        .insert_resource(Normal(None));
         app.add_startup_system(setup);
         app.add_system(update_normal).add_system(spin);
         app.register_type::<Spin>();
@@ -81,8 +78,7 @@ fn update_normal(
 fn setup(
     mut commands: Commands,
     mut meshes: ResMut<Assets<Mesh>>,
-    #[cfg(not(target_arch = "wasm32"))] mut materials: ResMut<Assets<ParallaxMaterial>>,
-    #[cfg(target_arch = "wasm32")] mut materials: ResMut<Assets<StandardMaterial>>,
+    mut materials: ResMut<Assets<StandardMaterial>>,
     mut normal: ResMut<Normal>,
     assets: Res<AssetServer>,
 ) {
@@ -93,44 +89,15 @@ fn setup(
     sphere.generate_tangents().unwrap();
 
     let earth_material = {
-        #[cfg(not(target_arch = "wasm32"))]
-        {
-            materials.add(ParallaxMaterial {
-                // reduce roughness set in the "earth/metallic_roughness.png" file
-                perceptual_roughness: 0.75,
-                // The base color. See README for source.
-                base_color_texture: Some(assets.load(ALBEDO_MAP)),
-                // Since emissive_texture value is multiplied by emissive, we use emissive
-                // to reduce the intensity of the emissive_texture, so that the lights only
-                // show up in earth's penumbra.
-                emissive: Color::rgb_u8(30, 30, 30),
-                // the nighttime visuals. See README for source.
-                emissive_texture: Some(assets.load(EMI_MAP)),
-                // The normal map generated from "earth/elevation_surface.png" using GIMP's
-                // Filters -> Generic -> Normal Map filter.
-                normal_map_texture: normal_handle,
-                // See README for source.
-                height_map: assets.load(HEIGHT_MAP),
-                // Set the water to have a low roughness, while surface has high roughness.
-                metallic_roughness_texture: Some(assets.load(ROUGH_MAP)),
-                // How "deep" to displace stuff
-                height_depth: 0.005,
-                // Use the quality algo, for show.
-                algorithm: ParallaxAlgo::ParallaxOcclusionMapping,
-                // This is an unreasonably high value, but since we expect to inspect up close
-                // the surface of the texture, we need to set the max_height_layers pretty high.
-                max_height_layers: 128.0,
-                flip_normal_map_y: false,
-                ..default()
-            })
-        }
-        #[cfg(target_arch = "wasm32")]
-        {
-            materials.add(StandardMaterial {
-                base_color_texture: Some(assets.load(ALBEDO_MAP_HALF)),
-                ..Default::default()
-            })
-        }
+        materials.add(StandardMaterial {
+            perceptual_roughness: 0.75,
+            base_color_texture: Some(assets.load(ALBEDO_MAP_HALF)),
+            normal_map_texture: Some(normal_handle),
+            emissive: Color::rgb_u8(30, 30, 30),
+            emissive_texture: Some(assets.load(EMI_MAP)),
+            metallic_roughness_texture: Some(assets.load(ROUGH_MAP)),
+            ..Default::default()
+        })
     };
 
     commands
