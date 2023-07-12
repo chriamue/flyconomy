@@ -18,6 +18,22 @@ pub struct Flight {
     pub interest_score: f64,
 }
 
+impl Default for Flight {
+    fn default() -> Self {
+        Self {
+            flight_id: 0,
+            airplane: AirPlane::default(),
+            origin_aerodrome: Aerodrome::frankfurt(),
+            stopovers: vec![Aerodrome::paris()],
+            departure_time: 0,
+            segment_departure_time: 0,
+            arrival_time: None,
+            state: FlightState::Scheduled,
+            interest_score: 0.0,
+        }
+    }
+}
+
 #[derive(Default, Debug, Clone, PartialEq)]
 pub enum FlightState {
     #[default]
@@ -255,5 +271,14 @@ mod tests {
         let expected_profit = distance * airplane.plane_type.seats as f64;
         let profit = flight.calculate_profit();
         assert!((profit - expected_profit).abs() < 1.0);
+    }
+
+    #[test]
+    fn test_calculate_distance() {
+        let frankfurt = Aerodrome::frankfurt();
+        let paris = Aerodrome::paris();
+
+        let distance = Flight::calculate_distance_between(&frankfurt, &paris);
+        assert!((distance - 450.0).abs() < 1.0);
     }
 }

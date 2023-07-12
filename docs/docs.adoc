@@ -30,7 +30,7 @@ include::assets/plantuml/simulation.puml[]
 
 The Game Commands represent the actions a player can take within the game. The following diagram provides an overview of these commands:
 
-[plantuml, game_commands, png]
+[plantuml, commands, png]
 ----
 include::assets/plantuml/simulation_commands_overview.puml[]
 ----
@@ -39,7 +39,7 @@ include::assets/plantuml/simulation_commands_overview.puml[]
 
 The Event Handling module is responsible for responding to in-game events such as an airplane landing or taking off. These events trigger corresponding updates in the game state. The following diagram provides an overview of the event handling module:
 
-[plantuml, event_handling, png]
+[plantuml, events, png]
 ----
 include::assets/plantuml/simulation_events_overview.puml[]
 ----

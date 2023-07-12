@@ -63,3 +63,10 @@ web-sys = { version = "0.3", features = [
     'HtmlAnchorElement',
 ] }
 js-sys = "0.3"
+
+[target.'cfg(not(target_arch = "wasm32"))'.dev-dependencies]
+criterion = { version = "0.5.1", default-features = false }
+
+[[bench]]
+name = "analytics_benches"
+harness = false

@@ -8,7 +8,9 @@ pub fn calculate_cash_history(environment: &Environment) -> Vec<(Timestamp, f64)
     let total_timestamps = environment.timestamp;
     let sample_interval = (total_timestamps / SAMPLES).max(1);
 
-    for timestamp in (0..total_timestamps + sample_interval).step_by(sample_interval as usize) {
+    for timestamp in
+        (sample_interval..total_timestamps + sample_interval).step_by(sample_interval as usize)
+    {
         let cash = environment.company_finances.cash(timestamp);
         cash_history.push((timestamp, cash));
     }
@@ -22,7 +24,9 @@ pub fn calculate_total_flight_distance(environment: &Environment) -> Vec<(Timest
     let total_timestamps = environment.timestamp;
     let sample_interval = (total_timestamps / SAMPLES).max(1);
 
-    for timestamp in (0..total_timestamps + sample_interval).step_by(sample_interval as usize) {
+    for timestamp in
+        (sample_interval..total_timestamps + sample_interval).step_by(sample_interval as usize)
+    {
         let total_distance = environment
             .flights
             .iter()
@@ -88,4 +92,72 @@ pub fn calculate_average_profit_per_flight(environment: &Environment) -> Vec<(Ti
     }
 
     average_profit_history
+}
+
+#[cfg(test)]
+mod tests {
+    use super::*;
+    use crate::model::{CompanyFinances, Flight};
+
+    #[test]
+    fn test_calculate_cash_history() {
+        let company_finances = CompanyFinances::new(0.0);
+
+        let mut environment = Environment {
+            timestamp: 0,
+            company_finances,
+            ..Default::default()
+        };
+
+        for _ in 0..1000 {
+            environment.timestamp += 1;
+            environment
+                .company_finances
+                .add_income(environment.timestamp, 1.0);
+        }
+
+        let cash_history = calculate_cash_history(&environment);
+
+        assert_eq!(cash_history.len(), SAMPLES as usize);
+        for (timestamp, _cash) in &cash_history {
+            assert!(*timestamp <= environment.timestamp);
+        }
+
+        assert_eq!(cash_history[0].0, 5);
+        assert_eq!(
+            cash_history[cash_history.len() - 1].0,
+            environment.timestamp
+        );
+        assert_eq!(cash_history[0].1, 5.0);
+        assert_eq!(cash_history[cash_history.len() - 1].1, 1000.0);
+    }
+
+    #[test]
+    fn test_total_flight_distance() {
+        let mut environment = Environment::default();
+        environment.timestamp = 2000;
+
+        environment.flights = (1..=20)
+            .map(|i| Flight {
+                state: FlightState::Finished,
+                arrival_time: Some(i as u128 * 100),
+                ..Default::default()
+            })
+            .collect();
+
+        let flight_distance_history = calculate_total_flight_distance(&environment);
+
+        assert_eq!(flight_distance_history.len(), SAMPLES as usize);
+        for (timestamp, _distance) in &flight_distance_history {
+            assert!(*timestamp <= environment.timestamp);
+        }
+
+        assert_eq!(flight_distance_history[0].0, 10);
+        assert_eq!(
+            flight_distance_history.last().unwrap().0,
+            environment.timestamp
+        );
+        assert_eq!(flight_distance_history.first().unwrap().1, 0.0);
+        assert!((flight_distance_history.last().unwrap().1 - 18_000.0).abs() < 20.0);
+    }
 }

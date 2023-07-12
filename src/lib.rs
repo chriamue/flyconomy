@@ -1,11 +1,11 @@
 #[cfg(feature = "ai")]
-mod ai;
-mod algorithms;
-mod config;
-mod game;
-mod model;
-mod simulation;
-mod ui;
+pub mod ai;
+pub mod algorithms;
+pub mod config;
+pub mod game;
+pub mod model;
+pub mod simulation;
+pub mod ui;
 
 pub use game::{start, start_from_replay, start_from_replay_string};
 pub use simulation::replay::Replay;
