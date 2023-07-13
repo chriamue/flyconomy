@@ -1,0 +1,49 @@
+= Behaviour Driven Development in Our Project
+
+Our project uses Behaviour Driven Development (BDD) for a portion of its testing suite.
+In this document, we will cover how these tests are organized and how they can be run.
+
+== File Structure
+
+BDD test files are located within the `tests/` directory at the root of the project.
+
+----
+.
+├── bdd_tests.rs
+├── features
+│   └── simulation.feature
+└── steps
+    └── mod.rs
+----
+
+`bdd_tests.rs` is the main entry point of the tests and it configures the tests' world state. The `features` directory contains `.feature` files that describe the individual test cases using Gherkin syntax. These scenarios are made up of steps, which are defined in `steps/mod.rs`.
+
+== Running the Tests
+
+You can run BDD tests with the following command:
+
+[source,shell]
+----
+cargo test --features bdd --test bdd_tests
+----
+
+This command will compile the test runner and execute all the defined BDD tests.
+
+== Understanding the Test Structure
+
+Each feature file contains a set of scenarios. Each scenario represents a behavior we want to test.
+
+For instance, a simple scenario in the `simulation.feature` file might look like this:
+
+[source,gherkin]
+----
+Feature: Checking simulation properties
+
+  Scenario: Running the simulation until timestamp 1000
+    Given the simulation is at timestamp 1000
+    Then the simulation timestamp should be less than 1001
+----
+
+The steps in the scenario, (i.e., the lines starting with `Given`, `When`, `Then`, and `And`), are matched with step definition functions in the `steps/mod.rs` file.
+
+For example, the "the simulation is at timestamp 0" step might be matched with a step definition function that checks the timestamp of the simulation and the "the simulation should be in the default state" step might be matched with a step definition function that checks if the simulation's state matches its expected default state.

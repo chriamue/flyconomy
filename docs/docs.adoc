@@ -66,3 +66,4 @@ There are several areas for future development and improvement:
 - *More Realistic Airports*: More details can be added to the airports, such as runway lengths and airport capacity, to add more depth to the game.
 
 include::rayon.adoc[]
+include::bdd.adoc[]

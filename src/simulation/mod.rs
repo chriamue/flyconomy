@@ -1,4 +1,7 @@
-use std::time::Duration;
+use std::{
+    fmt::{self, Formatter},
+    time::Duration,
+};
 
 use crate::model::{
     commands::{Command, TimestampedCommand},
@@ -27,6 +30,24 @@ pub struct Simulation {
     pub event_messages: Vec<(Timestamp, String)>,
     pub event_manager: EventManager,
     pub command_history: Vec<TimestampedCommand>,
+}
+
+impl Default for Simulation {
+    fn default() -> Self {
+        Self::new(
+            EnvironmentConfig::default(),
+            Box::new(crate::model::StringBasedWorldData::default()),
+        )
+    }
+}
+
+impl std::fmt::Debug for Simulation {
+    fn fmt(&self, f: &mut Formatter<'_>) -> fmt::Result {
+        f.debug_struct("Simulation")
+            .field("elapsed_time", &self.elapsed_time)
+            .field("time_multiplier", &self.time_multiplier)
+            .finish()
+    }
 }
 
 impl Simulation {
