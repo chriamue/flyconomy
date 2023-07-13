@@ -1,3 +1,8 @@
+#[cfg(feature = "rayon")]
+use rayon::prelude::*;
+#[cfg(not(feature = "rayon"))]
+use std::slice::Iter;
+
 use super::Timestamp;
 
 #[derive(Debug, Default, Clone)]
@@ -23,38 +28,41 @@ impl CompanyFinances {
     }
 
     pub fn cash(&self, timestamp: Timestamp) -> f64 {
-        let mut cash = 0.0;
-        for (income_timestamp, income) in &self.income {
-            if *income_timestamp <= timestamp {
-                cash += income;
-            }
-        }
-        for (expense_timestamp, expense) in &self.expenses {
-            if *expense_timestamp <= timestamp {
-                cash -= expense;
-            }
-        }
-        cash
+        self.total_income(timestamp) - self.total_expenses(timestamp)
     }
 
     pub fn total_income(&self, timestamp: Timestamp) -> f64 {
-        let mut total_income = 0.0;
-        for (income_timestamp, income) in &self.income {
-            if *income_timestamp <= timestamp {
-                total_income += income;
-            }
-        }
-        total_income
+        self.iter_income()
+            .filter(|(income_timestamp, _)| *income_timestamp <= timestamp)
+            .map(|(_, income)| income)
+            .sum::<f64>()
     }
 
     pub fn total_expenses(&self, timestamp: Timestamp) -> f64 {
-        let mut total_expenses = 0.0;
-        for (expense_timestamp, expense) in &self.expenses {
-            if *expense_timestamp <= timestamp {
-                total_expenses += expense;
-            }
-        }
-        total_expenses
+        self.iter_expenses()
+            .filter(|(expense_timestamp, _)| *expense_timestamp <= timestamp)
+            .map(|(_, expense)| expense)
+            .sum::<f64>()
+    }
+
+    #[cfg(not(feature = "rayon"))]
+    pub fn iter_income(&self) -> Iter<(Timestamp, f64)> {
+        self.income.iter()
+    }
+
+    #[cfg(feature = "rayon")]
+    pub fn iter_income(&self) -> rayon::slice::Iter<(Timestamp, f64)> {
+        self.income.par_iter()
+    }
+
+    #[cfg(not(feature = "rayon"))]
+    pub fn iter_expenses(&self) -> Iter<(Timestamp, f64)> {
+        self.expenses.iter()
+    }
+
+    #[cfg(feature = "rayon")]
+    pub fn iter_expenses(&self) -> rayon::slice::Iter<(Timestamp, f64)> {
+        self.expenses.par_iter()
     }
 }
 

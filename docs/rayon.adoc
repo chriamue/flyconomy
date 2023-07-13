@@ -1,0 +1,107 @@
+== Flyconomy: Enhanced Performance with Rayon
+
+Flyconomy is now powered by `rayon`, a data-parallelism library for Rust that allows sequential code to be run in parallel with minimal changes to the source code. 
+
+=== Performance Improvements
+
+When handling large amounts of data (100,000 flights), benchmark testing shows that the use of `rayon` significantly speeds up the `cargo bench` process. 
+
+With a 12 Core / 24 Threads CPU where all threads are used approximately 60%, the processing speed is 5 times faster than without `rayon` enabled. 
+
+In the criterion benchmark tests, we observed performance improvements:
+
+* `calculate_cash_history`: Performance improvement with a decrease in time from 24.160 ms to 6.8918 ms, a ~71.475% improvement.
+* `calculate_total_flight_distance`: Performance improvement with a decrease in time from 25.548 ms to 4.4509 ms, an ~82.578% improvement.
+
+=== Overhead for Smaller Data Sets
+
+While `rayon` significantly speeds up processing for larger data sets, it is important to note that there is a performance decrease with smaller data sets due to the overhead of managing multiple threads. As a result, for small data sets or simple computations, the overhead of thread management could outweigh the benefits of parallelism. 
+
+=== Full Criterion Bench Result
+
+Rayon feature disabled:
+
+[shell]
+----
+calculate_cash_history/1000
+                        time:   [231.91 µs 232.33 µs 232.73 µs]
+                        change: [-96.104% -96.074% -96.044%] (p = 0.00 < 0.05)
+                        Performance has improved.
+Found 3 outliers among 100 measurements (3.00%)
+  3 (3.00%) high mild
+calculate_cash_history/10000
+                        time:   [2.3300 ms 2.3329 ms 2.3358 ms]
+                        change: [-74.206% -73.904% -73.596%] (p = 0.00 < 0.05)
+                        Performance has improved.
+calculate_cash_history/100000
+                        time:   [24.055 ms 24.160 ms 24.262 ms]
+                        change: [+73.096% +75.354% +77.647%] (p = 0.00 < 0.05)
+                        Performance has regressed.
+
+calculate_total_flight_distance/1000
+                        time:   [280.95 µs 281.30 µs 281.67 µs]
+                        change: [-88.116% -87.888% -87.658%] (p = 0.00 < 0.05)
+                        Performance has improved.
+Found 7 outliers among 100 measurements (7.00%)
+  5 (5.00%) low mild
+  1 (1.00%) high mild
+  1 (1.00%) high severe
+calculate_total_flight_distance/10000
+                        time:   [2.4387 ms 2.4401 ms 2.4417 ms]
+                        change: [-32.266% -31.468% -30.663%] (p = 0.00 < 0.05)
+                        Performance has improved.
+Found 6 outliers among 100 measurements (6.00%)
+  5 (5.00%) high mild
+  1 (1.00%) high severe
+calculate_total_flight_distance/100000
+                        time:   [25.396 ms 25.548 ms 25.689 ms]
+                        change: [+175.47% +179.18% +182.85%] (p = 0.00 < 0.05)
+                        Performance has regressed.
+Found 28 outliers among 100 measurements (28.00%)
+  20 (20.00%) low severe
+  4 (4.00%) high mild
+  4 (4.00%) high severe
+----
+
+Rayon feature enabled:
+
+[shell]
+----
+calculate_cash_history/1000
+                        time:   [2.9439 ms 2.9668 ms 2.9900 ms]
+                        change: [+1167.0% +1176.0% +1187.3%] (p = 0.00 < 0.05)
+                        Performance has regressed.
+calculate_cash_history/10000
+                        time:   [4.4118 ms 4.4579 ms 4.5045 ms]
+                        change: [+89.166% +91.089% +92.956%] (p = 0.00 < 0.05)
+                        Performance has regressed.
+calculate_cash_history/100000
+                        time:   [6.8095 ms 6.8918 ms 6.9743 ms]
+                        change: [-71.813% -71.475% -71.135%] (p = 0.00 < 0.05)
+                        Performance has improved.
+
+Benchmarking calculate_total_flight_distance/1000: Warming up for 3.0000 s
+Warning: Unable to complete 100 samples in 5.0s. You may wish to increase target time to 5.8s, enable flat sampling, or reduce sample count to 60.
+calculate_total_flight_distance/1000
+                        time:   [1.1282 ms 1.1378 ms 1.1475 ms]
+                        change: [+303.47% +313.46% +323.37%] (p = 0.00 < 0.05)
+                        Performance has regressed.
+Found 8 outliers among 100 measurements (8.00%)
+  4 (4.00%) high mild
+  4 (4.00%) high severe
+Benchmarking calculate_total_flight_distance/10000: Warming up for 3.0000 s
+Warning: Unable to complete 100 samples in 5.0s. You may wish to increase target time to 8.8s, enable flat sampling, or reduce sample count to 50.
+calculate_total_flight_distance/10000
+                        time:   [1.7351 ms 1.7476 ms 1.7615 ms]
+                        change: [-28.399% -27.454% -26.122%] (p = 0.00 < 0.05)
+                        Performance has improved.
+Found 4 outliers among 100 measurements (4.00%)
+  1 (1.00%) high mild
+  3 (3.00%) high severe
+calculate_total_flight_distance/100000
+                        time:   [4.4107 ms 4.4509 ms 4.4923 ms]
+                        change: [-82.770% -82.578% -82.389%] (p = 0.00 < 0.05)
+                        Performance has improved.
+Found 1 outliers among 100 measurements (1.00%)
+  1 (1.00%) high mild
+----
