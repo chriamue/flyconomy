@@ -1,7 +1,7 @@
 #![cfg_attr(not(feature = "std"), no_std)]
 #![feature(min_specialization)]
 
-pub use flyconomy_token::*;
+pub use self::flyconomy_token::*;
 
 /// Most basic PSP22 token.
 #[openbrush::contract]
