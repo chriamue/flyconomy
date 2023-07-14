@@ -11,6 +11,9 @@ repository = "https://github.com/chriamue/flyconomy"
 [lib]
 crate-type = ["cdylib", "rlib"]
 
+[workspace]
+members = ["contracts/flyconomy_token"]
+
 [package.metadata.docs.rs]
 features = ["ai"]
 

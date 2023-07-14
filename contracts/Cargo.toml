@@ -1,0 +1,2 @@
+[workspace]
+members = ["flyconomy_token"]
