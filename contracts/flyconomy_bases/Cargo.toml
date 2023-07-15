@@ -1,5 +1,5 @@
 [package]
-name = "flyconomy_token"
+name = "flyconomy_bases"
 version = "0.1.0"
 edition = "2021"
 description = "Contracts for the Flyconomy project"
@@ -9,7 +9,7 @@ readme = "README.md"
 
 [dependencies]
 ink = { version = "4.1.0", default-features = false }
-openbrush = { git = "https://github.com/727-Ventures/openbrush-contracts/", tag = "3.1.1", default-features = false, features = ["psp22", "ownable"] }
+openbrush = { git = "https://github.com/727-Ventures/openbrush-contracts/", tag = "3.1.1", default-features = false, features = ["psp34", "ownable"] }
 
 scale = { package = "parity-scale-codec", version = "3", default-features = false, features = ["derive"] }
 scale-info = { version = "2.3", default-features = false, features = ["derive"], optional = true }
@@ -21,7 +21,7 @@ test_helpers = { git = "https://github.com/727-Ventures/openbrush-contracts/", t
 tokio = { version = "1.27.0", default-features = false, features = ["full"] }
 
 [lib]
-name = "flyconomy_token"
+name = "flyconomy_bases"
 path = "lib.rs"
 
 [[example]]
@@ -34,6 +34,7 @@ std = [
     "ink/std",
     "scale/std",
     "scale-info/std",
+    # These dependencies
     "openbrush/std",
 ]
 ink-as-dependency = []

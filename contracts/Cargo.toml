@@ -1,2 +1,2 @@
 [workspace]
-members = ["flyconomy_token"]
+members = ["flyconomy_token", "flyconomy_bases"]

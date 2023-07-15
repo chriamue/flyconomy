@@ -1,9 +1,7 @@
-use flyconomy_token::{FlyconomyTokenRef};
-use ink::{primitives::AccountId};
+use flyconomy_token::FlyconomyTokenRef;
+use ink::primitives::AccountId;
 use ink_e2e::subxt::utils::AccountId32;
-use ink_e2e::{
-    build_message, subxt::config::SubstrateConfig, subxt::OnlineClient, Client,
-};
+use ink_e2e::{build_message, subxt::config::SubstrateConfig, subxt::OnlineClient, Client};
 use ink_env::DefaultEnvironment;
 use openbrush::contracts::psp22::psp22_external::PSP22;
 use std::str::FromStr;
@@ -19,8 +17,7 @@ async fn main() {
 
     println!("Connected to node: {:?}", client.runtime_version());
 
-    let mut api =
-        Client::<SubstrateConfig, DefaultEnvironment>::new(client, []).await;
+    let mut api = Client::<SubstrateConfig, DefaultEnvironment>::new(client, []).await;
 
     let alice_account_id =
         address_from_string("5GrwvaEF5zXb26Fz9rcQpDWS57CtERHpNehXCPcNoHGKutQY".to_string());
