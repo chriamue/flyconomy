@@ -5,7 +5,10 @@ pub use self::flyconomy_bases::*;
 
 #[openbrush::contract]
 pub mod flyconomy_bases {
-    use openbrush::{contracts::psp34::extensions::metadata::*, traits::Storage};
+    use openbrush::{
+        contracts::psp34::extensions::metadata::*,
+        traits::{Storage, String},
+    };
 
     #[ink(storage)]
     #[derive(Default, Storage)]
@@ -19,10 +22,20 @@ pub mod flyconomy_bases {
 
     impl PSP34 for FlyconomyBases {}
 
+    impl PSP34Metadata for FlyconomyBases {}
+
     impl FlyconomyBases {
         #[ink(constructor)]
-        pub fn new() -> Self {
-            Self::default()
+        pub fn new(id: Id, name: String, symbol: String, airports_url: String) -> Self {
+            let mut instance = Self::default();
+
+            let name_key = String::from("name");
+            let symbol_key = String::from("symbol");
+            let airports_url_key = String::from("airports_url");
+            instance._set_attribute(id.clone(), name_key, name);
+            instance._set_attribute(id.clone(), symbol_key, symbol);
+            instance._set_attribute(id, airports_url_key, airports_url);
+            instance
         }
 
         #[ink(message)]
@@ -40,12 +53,13 @@ pub mod flyconomy_bases {
 
     #[cfg(all(test, feature = "e2e-tests"))]
     pub mod tests {
+        use openbrush::contracts::psp34::extensions::metadata::psp34metadata_external::PSP34Metadata;
         use openbrush::contracts::psp34::psp34_external::PSP34;
         #[rustfmt::skip]
         use super::*;
         #[rustfmt::skip]
         use ink_e2e::{build_message, subxt::config::PolkadotConfig};
-
+        use openbrush::traits::String;
         use test_helpers::{address_of, balance_of, owner_of};
 
         type E2EResult<T> = Result<T, Box<dyn std::error::Error>>;
@@ -55,7 +69,17 @@ pub mod flyconomy_bases {
         async fn return_collection_id_of_account(
             mut client: ink_e2e::Client<C, E>,
         ) -> E2EResult<()> {
-            let constructor = FlyconomyBasesRef::new();
+            let id = Id::U8(0);
+            let name = String::from("Flyconomy Bases");
+            let symbol = String::from("FLYCB");
+            let airports_url = String::from("https://example.com/airports");
+
+            let constructor = ContractRef::new(
+                id.clone(),
+                name.clone(),
+                symbol.clone(),
+                airports_url.clone(),
+            );
             let address = client
                 .instantiate("flyconomy_bases", &ink_e2e::alice(), constructor, 0, None)
                 .await
@@ -79,9 +103,19 @@ pub mod flyconomy_bases {
 
         #[ink_e2e::test]
         async fn returns_total_supply(mut client: ink_e2e::Client<C, E>) -> E2EResult<()> {
-            let constructor = FlyconomyBasesRef::new();
+            let id = Id::U8(0);
+            let name = String::from("Flyconomy Bases");
+            let symbol = String::from("FLYCB");
+            let airports_url = String::from("https://example.com/airports");
+
+            let constructor = ContractRef::new(
+                id.clone(),
+                name.clone(),
+                symbol.clone(),
+                airports_url.clone(),
+            );
             let address = client
-                .instantiate("my_psp34", &ink_e2e::alice(), constructor, 0, None)
+                .instantiate("flyconomy_bases", &ink_e2e::alice(), constructor, 0, None)
                 .await
                 .expect("instantiate failed")
                 .account_id;
@@ -120,7 +154,17 @@ pub mod flyconomy_bases {
 
         #[ink_e2e::test]
         async fn transfer_works(mut client: ink_e2e::Client<C, E>) -> E2EResult<()> {
-            let constructor = FlyconomyBasesRef::new();
+            let id = Id::U8(0);
+            let name = String::from("Flyconomy Bases");
+            let symbol = String::from("FLYCB");
+            let airports_url = String::from("https://example.com/airports");
+
+            let constructor = ContractRef::new(
+                id.clone(),
+                name.clone(),
+                symbol.clone(),
+                airports_url.clone(),
+            );
             let address = client
                 .instantiate("flyconomy_bases", &ink_e2e::alice(), constructor, 0, None)
                 .await
@@ -165,7 +209,17 @@ pub mod flyconomy_bases {
 
         #[ink_e2e::test]
         async fn approved_transfer_works(mut client: ink_e2e::Client<C, E>) -> E2EResult<()> {
-            let constructor = FlyconomyBasesRef::new();
+            let id = Id::U8(0);
+            let name = String::from("Flyconomy Bases");
+            let symbol = String::from("FLYCB");
+            let airports_url = String::from("https://example.com/airports");
+
+            let constructor = ContractRef::new(
+                id.clone(),
+                name.clone(),
+                symbol.clone(),
+                airports_url.clone(),
+            );
             let address = client
                 .instantiate("flyconomy_bases", &ink_e2e::alice(), constructor, 0, None)
                 .await
@@ -224,7 +278,17 @@ pub mod flyconomy_bases {
         async fn approved_operator_transfer_works(
             mut client: ink_e2e::Client<C, E>,
         ) -> E2EResult<()> {
-            let constructor = FlyconomyBasesRef::new();
+            let id = Id::U8(0);
+            let name = String::from("Flyconomy Bases");
+            let symbol = String::from("FLYCB");
+            let airports_url = String::from("https://example.com/airports");
+
+            let constructor = ContractRef::new(
+                id.clone(),
+                name.clone(),
+                symbol.clone(),
+                airports_url.clone(),
+            );
             let address = client
                 .instantiate("flyconomy_bases", &ink_e2e::alice(), constructor, 0, None)
                 .await
@@ -281,7 +345,17 @@ pub mod flyconomy_bases {
 
         #[ink_e2e::test]
         async fn psp34_transfer_works(mut client: ink_e2e::Client<C, E>) -> E2EResult<()> {
-            let constructor = FlyconomyBasesRef::new();
+            let id = Id::U8(0);
+            let name = String::from("Flyconomy Bases");
+            let symbol = String::from("FLYCB");
+            let airports_url = String::from("https://example.com/airports");
+
+            let constructor = ContractRef::new(
+                id.clone(),
+                name.clone(),
+                symbol.clone(),
+                airports_url.clone(),
+            );
             let address = client
                 .instantiate("flyconomy_bases", &ink_e2e::alice(), constructor, 0, None)
                 .await
@@ -329,7 +403,17 @@ pub mod flyconomy_bases {
         async fn can_nextot_transfer_non_existing_token(
             mut client: ink_e2e::Client<C, E>,
         ) -> E2EResult<()> {
-            let constructor = FlyconomyBasesRef::new();
+            let id = Id::U8(0);
+            let name = String::from("Flyconomy Bases");
+            let symbol = String::from("FLYCB");
+            let airports_url = String::from("https://example.com/airports");
+
+            let constructor = ContractRef::new(
+                id.clone(),
+                name.clone(),
+                symbol.clone(),
+                airports_url.clone(),
+            );
             let address = client
                 .instantiate("flyconomy_bases", &ink_e2e::alice(), constructor, 0, None)
                 .await
@@ -355,7 +439,17 @@ pub mod flyconomy_bases {
         async fn cannot_transfer_without_allowance(
             mut client: ink_e2e::Client<C, E>,
         ) -> E2EResult<()> {
-            let constructor = FlyconomyBasesRef::new();
+            let id = Id::U8(0);
+            let name = String::from("Flyconomy Bases");
+            let symbol = String::from("FLYCB");
+            let airports_url = String::from("https://example.com/airports");
+
+            let constructor = ContractRef::new(
+                id.clone(),
+                name.clone(),
+                symbol.clone(),
+                airports_url.clone(),
+            );
             let address = client
                 .instantiate("flyconomy_bases", &ink_e2e::alice(), constructor, 0, None)
                 .await
@@ -390,7 +484,17 @@ pub mod flyconomy_bases {
 
         #[ink_e2e::test]
         async fn can_mint_any_id(mut client: ink_e2e::Client<C, E>) -> E2EResult<()> {
-            let constructor = FlyconomyBasesRef::new();
+            let id = Id::U8(0);
+            let name = String::from("Flyconomy Bases");
+            let symbol = String::from("FLYCB");
+            let airports_url = String::from("https://example.com/airports");
+
+            let constructor = ContractRef::new(
+                id.clone(),
+                name.clone(),
+                symbol.clone(),
+                airports_url.clone(),
+            );
             let address = client
                 .instantiate("flyconomy_bases", &ink_e2e::alice(), constructor, 0, None)
                 .await
@@ -423,6 +527,45 @@ pub mod flyconomy_bases {
             }
 
             assert_eq!(balance_of!(client, address, alice), 6);
+
+            Ok(())
+        }
+
+        #[ink_e2e::test]
+        async fn metadata_works(mut client: ink_e2e::Client<C, E>) -> E2EResult<()> {
+            let id = Id::U8(0);
+            let name = String::from("Flyconomy Bases");
+            let symbol = String::from("FLYCB");
+            let airports_url = String::from("https://example.com/airports");
+
+            let constructor = ContractRef::new(
+                id.clone(),
+                name.clone(),
+                symbol.clone(),
+                airports_url.clone(),
+            );
+            let address = client
+                .instantiate("flyconomy_bases", &ink_e2e::alice(), constructor, 0, None)
+                .await
+                .expect("instantiate failed")
+                .account_id;
+
+            let result_name = {
+                let _msg = build_message::<ContractRef>(address.clone())
+                    .call(|contract| contract.get_attribute(id.clone(), String::from("name")));
+                client.call_dry_run(&ink_e2e::alice(), &_msg, 0, None).await
+            }
+            .return_value();
+
+            let result_symbol = {
+                let _msg = build_message::<ContractRef>(address.clone())
+                    .call(|contract| contract.get_attribute(id.clone(), String::from("symbol")));
+                client.call_dry_run(&ink_e2e::alice(), &_msg, 0, None).await
+            }
+            .return_value();
+
+            assert_eq!(result_name, Some(name));
+            assert_eq!(result_symbol, Some(symbol));
 
             Ok(())
         }

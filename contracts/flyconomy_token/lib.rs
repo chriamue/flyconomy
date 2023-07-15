@@ -63,10 +63,7 @@ pub mod flyconomy_token {
 
         type ContractRef = FlyconomyTokenRef;
 
-        use test_helpers::{
-            address_of,
-            balance_of,
-        };
+        use test_helpers::{address_of, balance_of};
 
         type E2EResult<T> = Result<T, Box<dyn std::error::Error>>;
 
@@ -91,7 +88,9 @@ pub mod flyconomy_token {
         }
 
         #[ink_e2e::test]
-        async fn transfer_adds_amount_to_destination_account(mut client: ink_e2e::Client<C, E>) -> E2EResult<()> {
+        async fn transfer_adds_amount_to_destination_account(
+            mut client: ink_e2e::Client<C, E>,
+        ) -> E2EResult<()> {
             let constructor = ContractRef::new(100);
             let address = client
                 .instantiate("flyconomy_token", &ink_e2e::alice(), constructor, 0, None)
@@ -121,7 +120,9 @@ pub mod flyconomy_token {
         }
 
         #[ink_e2e::test]
-        async fn cannot_transfer_above_the_amount(mut client: ink_e2e::Client<C, E>) -> E2EResult<()> {
+        async fn cannot_transfer_above_the_amount(
+            mut client: ink_e2e::Client<C, E>,
+        ) -> E2EResult<()> {
             let constructor = ContractRef::new(100);
             let address = client
                 .instantiate("flyconomy_token", &ink_e2e::alice(), constructor, 0, None)
@@ -135,7 +136,10 @@ pub mod flyconomy_token {
                 client.call_dry_run(&ink_e2e::alice(), &_msg, 0, None).await
             };
 
-            assert!(matches!(result.return_value(), Err(PSP22Error::InsufficientBalance)));
+            assert!(matches!(
+                result.return_value(),
+                Err(PSP22Error::InsufficientBalance)
+            ));
 
             Ok(())
         }
