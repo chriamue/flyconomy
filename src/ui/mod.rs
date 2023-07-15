@@ -1,6 +1,6 @@
 use bevy::prelude::{App, IntoSystemConfigs, OnUpdate, Plugin, ResMut, Resource, States};
 use bevy_egui::{
-    egui::{vec2, Align2, Style, Visuals, Window},
+    egui::{vec2, Align2, Visuals, Window},
     EguiContexts,
 };
 

@@ -68,13 +68,18 @@ fn keyboard_controls(
         if key_input.pressed(KeyCode::Z) {
             pan_orbit.radius = pan_orbit
                 .radius
-                .map(|radius| radius - 5.0 * time.delta_seconds());
+                .map(|radius| radius - 1.0 * time.delta_seconds());
         }
         if key_input.pressed(KeyCode::X) {
             pan_orbit.radius = pan_orbit
                 .radius
-                .map(|radius| radius + 5.0 * time.delta_seconds());
+                .map(|radius| radius + 1.0 * time.delta_seconds());
         }
+
+        if pan_orbit.radius < Some(1.2) {
+            pan_orbit.radius = Some(1.2);
+        }
+
         pan_orbit.force_update = true;
     }
 }
