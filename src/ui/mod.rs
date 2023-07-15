@@ -8,6 +8,7 @@ mod hud;
 mod messages;
 mod office_ui;
 mod planes_ui;
+mod player_ownership_ui;
 mod replay;
 mod simulation_control;
 mod welcome_screen;
@@ -25,6 +26,7 @@ impl Plugin for UiPlugin {
         app.add_plugin(world_heritage_site_ui::WorldHeritageSiteUiPlugin);
         app.add_plugin(messages::MessagesPlugin);
         app.add_plugin(planes_ui::PlanesUiPlugin);
+        app.add_plugin(player_ownership_ui::PlayerOwnershipUiPlugin);
         app.add_plugin(flights_ui::FlightsUiPlugin);
         app.add_plugin(replay::ReplayPlugin);
         app.add_plugin(simulation_control::SimulationControlPlugin);

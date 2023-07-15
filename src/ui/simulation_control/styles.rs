@@ -14,7 +14,7 @@ pub const ITEM_STYLE: Style = Style {
     flex_direction: FlexDirection::Row,
     justify_content: JustifyContent::Center,
     align_items: AlignItems::Center,
-    margin: UiRect::new(Val::Px(8.0), Val::Px(0.0), Val::Px(0.0), Val::Px(0.0)),
+    margin: UiRect::new(Val::Px(2.0), Val::Px(2.0), Val::Px(0.0), Val::Px(0.0)),
     ..Style::DEFAULT
 };
 
