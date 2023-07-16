@@ -8,7 +8,7 @@ use std::path::Path;
 
 use crate::model::commands::{
     BuyLandingRightsCommand, BuyPlaneCommand, Command, CreateBaseCommand, ScheduleFlightCommand,
-    TimestampedCommand,
+    TimestampedCommand, SellPlaneCommand, SellLandingRightsCommand,
 };
 use crate::model::EnvironmentConfig;
 
@@ -130,7 +130,22 @@ impl Serialize for TimestampedCommand {
                 arguments: command.clone(),
             };
             command_wrapper.serialize(serializer)
-        } else {
+        } else if let Some(command) = self.command.as_any().downcast_ref::<SellPlaneCommand>() {
+            let command_wrapper = CommandWrapper {
+                timestamp: self.timestamp,
+                command: "SellPlaneCommand".to_string(),
+                arguments: command.clone()
+            };
+            command_wrapper.serialize(serializer)
+        } else if let Some(command) = self.command.as_any().downcast_ref::<SellLandingRightsCommand>() {
+            let command_wrapper = CommandWrapper {
+                timestamp: self.timestamp,
+                command: "SellLandingRights".to_string(),
+                arguments: command.clone()
+            };
+            command_wrapper.serialize(serializer)
+        }
+         else {
             panic!("Unknown command type.");
         }
     }
@@ -166,6 +181,16 @@ impl<'de> Deserialize<'de> for TimestampedCommand {
             "ScheduleFlightCommand" => {
                 let command: ScheduleFlightCommand =
                     serde_yaml::from_value(arguments).map_err(de::Error::custom)?;
+                Box::new(command)
+            }
+            "SellPlane" => {
+                let command: SellPlaneCommand =
+                    serde_yaml::from_value(arguments).map_err(de::Error::custom)?;
+                    Box::new(command)
+            }
+            "SellLandingRights" => {
+                let command: SellLandingRightsCommand =
+                serde_yaml::from_value(arguments).map_err(de::Error::custom)?;
                 Box::new(command)
             }
             _ => return Err(de::Error::custom("Unknown command")),
