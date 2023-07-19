@@ -1,14 +1,21 @@
-use bevy::prelude::{App, IntoSystemConfigs, OnUpdate, Plugin, Res, ResMut, Resource};
+use bevy::prelude::{
+    App, EventWriter, IntoSystemConfigs, OnUpdate, Plugin, Query, Res, ResMut, Resource, Transform,
+};
 use bevy_egui::{egui, EguiContexts};
+use bevy_panorbit_camera::PanOrbitCamera;
 use chrono::{TimeZone, Utc};
 
 use crate::{
     algorithms::calculate_interest_score,
-    game::{aerodrome::SelectedAerodrome, GameResource, GameState},
+    game::{
+        aerodrome::{SelectedAerodrome, SelectedAerodromeChangeEvent},
+        GameResource, GameState,
+    },
     model::{commands::ScheduleFlightCommand, Aerodrome, Flight},
 };
 
 use super::{
+    aerodromes_ui::bases_info_ui,
     components,
     layouts::{left_layout, right_layout},
     UiState,
@@ -32,9 +39,20 @@ pub fn flight_planning_ui(
     selected_aerodrome: Res<SelectedAerodrome>,
     mut game_resource: ResMut<GameResource>,
     mut flight_planning_input: ResMut<FlightPlanningInput>,
+    mut ev_selected_aerodrome_change: EventWriter<SelectedAerodromeChangeEvent>,
+    mut pan_orbit_query: Query<(&mut PanOrbitCamera, &mut Transform)>,
 ) {
     if let Some(selected_aerodrome) = &selected_aerodrome.aerodrome {
         right_layout("Flight Planning").show(contexts.ctx_mut(), |ui| {
+            bases_info_ui(
+                ui,
+                &game_resource,
+                &mut ev_selected_aerodrome_change,
+                &mut pan_orbit_query,
+            );
+
+            ui.separator();
+
             ui.label(format!("Selected Aerodrome: {}", selected_aerodrome.name));
 
             ui.label("Select Airplane:");
