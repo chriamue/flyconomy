@@ -136,7 +136,7 @@ fn handle_selected_aerodrome_change_event(
             for (entity, aerodrome_component) in aerodrome_query.iter() {
                 if aerodrome_component.0 == *selected_aerodrome {
                     if let Ok(material_handle) = mesh_query.get(entity) {
-                        if let Some(mut material) = materials.get_mut(material_handle) {
+                        if let Some(material) = materials.get_mut(material_handle) {
                             material.base_color = AERODROME_COLOR;
                         }
                     }
@@ -161,7 +161,7 @@ fn handle_selected_aerodrome_change_event(
             if aerodrome_component.0 == *aerodrome {
                 selected_aerodrome.aerodrome = Some(aerodrome.clone());
                 if let Ok(material_handle) = mesh_query.get(entity) {
-                    if let Some(mut material) = materials.get_mut(material_handle) {
+                    if let Some(material) = materials.get_mut(material_handle) {
                         material.base_color = AERODROME_COLOR_SELECTED;
                     }
                 }

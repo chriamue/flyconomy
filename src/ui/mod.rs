@@ -6,6 +6,8 @@ use bevy_egui::{
 
 use crate::game::GameState;
 
+pub mod components;
+
 mod aerodromes_ui;
 mod analytics_ui;
 mod flights_ui;

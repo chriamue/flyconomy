@@ -129,7 +129,7 @@ fn handle_selected_world_heritage_site_change_event(
             for (entity, site_component) in site_query.iter() {
                 if site_component.0 == *selected_site {
                     if let Ok(material_handle) = mesh_query.get(entity) {
-                        if let Some(mut material) = materials.get_mut(material_handle) {
+                        if let Some(material) = materials.get_mut(material_handle) {
                             material.base_color = SITE_COLOR;
                         }
                     }
@@ -145,7 +145,7 @@ fn handle_selected_world_heritage_site_change_event(
             if site_component.0 == *site {
                 selected_site.site = Some(site.clone());
                 if let Ok(material_handle) = mesh_query.get(entity) {
-                    if let Some(mut material) = materials.get_mut(material_handle) {
+                    if let Some(material) = materials.get_mut(material_handle) {
                         material.base_color = SITE_COLOR_SELECTED;
                     }
                 }

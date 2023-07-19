@@ -8,7 +8,8 @@ use crate::game::{aerodrome::SelectedAerodromeChangeEvent, GameResource, GameSta
 
 use super::{
     aerodromes_ui::{bases_info_ui, landing_rights_info_ui, LandingRightsInput},
-    planes_ui::{airplanes_list_info_ui, SelectedPlane},
+    components::planes::planes_list,
+    planes_ui::SelectedPlane,
     UiState,
 };
 
@@ -59,6 +60,6 @@ fn player_ownership_info_ui(
 
             ui.separator();
 
-            airplanes_list_info_ui(ui, &mut game_resource, &mut selected_airplane);
+            planes_list(ui, &mut game_resource, &mut selected_airplane);
         });
 }
