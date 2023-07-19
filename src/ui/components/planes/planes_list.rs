@@ -3,6 +3,8 @@ use bevy_egui::egui;
 
 use crate::{game::GameResource, model::commands::SellPlaneCommand, ui::planes_ui::SelectedPlane};
 
+use super::plane;
+
 pub fn planes_list(
     ui: &mut egui::Ui,
     game_resource: &mut ResMut<GameResource>,
@@ -47,27 +49,13 @@ pub fn planes_list(
         ui.vertical_centered(|ui| {
             ui.heading("Selected Airplane Details");
         });
-        ui.label(format!("ID: {}", airplane.id));
-        ui.label(format!("Type: {}", airplane.plane_type.name));
-        let base = environment
-            .bases
-            .iter()
-            .find(|base| base.id == airplane.base_id)
-            .unwrap();
-        ui.label(format!("Base: {}", base.aerodrome.name));
 
-        let (passengers, distance) = environment.flights.iter().fold((0, 0.0), |acc, flight| {
-            if flight.airplane.id == airplane.id {
-                (
-                    acc.0 + flight.calculate_booked_seats(),
-                    acc.1 + flight.calculate_total_distance(),
-                )
-            } else {
-                acc
-            }
-        });
-        ui.label(format!("Transported Passengers: {}", passengers));
-        ui.label(format!("Total Distance: {:.3} km", distance));
+        plane(
+            ui,
+            airplane,
+            &game_resource.simulation.environment.flights,
+            &game_resource.simulation.environment.bases,
+        );
 
         if ui.button("Sell Airplane").clicked() {
             let cmd = SellPlaneCommand {

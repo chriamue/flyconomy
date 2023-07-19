@@ -11,7 +11,7 @@ use crate::{
     model::{commands::ScheduleFlightCommand, Aerodrome, Flight},
 };
 
-use super::UiState;
+use super::{components, UiState};
 
 pub struct FlightsUiPlugin;
 
@@ -288,13 +288,7 @@ pub fn flight_list_ui(
             });
 
             if let Some(flight) = &flight_planning_input.selected_flight {
-                ui.label(format!("Profit: ${:.2}", flight.calculate_profit()));
-                ui.label(format!("Passengers: {}", flight.calculate_booked_seats()));
-                ui.label(format!(
-                    "Distance: {:.3} km",
-                    flight.calculate_total_distance()
-                ));
-                ui.label(format!("Interest Score: {:.3}", flight.interest_score));
+                components::flight::flight(ui, flight);
                 if ui.button("Replicate Flight").clicked() {
                     let new_flight = ScheduleFlightCommand {
                         flight_id: ScheduleFlightCommand::generate_id(),

@@ -1,7 +1,10 @@
 use bevy::prelude::{
     App, EventWriter, IntoSystemConfigs, OnUpdate, Plugin, Query, ResMut, Transform,
 };
-use bevy_egui::{egui, EguiContexts};
+use bevy_egui::{
+    egui::{self, vec2, Align2},
+    EguiContexts,
+};
 use bevy_panorbit_camera::PanOrbitCamera;
 
 use crate::game::{aerodrome::SelectedAerodromeChangeEvent, GameResource, GameState};
@@ -33,14 +36,11 @@ fn player_ownership_info_ui(
     mut ev_selected_aerodrome_change: EventWriter<SelectedAerodromeChangeEvent>,
     mut pan_orbit_query: Query<(&mut PanOrbitCamera, &mut Transform)>,
 ) {
-    egui::SidePanel::right("player_ownership_info_ui")
+    egui::Window::new("Player Ownership Info")
+        .anchor(Align2::RIGHT_TOP, vec2(0.0, 100.0))
+        .default_open(true)
         .resizable(true)
         .show(contexts.ctx_mut(), |ui| {
-            ui.vertical_centered(|ui| {
-                ui.heading("Player Ownership Info");
-            });
-
-            ui.separator();
             bases_info_ui(
                 ui,
                 &game_resource,

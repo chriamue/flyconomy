@@ -6,7 +6,7 @@ use crate::{
     model::{commands::BuyPlaneCommand, AirPlane, PlaneType},
 };
 
-use super::aerodromes_ui::UiInput;
+use super::{aerodromes_ui::UiInput, components::planes::plane_type};
 
 pub struct PlanesUiPlugin;
 
@@ -60,18 +60,7 @@ pub fn planes_purchase_ui(
 
             if let Some(selected_plane) = &selected_plane.plane_type {
                 ui.separator();
-                ui.label(format!("Cost: ${:.2}", selected_plane.cost));
-                ui.label(format!(
-                    "Monthly Income: ${:.2}",
-                    selected_plane.monthly_income
-                ));
-                ui.label(format!("Range: {} km", selected_plane.range));
-                ui.label(format!("Speed: {} km/h", selected_plane.speed));
-                ui.label(format!("Capacity: {} passengers", selected_plane.seats));
-                ui.label(format!(
-                    "Fuel Consumption: {} L/km",
-                    selected_plane.fuel_consumption_per_km
-                ));
+                plane_type(ui, selected_plane);
 
                 if ui.button("Buy").clicked() {
                     let home_base_id = game_resource
