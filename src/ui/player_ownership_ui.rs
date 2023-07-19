@@ -1,10 +1,7 @@
 use bevy::prelude::{
     App, EventWriter, IntoSystemConfigs, OnUpdate, Plugin, Query, ResMut, Transform,
 };
-use bevy_egui::{
-    egui::{self, vec2, Align2},
-    EguiContexts,
-};
+use bevy_egui::EguiContexts;
 use bevy_panorbit_camera::PanOrbitCamera;
 
 use crate::game::{aerodrome::SelectedAerodromeChangeEvent, GameResource, GameState};
@@ -12,6 +9,7 @@ use crate::game::{aerodrome::SelectedAerodromeChangeEvent, GameResource, GameSta
 use super::{
     aerodromes_ui::{bases_info_ui, landing_rights_info_ui, LandingRightsInput},
     components::planes::planes_list,
+    layouts::right_layout,
     planes_ui::SelectedPlane,
     UiState,
 };
@@ -36,30 +34,26 @@ fn player_ownership_info_ui(
     mut ev_selected_aerodrome_change: EventWriter<SelectedAerodromeChangeEvent>,
     mut pan_orbit_query: Query<(&mut PanOrbitCamera, &mut Transform)>,
 ) {
-    egui::Window::new("Player Ownership Info")
-        .anchor(Align2::RIGHT_TOP, vec2(0.0, 100.0))
-        .default_open(true)
-        .resizable(true)
-        .show(contexts.ctx_mut(), |ui| {
-            bases_info_ui(
-                ui,
-                &game_resource,
-                &mut ev_selected_aerodrome_change,
-                &mut pan_orbit_query,
-            );
+    right_layout("Player Ownership Info").show(contexts.ctx_mut(), |ui| {
+        bases_info_ui(
+            ui,
+            &game_resource,
+            &mut ev_selected_aerodrome_change,
+            &mut pan_orbit_query,
+        );
 
-            ui.separator();
+        ui.separator();
 
-            landing_rights_info_ui(
-                ui,
-                &mut game_resource,
-                &mut landing_rights_input,
-                &mut ev_selected_aerodrome_change,
-                &mut pan_orbit_query,
-            );
+        landing_rights_info_ui(
+            ui,
+            &mut game_resource,
+            &mut landing_rights_input,
+            &mut ev_selected_aerodrome_change,
+            &mut pan_orbit_query,
+        );
 
-            ui.separator();
+        ui.separator();
 
-            planes_list(ui, &mut game_resource, &mut selected_airplane);
-        });
+        planes_list(ui, &mut game_resource, &mut selected_airplane);
+    });
 }

@@ -13,8 +13,9 @@ mod analytics_ui;
 mod flights_ui;
 mod game_over_screen;
 mod hud;
+mod layouts;
 mod messages;
-mod office_ui;
+mod office_view;
 mod planes_ui;
 mod player_ownership_ui;
 mod replay;
@@ -39,7 +40,7 @@ impl Plugin for UiPlugin {
         app.add_plugin(replay::ReplayPlugin);
         app.add_plugin(simulation_control::SimulationControlPlugin);
         app.add_plugin(analytics_ui::AnalyticsPlugin);
-        app.add_plugin(office_ui::OfficePlugin);
+        app.add_plugin(office_view::OfficePlugin);
         app.insert_resource(StyleState { is_dark: true });
         app.add_systems(
             (style_switch_ui,)
