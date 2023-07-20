@@ -4,6 +4,7 @@ use bevy_egui::{
     egui::{vec2, Align2, Window},
     EguiContexts,
 };
+use chrono::{TimeZone, Utc};
 
 pub struct MessagesPlugin;
 
@@ -17,6 +18,7 @@ impl Plugin for MessagesPlugin {
 pub fn show_error_messages(mut contexts: EguiContexts, game_resource: Res<GameResource>) {
     let elapsed_time = game_resource.simulation.elapsed_time.as_millis();
     let time_multiplier = game_resource.simulation.time_multiplier;
+    let start_of_2000: i64 = 946684800000;
 
     if !game_resource.simulation.error_messages.is_empty() {
         Window::new("Error Book")
@@ -25,7 +27,13 @@ pub fn show_error_messages(mut contexts: EguiContexts, game_resource: Res<GameRe
             .show(contexts.ctx_mut(), |ui| {
                 for message in &game_resource.simulation.error_messages {
                     if elapsed_time - message.0 < (8_000.0 * time_multiplier) as u128 {
-                        let text = format!("{:.0}, {}", message.0, message.1);
+                        let timestamp: i64 = start_of_2000 + message.0 as i64;
+                        let datetime = Utc.timestamp_millis_opt(timestamp).unwrap();
+                        let text = format!(
+                            "{}, {}",
+                            datetime.format("%Y-%m-%d %H:%M").to_string(),
+                            message.1
+                        );
                         ui.label(text);
                     }
                 }
@@ -36,6 +44,7 @@ pub fn show_error_messages(mut contexts: EguiContexts, game_resource: Res<GameRe
 pub fn show_event_messages(mut contexts: EguiContexts, game_resource: Res<GameResource>) {
     let elapsed_time = game_resource.simulation.elapsed_time.as_millis();
     let time_multiplier = game_resource.simulation.time_multiplier;
+    let start_of_2000: i64 = 946684800000;
 
     if !game_resource.simulation.event_messages.is_empty() {
         Window::new("Log Book")
@@ -44,7 +53,13 @@ pub fn show_event_messages(mut contexts: EguiContexts, game_resource: Res<GameRe
             .show(contexts.ctx_mut(), |ui| {
                 for message in &game_resource.simulation.event_messages {
                     if elapsed_time - message.0 < (10_000.0 * time_multiplier) as u128 {
-                        let text = format!("{:.0}, {}", message.0, message.1);
+                        let timestamp: i64 = start_of_2000 + message.0 as i64;
+                        let datetime = Utc.timestamp_millis_opt(timestamp).unwrap();
+                        let text = format!(
+                            "{}, {}",
+                            datetime.format("%Y-%m-%d %H:%M").to_string(),
+                            message.1
+                        );
                         ui.label(text);
                     }
                 }
