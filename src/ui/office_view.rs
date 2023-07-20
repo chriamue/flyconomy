@@ -1,4 +1,6 @@
-use super::{analytics_view, UiState};
+use super::components::analytics::cash_history;
+use super::layouts::left_layout;
+use super::UiState;
 use crate::game::manager::GameManagerType;
 #[cfg(feature = "ai")]
 use crate::game::manager::GameManagers;
@@ -16,8 +18,7 @@ impl Plugin for OfficePlugin {
     fn build(&self, app: &mut App) {
         app.add_systems(
             (
-                analytics_view::company_hud_system,
-                analytics_view::show_cash_history,
+                show_cash_history,
                 #[cfg(feature = "ai")]
                 show_manager_action_system,
             )
@@ -25,6 +26,12 @@ impl Plugin for OfficePlugin {
                 .in_set(OnUpdate(UiState::Office)),
         );
     }
+}
+
+pub fn show_cash_history(mut contexts: EguiContexts, game_resource: Res<GameResource>) {
+    left_layout("Cash History").show(contexts.ctx_mut(), |ui| {
+        cash_history(ui, &game_resource);
+    });
 }
 
 #[cfg(feature = "ai")]

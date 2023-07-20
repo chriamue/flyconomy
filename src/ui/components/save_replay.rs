@@ -3,6 +3,8 @@ use crate::ui::settings_view::UiInputReplayFilename;
 use crate::Replay;
 use bevy::prelude::{Res, ResMut};
 use bevy_egui::egui;
+#[cfg(target_arch = "wasm32")]
+use wasm_bindgen::prelude::*;
 
 #[cfg(not(target_arch = "wasm32"))]
 pub fn save_replay(

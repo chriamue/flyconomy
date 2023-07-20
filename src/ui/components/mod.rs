@@ -1,3 +1,4 @@
+pub mod analytics;
 pub mod flight;
 pub mod planes;
 pub mod save_replay;
