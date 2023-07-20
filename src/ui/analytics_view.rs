@@ -1,3 +1,4 @@
+use super::{layouts::left_layout, UiState};
 use crate::{
     game::{GameResource, GameState},
     model::analytics::{
@@ -6,16 +7,11 @@ use crate::{
     },
 };
 use bevy::prelude::{App, IntoSystemConfigs, OnUpdate, Plugin, Res};
-use bevy_egui::{
-    egui::{self, vec2, Align2},
-    EguiContexts,
-};
+use bevy_egui::{egui, EguiContexts};
 
-use super::UiState;
+pub struct AnalyticsViewPlugin;
 
-pub struct AnalyticsPlugin;
-
-impl Plugin for AnalyticsPlugin {
+impl Plugin for AnalyticsViewPlugin {
     fn build(&self, app: &mut App) {
         app.add_systems(
             (
@@ -32,31 +28,28 @@ impl Plugin for AnalyticsPlugin {
 }
 
 pub fn company_hud_system(mut contexts: EguiContexts, game_resource: Res<GameResource>) {
-    egui::Window::new("Company")
-        .anchor(Align2::LEFT_TOP, vec2(0.0, 100.0))
-        .default_open(false)
-        .show(contexts.ctx_mut(), |ui| {
-            let environment = &game_resource.simulation.environment;
-            ui.horizontal(|ui| {
-                ui.label(format!(
-                    "Cash: ${:.2}",
-                    environment.company_finances.cash(environment.timestamp)
-                ));
-                ui.label(format!("Planes: {}", environment.planes.len()));
-                ui.label(format!(
-                    "Total Income: ${:.2}",
-                    environment
-                        .company_finances
-                        .total_income(environment.timestamp)
-                ));
-                ui.label(format!(
-                    "Total Expenses: ${:.2}",
-                    environment
-                        .company_finances
-                        .total_expenses(environment.timestamp)
-                ));
-            });
+    left_layout("Company").show(contexts.ctx_mut(), |ui| {
+        let environment = &game_resource.simulation.environment;
+        ui.horizontal(|ui| {
+            ui.label(format!(
+                "Cash: ${:.2}",
+                environment.company_finances.cash(environment.timestamp)
+            ));
+            ui.label(format!("Planes: {}", environment.planes.len()));
+            ui.label(format!(
+                "Total Income: ${:.2}",
+                environment
+                    .company_finances
+                    .total_income(environment.timestamp)
+            ));
+            ui.label(format!(
+                "Total Expenses: ${:.2}",
+                environment
+                    .company_finances
+                    .total_expenses(environment.timestamp)
+            ));
         });
+    });
 }
 
 pub fn show_cash_history(mut contexts: EguiContexts, game_resource: Res<GameResource>) {

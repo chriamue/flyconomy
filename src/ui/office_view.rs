@@ -1,4 +1,4 @@
-use super::{analytics_ui, UiState};
+use super::{analytics_view, UiState};
 use crate::game::manager::GameManagerType;
 #[cfg(feature = "ai")]
 use crate::game::manager::GameManagers;
@@ -16,8 +16,8 @@ impl Plugin for OfficePlugin {
     fn build(&self, app: &mut App) {
         app.add_systems(
             (
-                analytics_ui::company_hud_system,
-                analytics_ui::show_cash_history,
+                analytics_view::company_hud_system,
+                analytics_view::show_cash_history,
                 #[cfg(feature = "ai")]
                 show_manager_action_system,
             )
