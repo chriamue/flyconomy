@@ -1,0 +1,30 @@
+@startuml UI
+
+package "User Interface" {
+
+    package HUD {
+        [Calendar]
+        [Cash]
+        [Planes]
+        [Income]
+        [Expenses]
+    }
+
+    package Views {
+        [Aerodromes]
+        [Settings]
+        [Analytics]
+        [Schedule]
+        [Office]
+    }
+
+    package ControlBar {
+        [Play]
+        [SpeedUp]
+        [SkipToEnd]
+        [Pause]
+    }
+
+}
+
+@enduml

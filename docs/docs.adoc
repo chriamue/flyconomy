@@ -1,8 +1,7 @@
 = Flyconomy: Technical and Architectural Details
-:toc: macro
+:toc: auto
 :toc-title: Table of Contents
 :toclevels: 3
-:source-highlighter: pygments
 :plantuml-server-url: http://www.plantuml.com/plantuml
 :imagesdir: ./images
 :icons: font
@@ -21,9 +20,18 @@ The architecture of Flyconomy is composed of several modules, which are represen
 
 The Simulation module is responsible for managing the game state and the game loop. The following diagram provides an overview of the simulation module:
 
-[plantuml, simulation, png]
+[plantuml, simulation]
 ----
 include::assets/plantuml/simulation.puml[]
+----
+
+=== User Interface
+
+The User Interface is responsible for rendering the game's user interface. The following diagram provides an overview of the user interface:
+
+[plantuml, ui, png]
+----
+include::assets/plantuml/ui.puml[]
 ----
 
 === Game Commands
