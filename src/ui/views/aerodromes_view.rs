@@ -3,8 +3,10 @@ use crate::game::aerodrome::{SelectedAerodrome, SelectedAerodromeChangeEvent};
 use crate::game::{GameResource, GameState};
 use crate::model::commands::{BuyLandingRightsCommand, CreateBaseCommand};
 use crate::model::Base;
-use crate::ui::components::landing_rights::LandingRightsInput;
-use crate::ui::components::planes::{buy_plane, SelectedPlane};
+use crate::ui::components::bases::bases_list;
+use crate::ui::components::landing_rights::{landing_rights_list, LandingRightsInput};
+use crate::ui::components::planes::{buy_plane, planes_list, SelectedPlane};
+use crate::ui::layouts::right_layout;
 use bevy::prelude::*;
 use bevy::prelude::{App, OnUpdate, Plugin, ResMut};
 use bevy_egui::egui::{vec2, Align2};
@@ -24,7 +26,7 @@ impl Plugin for AerodromesUiPlugin {
         .insert_resource(SelectedPlane::default())
         .add_systems((selected_aerodrome_info_ui_system,).in_set(OnUpdate(GameState::Playing)))
         .add_systems(
-            (aerodromes_ui_system,)
+            (aerodromes_ui_system, player_ownership_info_ui)
                 .in_set(OnUpdate(GameState::Playing))
                 .in_set(OnUpdate(UiView::Aerodromes)),
         );
@@ -196,4 +198,36 @@ fn selected_aerodrome_info_ui_system(
                 }
             });
     }
+}
+
+fn player_ownership_info_ui(
+    mut contexts: EguiContexts,
+    mut game_resource: ResMut<GameResource>,
+    mut selected_airplane: ResMut<SelectedPlane>,
+    mut landing_rights_input: ResMut<LandingRightsInput>,
+    mut ev_selected_aerodrome_change: EventWriter<SelectedAerodromeChangeEvent>,
+    mut pan_orbit_query: Query<(&mut PanOrbitCamera, &mut Transform)>,
+) {
+    right_layout("Player Ownership Info").show(contexts.ctx_mut(), |ui| {
+        bases_list(
+            ui,
+            &game_resource,
+            &mut ev_selected_aerodrome_change,
+            &mut pan_orbit_query,
+        );
+
+        ui.separator();
+
+        landing_rights_list(
+            ui,
+            &mut game_resource,
+            &mut landing_rights_input,
+            &mut ev_selected_aerodrome_change,
+            &mut pan_orbit_query,
+        );
+
+        ui.separator();
+
+        planes_list(ui, &mut game_resource, &mut selected_airplane);
+    });
 }

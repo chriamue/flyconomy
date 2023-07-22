@@ -12,17 +12,17 @@ use crate::{
         GameResource, GameState,
     },
     model::{commands::ScheduleFlightCommand, Aerodrome, Flight},
+    ui::{
+        components::{self, bases::bases_list},
+        layouts::{left_layout, right_layout},
+    },
 };
 
-use super::{
-    components::{self, bases::bases_list},
-    layouts::{left_layout, right_layout},
-    views::UiView,
-};
+use super::UiView;
 
-pub struct FlightsUiPlugin;
+pub struct ScheduleViewPlugin;
 
-impl Plugin for FlightsUiPlugin {
+impl Plugin for ScheduleViewPlugin {
     fn build(&self, app: &mut App) {
         app.insert_resource(FlightPlanningInput::default());
         app.add_systems(
@@ -214,14 +214,7 @@ pub fn flight_planning_ui(
                             interest_score,
                         };
 
-                        let profit = flight.calculate_profit();
-
-                        let distance_in_kilometers = flight.calculate_total_distance();
-                        ui.label(format!(
-                            "Estimated Distance: {:.3} km",
-                            distance_in_kilometers
-                        ));
-                        ui.label(format!("Estimated Profit: ${:.2}", profit));
+                        components::flight::flight(ui, &flight);
 
                         if ui.button("Plan Flight").clicked() {
                             let schedule_flight = ScheduleFlightCommand {
