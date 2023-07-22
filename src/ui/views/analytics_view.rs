@@ -1,14 +1,17 @@
-use super::{
-    components::analytics::{
-        average_profit_per_flight, cash_history, company_finances, total_flight_distance,
-        transported_passengers,
+use crate::{
+    game::{GameResource, GameState},
+    ui::{
+        components::analytics::{
+            average_profit_per_flight, cash_history, company_finances, total_flight_distance,
+            transported_passengers,
+        },
+        layouts::{left_layout, right_layout},
     },
-    layouts::{left_layout, right_layout},
-    UiState,
 };
-use crate::game::{GameResource, GameState};
 use bevy::prelude::{App, IntoSystemConfigs, OnUpdate, Plugin, Res};
 use bevy_egui::{egui, EguiContexts};
+
+use super::UiView;
 
 pub struct AnalyticsViewPlugin;
 
@@ -17,7 +20,7 @@ impl Plugin for AnalyticsViewPlugin {
         app.add_systems(
             (company_info_system, flight_analytics_system)
                 .in_set(OnUpdate(GameState::Playing))
-                .in_set(OnUpdate(UiState::Analytics)),
+                .in_set(OnUpdate(UiView::Analytics)),
         );
     }
 }

@@ -1,7 +1,10 @@
-use bevy::prelude::ResMut;
+use bevy::prelude::{ResMut, Resource};
 use bevy_egui::egui::{self, Visuals};
 
-use crate::ui::settings_view::StyleState;
+#[derive(Default, Resource)]
+pub struct StyleState {
+    pub is_dark: bool,
+}
 
 pub fn style_switch(ui: &mut egui::Ui, mut style_state: ResMut<StyleState>) {
     let mut is_dark = style_state.is_dark;

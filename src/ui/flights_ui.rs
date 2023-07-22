@@ -18,7 +18,7 @@ use super::{
     aerodromes_ui::bases_info_ui,
     components,
     layouts::{left_layout, right_layout},
-    UiState,
+    views::UiView,
 };
 
 pub struct FlightsUiPlugin;
@@ -29,7 +29,7 @@ impl Plugin for FlightsUiPlugin {
         app.add_systems(
             (flight_planning_ui, flight_list_ui)
                 .in_set(OnUpdate(GameState::Playing))
-                .in_set(OnUpdate(UiState::Schedule)),
+                .in_set(OnUpdate(UiView::Schedule)),
         );
     }
 }

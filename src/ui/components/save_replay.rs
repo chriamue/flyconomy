@@ -1,10 +1,14 @@
 use crate::game::GameResource;
-use crate::ui::settings_view::UiInputReplayFilename;
 use crate::Replay;
-use bevy::prelude::{Res, ResMut};
+use bevy::prelude::{Res, ResMut, Resource};
 use bevy_egui::egui;
 #[cfg(target_arch = "wasm32")]
 use wasm_bindgen::prelude::*;
+
+#[derive(Resource, Default)]
+pub struct UiInputReplayFilename {
+    pub replay_filename: String,
+}
 
 #[cfg(not(target_arch = "wasm32"))]
 pub fn save_replay(

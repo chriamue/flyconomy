@@ -1,11 +1,17 @@
-use super::{
-    components::{save_replay::save_replay, style_switch::style_switch},
-    layouts::left_layout,
-    UiState,
+use crate::{
+    game::{GameResource, GameState},
+    ui::{
+        components::{
+            save_replay::{save_replay, UiInputReplayFilename},
+            style_switch::{style_switch, StyleState},
+        },
+        layouts::left_layout,
+    },
 };
-use crate::game::{GameResource, GameState};
-use bevy::prelude::{App, IntoSystemConfigs, OnUpdate, Plugin, Res, ResMut, Resource};
+use bevy::prelude::{App, IntoSystemConfigs, OnUpdate, Plugin, Res, ResMut};
 use bevy_egui::EguiContexts;
+
+use super::UiView;
 
 pub struct SettingsViewPlugin;
 
@@ -18,19 +24,9 @@ impl Plugin for SettingsViewPlugin {
         app.add_systems(
             (settings_view_system,)
                 .in_set(OnUpdate(GameState::Playing))
-                .in_set(OnUpdate(UiState::Settings)),
+                .in_set(OnUpdate(UiView::Settings)),
         );
     }
-}
-
-#[derive(Default, Resource)]
-pub struct StyleState {
-    pub is_dark: bool,
-}
-
-#[derive(Resource, Default)]
-pub struct UiInputReplayFilename {
-    pub replay_filename: String,
 }
 
 pub fn settings_view_system(

@@ -11,7 +11,7 @@ use super::{
     components::planes::planes_list,
     layouts::right_layout,
     planes_ui::SelectedPlane,
-    UiState,
+    views::UiView,
 };
 
 pub struct PlayerOwnershipUiPlugin;
@@ -21,7 +21,7 @@ impl Plugin for PlayerOwnershipUiPlugin {
         app.add_systems(
             (player_ownership_info_ui,)
                 .in_set(OnUpdate(GameState::Playing))
-                .in_set(OnUpdate(UiState::Aerodromes)),
+                .in_set(OnUpdate(UiView::Aerodromes)),
         );
     }
 }

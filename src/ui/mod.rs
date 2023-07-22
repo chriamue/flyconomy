@@ -1,19 +1,17 @@
-use bevy::prelude::{App, Plugin, States};
+use bevy::prelude::{App, Plugin};
 
 pub mod components;
 
 mod aerodromes_ui;
-mod analytics_view;
 mod flights_ui;
 mod game_over_screen;
 mod hud;
 mod layouts;
 mod messages;
-mod office_view;
 mod planes_ui;
 mod player_ownership_ui;
-mod settings_view;
 mod simulation_control;
+pub mod views;
 mod welcome_screen;
 mod world_heritage_site_ui;
 
@@ -21,7 +19,6 @@ pub struct UiPlugin;
 
 impl Plugin for UiPlugin {
     fn build(&self, app: &mut App) {
-        app.add_state::<UiState>();
         app.add_plugin(hud::HudPlugin);
         app.add_plugin(welcome_screen::WelcomeScreenPlugin);
         app.add_plugin(game_over_screen::GameOverScreenPlugin);
@@ -32,18 +29,6 @@ impl Plugin for UiPlugin {
         app.add_plugin(player_ownership_ui::PlayerOwnershipUiPlugin);
         app.add_plugin(flights_ui::FlightsUiPlugin);
         app.add_plugin(simulation_control::SimulationControlPlugin);
-        app.add_plugin(analytics_view::AnalyticsViewPlugin);
-        app.add_plugin(office_view::OfficePlugin);
-        app.add_plugin(settings_view::SettingsViewPlugin);
+        app.add_plugin(views::ViewsPlugin);
     }
-}
-
-#[derive(States, Debug, Clone, Copy, Eq, PartialEq, Hash, Default)]
-pub enum UiState {
-    #[default]
-    Aerodromes,
-    Settings,
-    Analytics,
-    Schedule,
-    Office,
 }

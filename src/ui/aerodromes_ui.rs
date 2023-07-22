@@ -12,7 +12,7 @@ use bevy_egui::{egui, EguiContexts};
 use bevy_panorbit_camera::PanOrbitCamera;
 
 use super::planes_ui::{planes_purchase_ui, SelectedPlane};
-use super::UiState;
+use super::views::UiView;
 
 pub struct AerodromesUiPlugin;
 
@@ -26,7 +26,7 @@ impl Plugin for AerodromesUiPlugin {
         .add_systems(
             (aerodromes_ui_system,)
                 .in_set(OnUpdate(GameState::Playing))
-                .in_set(OnUpdate(UiState::Aerodromes)),
+                .in_set(OnUpdate(UiView::Aerodromes)),
         );
     }
 }

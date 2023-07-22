@@ -9,7 +9,7 @@ use bevy_polyline::PolylinePlugin;
 
 use crate::game::{earth3d, projection::wgs84_to_xyz};
 use crate::model::{Aerodrome, FlightState};
-use crate::ui::UiState;
+use crate::ui::views::UiView;
 
 use super::{GameResource, GameState};
 
@@ -24,7 +24,7 @@ impl Plugin for FlightsPlugin {
             .add_systems(
                 (draw_flight_paths_analytics_system,)
                     .in_set(OnUpdate(GameState::Playing))
-                    .in_set(OnUpdate(UiState::Analytics)),
+                    .in_set(OnUpdate(UiView::Analytics)),
             );
     }
 }

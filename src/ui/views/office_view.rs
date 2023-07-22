@@ -1,16 +1,17 @@
-use super::components::analytics::cash_history;
-use super::layouts::left_layout;
-use super::UiState;
 use crate::game::manager::GameManagerType;
 #[cfg(feature = "ai")]
 use crate::game::manager::GameManagers;
 use crate::game::GameResource;
 use crate::game::GameState;
+use crate::ui::components::analytics::cash_history;
+use crate::ui::layouts::left_layout;
 use crate::ui::layouts::right_layout;
 use bevy::prelude::{App, IntoSystemConfigs, OnUpdate, Plugin, Res, ResMut};
 use bevy_egui::egui::ProgressBar;
 use bevy_egui::EguiContexts;
 use strum::IntoEnumIterator;
+
+use super::UiView;
 
 pub struct OfficePlugin;
 
@@ -23,7 +24,7 @@ impl Plugin for OfficePlugin {
                 show_manager_action_system,
             )
                 .in_set(OnUpdate(GameState::Playing))
-                .in_set(OnUpdate(UiState::Office)),
+                .in_set(OnUpdate(UiView::Office)),
         );
     }
 }
