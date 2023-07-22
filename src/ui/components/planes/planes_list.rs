@@ -1,9 +1,7 @@
+use super::{plane, SelectedPlane};
+use crate::{game::GameResource, model::commands::SellPlaneCommand};
 use bevy::prelude::ResMut;
 use bevy_egui::egui;
-
-use crate::{game::GameResource, model::commands::SellPlaneCommand, ui::planes_ui::SelectedPlane};
-
-use super::plane;
 
 pub fn planes_list(
     ui: &mut egui::Ui,

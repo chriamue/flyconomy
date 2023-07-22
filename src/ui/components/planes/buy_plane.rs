@@ -1,4 +1,4 @@
-use bevy::prelude::{App, Plugin, Res, ResMut, Resource};
+use bevy::prelude::{Res, ResMut, Resource};
 use bevy_egui::egui::{self, ComboBox};
 
 use crate::{
@@ -6,9 +6,7 @@ use crate::{
     model::{commands::BuyPlaneCommand, AirPlane, PlaneType},
 };
 
-use super::components::planes::plane_type;
-
-pub struct PlanesUiPlugin;
+use super::plane_type;
 
 #[derive(Default, Resource)]
 pub struct SelectedPlane {
@@ -16,13 +14,7 @@ pub struct SelectedPlane {
     pub airplane: Option<AirPlane>,
 }
 
-impl Plugin for PlanesUiPlugin {
-    fn build(&self, app: &mut App) {
-        app.insert_resource(SelectedPlane::default());
-    }
-}
-
-pub fn planes_purchase_ui(
+pub fn buy_plane(
     ui: &mut egui::Ui,
     selected_aerodrome: Res<SelectedAerodrome>,
     mut game_resource: ResMut<GameResource>,

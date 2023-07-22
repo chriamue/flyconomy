@@ -4,7 +4,7 @@ use crate::game::{GameResource, GameState};
 use crate::model::commands::{BuyLandingRightsCommand, CreateBaseCommand};
 use crate::model::Base;
 use crate::ui::components::landing_rights::LandingRightsInput;
-use crate::ui::planes_ui::{planes_purchase_ui, SelectedPlane};
+use crate::ui::components::planes::{buy_plane, SelectedPlane};
 use bevy::prelude::*;
 use bevy::prelude::{App, OnUpdate, Plugin, ResMut};
 use bevy_egui::egui::{vec2, Align2};
@@ -21,6 +21,7 @@ impl Plugin for AerodromesUiPlugin {
             search_string: String::new(),
         })
         .insert_resource(LandingRightsInput::default())
+        .insert_resource(SelectedPlane::default())
         .add_systems((selected_aerodrome_info_ui_system,).in_set(OnUpdate(GameState::Playing)))
         .add_systems(
             (aerodromes_ui_system,)
@@ -164,12 +165,7 @@ fn selected_aerodrome_info_ui_system(
 
                         ui.separator();
 
-                        planes_purchase_ui(
-                            ui,
-                            selected_aerodrome_res,
-                            game_resource,
-                            selected_plane,
-                        );
+                        buy_plane(ui, selected_aerodrome_res, game_resource, selected_plane);
                     }
                 } else {
                     let environment = &game_resource.simulation.environment;

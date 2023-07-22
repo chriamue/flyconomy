@@ -10,10 +10,9 @@ use super::{
     components::{
         bases::bases_list,
         landing_rights::{landing_rights_list, LandingRightsInput},
-        planes::planes_list,
+        planes::{planes_list, SelectedPlane},
     },
     layouts::right_layout,
-    planes_ui::SelectedPlane,
     views::UiView,
 };
 
