@@ -105,3 +105,17 @@ calculate_total_flight_distance/100000
 Found 1 outliers among 100 measurements (1.00%)
   1 (1.00%) high mild
 ----
+
+=== Plot of Performance Improvements
+
+Here is a plot of the performance improvements of the bench_calculate_aerodromes_interest_scores in algorithm benches with `rayon` enabled:
+
+[shell]
+----
+cargo test aerodromes --bench algorithm_benches -- --save-baseline=iter
+cargo test --features=rayon aerodromes --bench algorithm_benches -- --baseline=iter
+----
+
+image::./assets/bench_calculate_aerodromes_interest_scores.svg[Rayon Bench, 800, 600]
+
+On the left side we see the improved parallel performance of the algorithm benches with `rayon` enabled. On the right side we see the sequential performance of the algorithm benches without `rayon` feature.

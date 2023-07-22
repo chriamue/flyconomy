@@ -7,29 +7,28 @@ pub fn calculate_interest_score(
     max_distance_meters: f64,
 ) -> f32 {
     let point1 = Point::new(lon, lat);
-    let mut interest_score = 0.0;
 
-    for &(poi_lat, poi_lon, poi_score) in points_of_interest {
-        let point2 = Point::new(poi_lon, poi_lat);
-        let distance = point1.vincenty_distance(&point2).unwrap_or_default();
+    let interest_score: f64 = points_of_interest
+        .iter()
+        .map(|&(poi_lat, poi_lon, poi_score)| {
+            let point2 = Point::new(poi_lon, poi_lat);
+            let distance = point1.vincenty_distance(&point2).unwrap_or_default();
 
-        if distance <= max_distance_meters {
-            // Scale the score based on distance, now using the square of the distance.
-            let distance_ratio = (distance / max_distance_meters).powi(2);
-            interest_score += (1.0 - distance_ratio) * poi_score;
-        }
-    }
-
-    let mut interest_score = interest_score / 10.0 as f64;
+            if distance <= max_distance_meters {
+                // Scale the score based on distance, now using the square of the distance.
+                let distance_ratio = (distance / max_distance_meters).powi(2);
+                (1.0 - distance_ratio) * poi_score
+            } else {
+                0.0
+            }
+        })
+        .fold(0.0, |acc, score| acc + score)
+        / 10.0;
 
     // Normalize the final score to lie within [0.0, 1.0] range.
     // The score may exceed 1.0 if there are multiple points of interest nearby,
     // each contributing a part of the score. We cap it at 1.0 for consistency.
-    if interest_score > 1.0 {
-        interest_score = 1.0;
-    }
-
-    interest_score as f32
+    interest_score.min(1.0) as f32
 }
 
 #[cfg(test)]

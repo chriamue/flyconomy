@@ -77,6 +77,10 @@ tokio = { version = "1.29", features = ["rt", "rt-multi-thread", "macros"] }
 name = "analytics_benches"
 harness = false
 
+[[bench]]
+name = "algorithm_benches"
+harness = false
+
 [[test]]
 name = "bdd_tests"
 required-features = ["bdd"]
