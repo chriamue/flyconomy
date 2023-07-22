@@ -6,7 +6,7 @@ use crate::{
     model::{commands::BuyPlaneCommand, AirPlane, PlaneType},
 };
 
-use super::{aerodromes_ui::UiInput, components::planes::plane_type};
+use super::components::planes::plane_type;
 
 pub struct PlanesUiPlugin;
 
@@ -18,10 +18,7 @@ pub struct SelectedPlane {
 
 impl Plugin for PlanesUiPlugin {
     fn build(&self, app: &mut App) {
-        app.insert_resource(UiInput {
-            search_string: String::new(),
-        })
-        .insert_resource(SelectedPlane::default());
+        app.insert_resource(SelectedPlane::default());
     }
 }
 

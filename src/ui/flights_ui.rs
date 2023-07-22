@@ -15,8 +15,7 @@ use crate::{
 };
 
 use super::{
-    aerodromes_ui::bases_info_ui,
-    components,
+    components::{self, bases::bases_list},
     layouts::{left_layout, right_layout},
     views::UiView,
 };
@@ -44,7 +43,7 @@ pub fn flight_planning_ui(
 ) {
     if let Some(selected_aerodrome) = &selected_aerodrome.aerodrome {
         right_layout("Flight Planning").show(contexts.ctx_mut(), |ui| {
-            bases_info_ui(
+            bases_list(
                 ui,
                 &game_resource,
                 &mut ev_selected_aerodrome_change,
@@ -259,42 +258,45 @@ pub fn flight_list_ui(
         let environment = &game_resource.simulation.environment;
         let mut new_flights = vec![];
 
-        egui::ScrollArea::vertical().show(ui, |ui| {
-            for flight in environment.flights.iter().rev() {
-                let flight_id = flight.flight_id;
-                let from = &flight.origin_aerodrome.name;
+        egui::ScrollArea::vertical()
+            .id_source("flight_list")
+            .max_height(300.0)
+            .show(ui, |ui| {
+                for flight in environment.flights.iter().rev() {
+                    let flight_id = flight.flight_id;
+                    let from = &flight.origin_aerodrome.name;
 
-                let to = flight.stopovers.iter().fold(from.clone(), |acc, stopover| {
-                    format!("{}, {}", acc, stopover.name)
-                });
+                    let to = flight.stopovers.iter().fold(from.clone(), |acc, stopover| {
+                        format!("{}, {}", acc, stopover.name)
+                    });
 
-                let date_time = flight.departure_time;
+                    let date_time = flight.departure_time;
 
-                let start_of_2000: i64 = 946684800000;
-                let timestamp: i64 = start_of_2000 + date_time as i64;
-                let datetime = Utc.timestamp_millis_opt(timestamp).unwrap();
+                    let start_of_2000: i64 = 946684800000;
+                    let timestamp: i64 = start_of_2000 + date_time as i64;
+                    let datetime = Utc.timestamp_millis_opt(timestamp).unwrap();
 
-                let is_selected = flight_planning_input
-                    .selected_flight
-                    .as_ref()
-                    .map_or(false, |f| f.flight_id == flight_id);
-                if ui
-                    .selectable_label(
-                        is_selected,
-                        format!(
-                            "Flight ID: {}, From: {}, To: {}, Departure: {}",
-                            flight_id,
-                            from,
-                            to,
-                            datetime.format("%Y-%m-%d %H:%M").to_string()
-                        ),
-                    )
-                    .clicked()
-                {
-                    flight_planning_input.selected_flight = Some(flight.clone());
+                    let is_selected = flight_planning_input
+                        .selected_flight
+                        .as_ref()
+                        .map_or(false, |f| f.flight_id == flight_id);
+                    if ui
+                        .selectable_label(
+                            is_selected,
+                            format!(
+                                "Flight ID: {}, From: {}, To: {}, Departure: {}",
+                                flight_id,
+                                from,
+                                to,
+                                datetime.format("%Y-%m-%d %H:%M").to_string()
+                            ),
+                        )
+                        .clicked()
+                    {
+                        flight_planning_input.selected_flight = Some(flight.clone());
+                    }
                 }
-            }
-        });
+            });
 
         if let Some(flight) = &flight_planning_input.selected_flight {
             components::flight::flight(ui, flight);

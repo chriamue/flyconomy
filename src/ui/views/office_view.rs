@@ -13,9 +13,9 @@ use strum::IntoEnumIterator;
 
 use super::UiView;
 
-pub struct OfficePlugin;
+pub struct OfficeViewPlugin;
 
-impl Plugin for OfficePlugin {
+impl Plugin for OfficeViewPlugin {
     fn build(&self, app: &mut App) {
         app.add_systems(
             (

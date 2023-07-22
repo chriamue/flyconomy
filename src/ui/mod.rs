@@ -2,7 +2,6 @@ use bevy::prelude::{App, Plugin};
 
 pub mod components;
 
-mod aerodromes_ui;
 mod flights_ui;
 mod game_over_screen;
 mod hud;
@@ -22,7 +21,6 @@ impl Plugin for UiPlugin {
         app.add_plugin(hud::HudPlugin);
         app.add_plugin(welcome_screen::WelcomeScreenPlugin);
         app.add_plugin(game_over_screen::GameOverScreenPlugin);
-        app.add_plugin(aerodromes_ui::AerodromesUiPlugin);
         app.add_plugin(world_heritage_site_ui::WorldHeritageSiteUiPlugin);
         app.add_plugin(messages::MessagesPlugin);
         app.add_plugin(planes_ui::PlanesUiPlugin);

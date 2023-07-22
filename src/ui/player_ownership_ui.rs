@@ -7,8 +7,11 @@ use bevy_panorbit_camera::PanOrbitCamera;
 use crate::game::{aerodrome::SelectedAerodromeChangeEvent, GameResource, GameState};
 
 use super::{
-    aerodromes_ui::{bases_info_ui, landing_rights_info_ui, LandingRightsInput},
-    components::planes::planes_list,
+    components::{
+        bases::bases_list,
+        landing_rights::{landing_rights_list, LandingRightsInput},
+        planes::planes_list,
+    },
     layouts::right_layout,
     planes_ui::SelectedPlane,
     views::UiView,
@@ -35,7 +38,7 @@ fn player_ownership_info_ui(
     mut pan_orbit_query: Query<(&mut PanOrbitCamera, &mut Transform)>,
 ) {
     right_layout("Player Ownership Info").show(contexts.ctx_mut(), |ui| {
-        bases_info_ui(
+        bases_list(
             ui,
             &game_resource,
             &mut ev_selected_aerodrome_change,
@@ -44,7 +47,7 @@ fn player_ownership_info_ui(
 
         ui.separator();
 
-        landing_rights_info_ui(
+        landing_rights_list(
             ui,
             &mut game_resource,
             &mut landing_rights_input,
