@@ -2,7 +2,7 @@ use std::time::Duration;
 
 use rurel::{
     mdp::{Agent, State},
-    strategy::{explore::ExplorationStrategy, terminate::TerminationStrategy},
+    strategy::explore::ExplorationStrategy,
 };
 
 use crate::{model::Timestamp, simulation::Simulation, Replay};
@@ -95,30 +95,11 @@ impl ExplorationStrategy<AiState> for ReplayStrategy {
     }
 }
 
-pub struct ReplayTerminationStrategy {
-    replay: Replay,
-}
-
-impl ReplayTerminationStrategy {
-    pub fn new(replay: Replay) -> Self {
-        Self { replay }
-    }
-}
-
-impl TerminationStrategy<AiState> for ReplayTerminationStrategy {
-    fn should_stop(&mut self, state: &AiState) -> bool {
-        self.replay
-            .command_history
-            .iter()
-            .find(|command| command.timestamp >= state.timestamp)
-            .is_none()
-    }
-}
-
 #[cfg(test)]
 mod tests {
     use super::*;
     use crate::{
+        ai::ReplayTerminationStrategy,
         model::{
             commands::{
                 BuyLandingRightsCommand, BuyPlaneCommand, CreateBaseCommand, ScheduleFlightCommand,

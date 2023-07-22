@@ -6,7 +6,7 @@ use rurel::{
 };
 
 use crate::{
-    ai::AiAgent,
+    ai::{AiAgent, GameOverTerminationStrategy, ReplayTerminationStrategy},
     model::{
         commands::{BuyLandingRightsCommand, BuyPlaneCommand, Command, CreateBaseCommand},
         Aerodrome, Environment, PlaneType, StringBasedWorldData,
@@ -17,7 +17,7 @@ use crate::{
 
 use super::{
     ai_trainer::AiTrainerType,
-    replay_agent::{ReplayAgent, ReplayStrategy, ReplayTerminationStrategy},
+    replay_agent::{ReplayAgent, ReplayStrategy},
     AiAction, AiState, AiTrainer, AiUpdateAgent,
 };
 
@@ -46,7 +46,7 @@ impl AiManager {
         }
     }
 
-    pub fn train(&mut self, iterations: u32) {
+    pub fn default_simulation() -> Simulation {
         let mut simulation = Simulation::new(
             Default::default(),
             Box::new(StringBasedWorldData::default()),
@@ -94,16 +94,25 @@ impl AiManager {
         simulation.add_command(Box::new(buy_plane_command));
 
         simulation.update(Duration::from_secs(1));
+        simulation
+    }
 
-        // Start training
-
+    pub fn train(&mut self, iterations: u32) {
+        let mut simulation = Self::default_simulation();
+        let environment = simulation.environment.clone();
         let mut agent = AiAgent::new(&mut simulation);
 
-        self.trainer.train(
-            &mut agent,
-            &mut FixedIterations::new(iterations),
-            &mut RandomExploration::new(),
-        );
+        let mut termination_strategy = GameOverTerminationStrategy::new(iterations, 150_000);
+        while termination_strategy.i < iterations {
+            simulation.environment = environment.clone();
+            agent = AiAgent::new(&mut simulation);
+            self.trainer.train(
+                &mut agent,
+                &mut termination_strategy,
+                &mut RandomExploration::new(),
+            );
+        }
+
         println!("{:?}", agent.state);
         println!("Planes: {:#?}", simulation.environment.planes);
         println!("Bases: {:#?}", simulation.environment.bases);
