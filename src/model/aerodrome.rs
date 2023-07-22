@@ -7,6 +7,7 @@ pub struct Aerodrome {
     pub lon: f64,
     pub name: String,
     pub code: String,
+    pub interest_score: f32,
     pub passengers: Option<u64>,
 }
 
@@ -18,6 +19,7 @@ impl Aerodrome {
             lon,
             name,
             code,
+            interest_score: 0.0,
             passengers: None,
         }
     }

@@ -5,7 +5,7 @@ pub fn calculate_interest_score(
     lon: f64,
     points_of_interest: &Vec<(f64, f64, f64)>,
     max_distance_meters: f64,
-) -> f64 {
+) -> f32 {
     let point1 = Point::new(lon, lat);
     let mut interest_score = 0.0;
 
@@ -29,7 +29,7 @@ pub fn calculate_interest_score(
         interest_score = 1.0;
     }
 
-    interest_score
+    interest_score as f32
 }
 
 #[cfg(test)]

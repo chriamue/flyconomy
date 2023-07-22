@@ -19,7 +19,6 @@ pub struct ScheduleFlightCommand {
     pub origin_aerodrome: Aerodrome,
     pub stopovers: Vec<Aerodrome>,
     pub departure_time: Timestamp,
-    pub interest_score: f64,
 }
 
 impl ScheduleFlightCommand {
@@ -66,7 +65,6 @@ impl Command for ScheduleFlightCommand {
             segment_departure_time: self.departure_time,
             arrival_time: None,
             state: FlightState::Scheduled,
-            interest_score: self.interest_score,
         };
 
         // Check if the distance is within the airplane's range
@@ -124,7 +122,6 @@ mod tests {
             segment_departure_time: 1,
             arrival_time: None,
             state: FlightState::Scheduled,
-            interest_score: 0.0,
         });
 
         let cmd = ScheduleFlightCommand {
@@ -133,7 +130,6 @@ mod tests {
             origin_aerodrome: aerodrome.clone(),
             stopovers: vec![aerodrome.clone()],
             departure_time: 2,
-            interest_score: 0.0,
         };
 
         match cmd.execute(&mut environment) {
@@ -162,7 +158,6 @@ mod tests {
             origin_aerodrome: origin_aerodrome.clone(),
             stopovers: vec![destination_aerodrome.clone()],
             departure_time: 1,
-            interest_score: 0.0,
         };
 
         match cmd.execute(&mut environment) {

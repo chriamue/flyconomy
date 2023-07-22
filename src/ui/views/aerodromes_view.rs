@@ -1,4 +1,3 @@
-use crate::algorithms::calculate_interest_score;
 use crate::game::aerodrome::{SelectedAerodrome, SelectedAerodromeChangeEvent};
 use crate::game::{GameResource, GameState};
 use crate::model::commands::{BuyLandingRightsCommand, CreateBaseCommand};
@@ -6,7 +5,7 @@ use crate::model::Base;
 use crate::ui::components::bases::bases_list;
 use crate::ui::components::landing_rights::{landing_rights_list, LandingRightsInput};
 use crate::ui::components::planes::{buy_plane, planes_list, SelectedPlane};
-use crate::ui::layouts::right_layout;
+use crate::ui::layouts::{left_layout, right_layout};
 use bevy::prelude::*;
 use bevy::prelude::{App, OnUpdate, Plugin, ResMut};
 use bevy_egui::egui::{vec2, Align2};
@@ -41,17 +40,20 @@ pub fn aerodromes_ui_system(
     game_resource: Res<GameResource>,
 ) {
     let aerodromes = game_resource.simulation.world_data_gateway.aerodromes();
-    egui::Window::new("Aerodromes")
-        .anchor(Align2::LEFT_TOP, vec2(0.0, 100.0))
+    left_layout("Aerodromes")
         .default_open(false)
         .show(contexts.ctx_mut(), |ui| {
             ui.label("Available Aerodromes:");
             ui.text_edit_singleline(&mut search_input.search_string);
 
-            for aerodrome in aerodromes
-                .iter()
-                .filter(|a| a.name.contains(&search_input.search_string))
-            {
+            for aerodrome in aerodromes.iter().filter(|a| {
+                a.name
+                    .to_lowercase()
+                    .contains(&search_input.search_string.to_lowercase())
+                    || a.code
+                        .to_lowercase()
+                        .contains(&search_input.search_string.to_lowercase())
+            }) {
                 if ui.selectable_label(false, &aerodrome.name).clicked() {
                     ev_selected_aerodrome_change
                         .send(SelectedAerodromeChangeEvent(aerodrome.clone()));
@@ -120,22 +122,7 @@ fn selected_aerodrome_info_ui_system(
                     ui.label(format!("Passengers: {}", passengers));
                 }
 
-                // interest score
-                let heritage_sites: Vec<(f64, f64, f64)> = game_resource
-                    .simulation
-                    .world_data_gateway
-                    .world_heritage_sites()
-                    .iter()
-                    .map(|site| (site.lat, site.lon, 1.0f64))
-                    .collect();
-                let interest_score = calculate_interest_score(
-                    selected_aerodrome.lat,
-                    selected_aerodrome.lon,
-                    &heritage_sites,
-                    250_000.0,
-                );
-
-                let interest_score_5 = 1.0 + interest_score as f32 * 4.0;
+                let interest_score_5 = 1.0 + selected_aerodrome.interest_score as f32 * 4.0;
 
                 // Create a progress bar with the new score
                 let progress_bar =

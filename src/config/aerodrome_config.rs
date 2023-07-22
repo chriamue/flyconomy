@@ -46,6 +46,7 @@ pub fn parse_airport_csv(input: &str) -> Vec<Aerodrome> {
             lon,
             name,
             code,
+            interest_score: 1.0,
             passengers: None,
         };
         aerodromes.push(aerodrome);

@@ -33,7 +33,6 @@ impl Agent<AiState> for AiAgent<'_> {
             &self.simulation.environment,
             &self.simulation.world_data_gateway.aerodromes(),
             &self.simulation.world_data_gateway.plane_types(),
-            &self.simulation.world_data_gateway.world_heritage_sites(),
         );
         match command {
             Some(command) => self.simulation.add_command(command),

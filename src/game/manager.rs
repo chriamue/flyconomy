@@ -85,7 +85,6 @@ pub fn manager_action_system(
                 environment,
                 world_data_gateway.plane_types(),
                 world_data_gateway.aerodromes(),
-                world_data_gateway.world_heritage_sites(),
             );
             if let Some(command) = command {
                 manager.manager_action = format!("{:#?}", command);

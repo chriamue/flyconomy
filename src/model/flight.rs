@@ -15,7 +15,6 @@ pub struct Flight {
     pub segment_departure_time: Timestamp,
     pub arrival_time: Option<Timestamp>,
     pub state: FlightState,
-    pub interest_score: f64,
 }
 
 impl Default for Flight {
@@ -29,7 +28,6 @@ impl Default for Flight {
             segment_departure_time: 0,
             arrival_time: None,
             state: FlightState::Scheduled,
-            interest_score: 0.0,
         }
     }
 }
@@ -57,10 +55,14 @@ impl Flight {
     }
 
     pub fn calculate_booked_seats(&self) -> u32 {
-        let seats = self.airplane.plane_type.seats as f64;
-        let interest_score_5 = 1.0 + 4.0 * self.interest_score;
-        let booked_seats = seats * interest_score_5 / 5.0;
+        let seats = self.airplane.plane_type.seats as f32;
+        let booked_seats: f32 = seats * (1.0 + 4.0 * self.interest_score() / 5.0);
         booked_seats.round() as u32
+    }
+
+    pub fn interest_score(&self) -> f32 {
+        let sum: f32 = self.stopovers.iter().map(|a| a.interest_score).sum();
+        sum / self.stopovers.len() as f32
     }
 
     pub fn calculate_profit(&self) -> f64 {
@@ -243,6 +245,7 @@ mod tests {
             lon: -122.4194,
             name: "San Francisco International Airport".to_string(),
             code: "SFO/KSFO".to_string(),
+            interest_score: 0.0,
             passengers: None,
         };
 
@@ -252,6 +255,7 @@ mod tests {
             lon: -118.2437,
             name: "Los Angeles International Airport".to_string(),
             code: "LAX/KLAX".to_string(),
+            interest_score: 0.0,
             passengers: None,
         };
 
@@ -263,7 +267,6 @@ mod tests {
             segment_departure_time: 0,
             arrival_time: None,
             state: Default::default(),
-            interest_score: 1.0,
             stopovers: vec![destination_aerodrome],
         };
 

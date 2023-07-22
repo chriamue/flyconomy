@@ -9,7 +9,7 @@ use crate::{
     ai::AiAgent,
     model::{
         commands::{BuyLandingRightsCommand, BuyPlaneCommand, Command, CreateBaseCommand},
-        Aerodrome, Environment, PlaneType, StringBasedWorldData, WorldHeritageSite,
+        Aerodrome, Environment, PlaneType, StringBasedWorldData,
     },
     simulation::Simulation,
     Replay,
@@ -140,7 +140,6 @@ impl AiManager {
         environment: &Environment,
         plane_types: &Vec<PlaneType>,
         aerodromes: &Vec<Aerodrome>,
-        world_heritage_sites: &Vec<WorldHeritageSite>,
     ) -> Option<Box<dyn Command>> {
         let ai_state: AiState = environment.into();
 
@@ -164,7 +163,7 @@ impl AiManager {
 
         action.as_ref().and_then(|action| {
             self.last_state_action = Some((ai_state, action.clone()));
-            action.to_command(environment, aerodromes, plane_types, world_heritage_sites)
+            action.to_command(environment, aerodromes, plane_types)
         })
     }
 

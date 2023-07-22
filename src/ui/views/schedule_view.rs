@@ -6,7 +6,6 @@ use bevy_panorbit_camera::PanOrbitCamera;
 use chrono::{TimeZone, Utc};
 
 use crate::{
-    algorithms::calculate_interest_score,
     game::{
         aerodrome::{SelectedAerodrome, SelectedAerodromeChangeEvent},
         GameResource, GameState,
@@ -188,20 +187,6 @@ pub fn flight_planning_ui(
                         .collect();
 
                     if !stopovers.is_empty() {
-                        let heritage_sites: Vec<(f64, f64, f64)> = game_resource
-                            .simulation
-                            .world_data_gateway
-                            .world_heritage_sites()
-                            .iter()
-                            .map(|site| (site.lat, site.lon, 1.0f64))
-                            .collect();
-                        let interest_score = calculate_interest_score(
-                            origin_aerodrome.lat,
-                            origin_aerodrome.lon,
-                            &heritage_sites,
-                            250_000.0,
-                        );
-
                         let flight = Flight {
                             flight_id: 0,
                             airplane: airplane.clone(),
@@ -211,7 +196,6 @@ pub fn flight_planning_ui(
                             segment_departure_time: game_resource.simulation.environment.timestamp,
                             arrival_time: None,
                             state: Default::default(),
-                            interest_score,
                         };
 
                         components::flight::flight(ui, &flight);
@@ -223,7 +207,6 @@ pub fn flight_planning_ui(
                                 origin_aerodrome,
                                 stopovers,
                                 departure_time: game_resource.simulation.environment.timestamp,
-                                interest_score,
                             };
                             game_resource
                                 .simulation
@@ -300,7 +283,6 @@ pub fn flight_list_ui(
                     origin_aerodrome: flight.origin_aerodrome.clone(),
                     stopovers: flight.stopovers.clone(),
                     departure_time: game_resource.simulation.environment.timestamp,
-                    interest_score: flight.interest_score,
                 };
                 new_flights.push(Box::new(new_flight));
             }

@@ -191,7 +191,6 @@ mod tests {
             origin_aerodrome: frankfurt_aerodrome.clone(),
             stopovers: vec![paris_aerodrome.clone()],
             departure_time: (simulation.elapsed_time + Duration::from_secs(1)).as_millis(),
-            interest_score: 0.0,
         };
 
         simulation.add_command(Box::new(flight_command));

@@ -1,4 +1,7 @@
-use crate::config::{load_airports, parse_world_heritage_site_csv, PlanesConfig};
+use crate::{
+    algorithms::calculate_interest_score,
+    config::{load_airports, parse_world_heritage_site_csv, PlanesConfig},
+};
 
 use super::{Aerodrome, PlaneType, WorldHeritageSite};
 
@@ -17,6 +20,21 @@ pub struct StringBasedWorldData {
     aerodromes: Vec<Aerodrome>,
     world_heritage_sites: Vec<WorldHeritageSite>,
     plane_types: Vec<PlaneType>,
+}
+
+impl StringBasedWorldData {
+    fn calculate_aerodromes_interest_scores(&mut self) {
+        let heritage_sites: Vec<(f64, f64, f64)> = self
+            .world_heritage_sites()
+            .iter()
+            .map(|site| (site.lat, site.lon, 1.0f64))
+            .collect();
+
+        for aerodrome in &mut self.aerodromes {
+            aerodrome.interest_score =
+                calculate_interest_score(aerodrome.lat, aerodrome.lon, &heritage_sites, 250_000.0);
+        }
+    }
 }
 
 impl Default for StringBasedWorldData {
@@ -53,6 +71,7 @@ impl WorldDataGateway for StringBasedWorldData {
     fn reload(&mut self) -> Result<(), String> {
         self.aerodromes = load_airports(&self.airports_csv, &self.passengers_csv);
         self.world_heritage_sites = parse_world_heritage_site_csv(&self.world_heritage_sites_csv);
+        self.calculate_aerodromes_interest_scores();
         let planes: PlanesConfig = serde_yaml::from_str(&self.planes_yaml).unwrap();
         self.plane_types = planes.planes;
         Ok(())
