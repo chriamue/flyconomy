@@ -42,7 +42,10 @@ pub fn show_manager_action_system(
     game_resource: Res<GameResource>,
 ) {
     right_layout("Managers").show(contexts.ctx_mut(), |ui| {
-        let error_indicator = game_resource.simulation.environment.get_errors_indicator();
+        let error_indicator = game_resource
+            .simulation
+            .environment
+            .calculate_errors_indicator();
         ui.label(format!("Managers - Error Indicator {}", error_indicator));
         let max_error_indicator = 100; // Define a reasonable maximum for the error indicator
         ui.add(

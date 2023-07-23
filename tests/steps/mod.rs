@@ -3,6 +3,8 @@ use cucumber::{given, then};
 use flyconomy::model::Timestamp;
 use std::time::Duration;
 
+pub mod base_management;
+
 #[given(regex = r"^the simulation is at timestamp (\d+)$")]
 async fn the_simulation_is_at_timestamp(w: &mut BddWorld, timestamp: Timestamp) {
     assert!(

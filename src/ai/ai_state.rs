@@ -53,7 +53,7 @@ impl From<&crate::model::Environment> for AiState {
                 .map(|landing_rights| landing_rights.aerodrome.id)
                 .collect(),
             timestamp: environment.timestamp,
-            error_indicator: environment.get_errors_indicator(),
+            error_indicator: environment.calculate_errors_indicator(),
         }
     }
 }
