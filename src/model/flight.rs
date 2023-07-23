@@ -17,6 +17,10 @@ pub struct Flight {
     pub state: FlightState,
 }
 
+/// Default implementation for Flight
+///
+/// A Flight between Frankfurt and Paris
+///
 impl Default for Flight {
     fn default() -> Self {
         Self {

@@ -94,7 +94,7 @@ impl Command for BuyPlaneCommand {
 #[cfg(test)]
 mod tests {
 
-    use crate::model::PlaneType;
+    use crate::model::{Aerodrome, Base, PlaneType};
 
     use super::*;
 
@@ -138,6 +138,46 @@ mod tests {
             Err(e) => {
                 let err = e.downcast::<BuyPlaneError>().unwrap();
                 assert!(matches!(*err, BuyPlaneError::BaseNotFound { .. }));
+            }
+            _ => panic!("Expected an error"),
+        }
+    }
+
+    #[test]
+    fn test_buy_plane_no_space_at_base() {
+        let mut environment = Environment::default();
+
+        environment.company_finances.income.clear();
+        environment.company_finances.add_income(0, 500_000.0); // Add enough funds
+
+        let plane_type = PlaneType::default();
+
+        let base_id = 1;
+        let mut base = Base {
+            id: base_id,
+            aerodrome: Aerodrome {
+                id: 0,
+                ..Default::default()
+            },
+            airplane_ids: vec![],
+        };
+
+        for _ in 0..5 {
+            base.airplane_ids.push(BuyPlaneCommand::generate_id());
+        }
+
+        environment.bases.push(base);
+
+        let cmd = BuyPlaneCommand {
+            plane_id: BuyPlaneCommand::generate_id(),
+            plane_type: plane_type.clone(),
+            home_base_id: base_id,
+        };
+
+        match cmd.execute(&mut environment) {
+            Err(e) => {
+                let err = e.downcast::<BuyPlaneError>().unwrap();
+                assert!(matches!(*err, BuyPlaneError::NoSpaceAtBase { .. }));
             }
             _ => panic!("Expected an error"),
         }

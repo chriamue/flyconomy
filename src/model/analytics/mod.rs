@@ -153,4 +153,31 @@ mod tests {
         assert_eq!(flight_distance_history.first().unwrap().1, 0.0);
         assert!((flight_distance_history.last().unwrap().1 - 18_000.0).abs() < 20.0);
     }
+
+    #[test]
+    fn test_calculate_transported_passengers() {
+        let mut environment = Environment::default();
+        environment.timestamp = 2000;
+
+        environment.flights = (1..=20)
+            .map(|i| Flight {
+                state: FlightState::Finished,
+                arrival_time: Some(i as u128 * 100),
+                ..Default::default()
+            })
+            .collect();
+
+        let passengers_history = calculate_transported_passengers(&environment);
+
+        assert_eq!(passengers_history.len(), SAMPLES as usize);
+        for (timestamp, _passengers) in &passengers_history {
+            assert!(*timestamp <= environment.timestamp);
+        }
+
+        assert_eq!(passengers_history[0].0, 20);
+        assert_eq!(passengers_history.last().unwrap().0, environment.timestamp);
+        assert_eq!(passengers_history.first().unwrap().1, 0);
+        // 20 times flight between Frankfurt and Paris with 150 passengers each
+        assert_eq!(passengers_history.last().unwrap().1, 3000);
+    }
 }

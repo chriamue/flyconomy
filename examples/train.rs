@@ -15,19 +15,13 @@ use flyconomy::{
         commands::{
             BuyLandingRightsCommand, BuyPlaneCommand, CreateBaseCommand, ScheduleFlightCommand,
         },
-        Aerodrome, Environment, StringBasedWorldData,
+        Environment, StringBasedWorldData,
     },
     simulation::{Simulation, DEFAULT_TIME_MULTIPLIER},
+    utils::find_aerodrome_by_code,
 };
 
 const TRAIN_ITERATIONS: usize = 1_000_000;
-
-fn find_aerodrome_by_code(aerodromes: &[Aerodrome], code: &str) -> Option<Aerodrome> {
-    aerodromes
-        .iter()
-        .find(|&aerodrome| aerodrome.code == code)
-        .cloned()
-}
 
 pub fn start_commands(simulation: &mut Simulation) {
     let innsbruck_code = "INN/LOWI";
