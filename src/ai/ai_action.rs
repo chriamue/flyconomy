@@ -218,7 +218,10 @@ impl AiAction {
                         .planes
                         .iter()
                         .find(|plane| plane.id == *plane_id),
-                    environment.bases.iter().find(|base| base.id == *origin_id),
+                    environment
+                        .bases
+                        .iter()
+                        .find(|base| base.id == *origin_id || base.aerodrome.id == *origin_id),
                     environment
                         .landing_rights
                         .iter()

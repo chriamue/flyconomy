@@ -6,7 +6,7 @@ mod camera;
 pub mod earth3d;
 pub mod flights;
 mod game_state;
-mod plane;
+pub mod plane;
 pub mod projection;
 pub mod world_heritage_site;
 
@@ -31,6 +31,7 @@ pub struct GameResource {
     pub level: String,
     pub simulation: Simulation,
     pub replay: Option<Replay>,
+    pub game_over_cash: f64,
 }
 
 impl GameResource {
@@ -49,6 +50,7 @@ impl GameResource {
                 Box::new(StringBasedWorldData::default()),
             ),
             replay: None,
+            game_over_cash: 10_000.0,
         }
     }
 
@@ -65,6 +67,7 @@ impl GameResource {
             level: String::from("replay"),
             simulation,
             replay: Some(replay),
+            ..Default::default()
         }
     }
 }
@@ -78,6 +81,7 @@ impl Default for GameResource {
                 Box::new(StringBasedWorldData::default()),
             ),
             replay: None,
+            game_over_cash: 10_000.0,
         }
     }
 }
@@ -165,7 +169,7 @@ fn update_simulation_system(
         .environment
         .company_finances
         .cash(game_resource.simulation.environment.timestamp)
-        < 10000.0
+        < game_resource.game_over_cash
     {
         game_state_next_state.set(GameState::GameOver);
     }

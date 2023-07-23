@@ -42,6 +42,10 @@ impl Agent<AiState> for AiUpdateAgent {
 
 impl ExplorationStrategy<AiState> for Simulation {
     fn pick_action(&self, _: &mut dyn Agent<AiState>) -> <AiState as State>::A {
-        (&self.command_history.last().unwrap().clone().command).into()
+        self.command_history
+            .last()
+            .map_or(AiAction::NoOp, |last_command| {
+                (&last_command.command).into()
+            })
     }
 }

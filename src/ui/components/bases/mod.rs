@@ -15,7 +15,10 @@ pub fn base(
 ) {
     ui.horizontal(|ui| {
         if ui
-            .selectable_label(false, format!("{}", base.aerodrome.name))
+            .selectable_label(
+                false,
+                format!("{} ({})", base.aerodrome.name, base.aerodrome.code),
+            )
             .clicked()
         {
             ev_selected_aerodrome_change.send(SelectedAerodromeChangeEvent(base.aerodrome.clone()));

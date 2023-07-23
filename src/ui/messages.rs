@@ -1,7 +1,7 @@
 use crate::game::GameResource;
 use bevy::prelude::{App, Plugin, Res};
 use bevy_egui::{
-    egui::{vec2, Align2, Window},
+    egui::{self, vec2, Align2, Window},
     EguiContexts,
 };
 use chrono::{TimeZone, Utc};
@@ -25,18 +25,23 @@ pub fn show_error_messages(mut contexts: EguiContexts, game_resource: Res<GameRe
             .anchor(Align2::RIGHT_BOTTOM, vec2(0.0, 0.0))
             .default_open(true)
             .show(contexts.ctx_mut(), |ui| {
-                for message in &game_resource.simulation.error_messages {
-                    if elapsed_time - message.0 < (8_000.0 * time_multiplier) as u128 {
-                        let timestamp: i64 = start_of_2000 + message.0 as i64;
-                        let datetime = Utc.timestamp_millis_opt(timestamp).unwrap();
-                        let text = format!(
-                            "{}, {}",
-                            datetime.format("%Y-%m-%d %H:%M").to_string(),
-                            message.1
-                        );
-                        ui.label(text);
-                    }
-                }
+                egui::ScrollArea::vertical()
+                    .id_source("errors_list")
+                    .max_height(300.0)
+                    .show(ui, |ui| {
+                        for message in &game_resource.simulation.error_messages {
+                            if elapsed_time - message.0 < (8_000.0 * time_multiplier) as u128 {
+                                let timestamp: i64 = start_of_2000 + message.0 as i64;
+                                let datetime = Utc.timestamp_millis_opt(timestamp).unwrap();
+                                let text = format!(
+                                    "{}, {}",
+                                    datetime.format("%Y-%m-%d %H:%M").to_string(),
+                                    message.1
+                                );
+                                ui.label(text);
+                            }
+                        }
+                    });
             });
     }
 }
@@ -51,18 +56,23 @@ pub fn show_event_messages(mut contexts: EguiContexts, game_resource: Res<GameRe
             .anchor(Align2::LEFT_BOTTOM, vec2(0.0, 0.0))
             .default_open(true)
             .show(contexts.ctx_mut(), |ui| {
-                for message in &game_resource.simulation.event_messages {
-                    if elapsed_time - message.0 < (10_000.0 * time_multiplier) as u128 {
-                        let timestamp: i64 = start_of_2000 + message.0 as i64;
-                        let datetime = Utc.timestamp_millis_opt(timestamp).unwrap();
-                        let text = format!(
-                            "{}, {}",
-                            datetime.format("%Y-%m-%d %H:%M").to_string(),
-                            message.1
-                        );
-                        ui.label(text);
-                    }
-                }
+                egui::ScrollArea::vertical()
+                    .id_source("messages_list")
+                    .max_height(300.0)
+                    .show(ui, |ui| {
+                        for message in &game_resource.simulation.event_messages {
+                            if elapsed_time - message.0 < (10_000.0 * time_multiplier) as u128 {
+                                let timestamp: i64 = start_of_2000 + message.0 as i64;
+                                let datetime = Utc.timestamp_millis_opt(timestamp).unwrap();
+                                let text = format!(
+                                    "{}, {}",
+                                    datetime.format("%Y-%m-%d %H:%M").to_string(),
+                                    message.1
+                                );
+                                ui.label(text);
+                            }
+                        }
+                    });
             });
     }
 }

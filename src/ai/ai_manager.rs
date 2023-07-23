@@ -102,8 +102,11 @@ impl AiManager {
         let environment = simulation.environment.clone();
         let mut agent = AiAgent::new(&mut simulation);
 
-        let mut termination_strategy = GameOverTerminationStrategy::new(iterations, 150_000);
+        let mut termination_strategy = GameOverTerminationStrategy::new(iterations, 120_000);
         while termination_strategy.i < iterations {
+            simulation.elapsed_time = Duration::from_secs(0);
+            simulation.command_history.clear();
+            simulation.error_messages.clear();
             simulation.environment = environment.clone();
             agent = AiAgent::new(&mut simulation);
             self.trainer.train(
@@ -128,7 +131,7 @@ impl AiManager {
             replay.initial_config.clone(),
             Box::new(StringBasedWorldData::default()),
         );
-        simulation.time_multiplier = 1.0;
+        simulation.time_multiplier = 25.0;
         println!(
             "Replaying simulation {:?}",
             replay.command_history.last().unwrap().timestamp
@@ -154,25 +157,29 @@ impl AiManager {
 
         let mut action = self.trainer.best_action(&ai_state);
 
-        if action.is_none() {
-            self.no_op_counter += 1;
-            if self.no_op_counter > 10 {
-                action = Some(ai_state.random_action());
+        match &action {
+            Some(cur_action) if *cur_action == AiAction::NoOp => self.no_op_counter += 1,
+            Some(cur_action)
+                if self
+                    .last_state_action
+                    .as_ref()
+                    .map_or(false, |(_, a)| a == cur_action) =>
+            {
+                self.no_op_counter += 1
             }
-        } else {
-            self.no_op_counter = 0;
+            None => self.no_op_counter += 1,
+            _ => self.no_op_counter = 0,
         }
 
-        if let (Some(last_state_action), Some(cur_action)) = (&self.last_state_action, &action) {
-            if last_state_action.1 == *cur_action {
-                self.no_op_counter += 1;
-                return None;
-            }
+        if self.no_op_counter > 10 {
+            action = Some(ai_state.random_action());
+            self.no_op_counter = 0; // Reset the counter after picking a random action
         }
 
         action.as_ref().and_then(|action| {
-            self.last_state_action = Some((ai_state, action.clone()));
-            action.to_command(environment, aerodromes, plane_types)
+            self.last_state_action = Some((ai_state.clone(), action.clone()));
+            let command = action.to_command(environment, aerodromes, plane_types);
+            command
         })
     }
 
@@ -180,7 +187,7 @@ impl AiManager {
         let mut agent = AiUpdateAgent::new(simulation);
 
         self.trainer
-            .train(&mut agent, &mut FixedIterations::new(1), simulation);
+            .train(&mut agent, &mut FixedIterations::new(0), simulation);
     }
 }
 
