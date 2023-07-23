@@ -4,10 +4,8 @@ use bevy_egui::egui::{self, ComboBox};
 use crate::{
     game::{aerodrome::SelectedAerodrome, GameResource},
     model::{commands::BuyPlaneCommand, AirPlane, PlaneType},
+    ui::components,
 };
-
-use super::plane_type;
-
 #[derive(Default, Resource)]
 pub struct SelectedPlane {
     plane_type: Option<PlaneType>,
@@ -49,7 +47,8 @@ pub fn buy_plane(
 
             if let Some(selected_plane) = &selected_plane.plane_type {
                 ui.separator();
-                plane_type(ui, selected_plane);
+
+                ui.add(components::PlaneType::new(selected_plane));
 
                 if ui.button("Buy").clicked() {
                     let home_base_id = game_resource

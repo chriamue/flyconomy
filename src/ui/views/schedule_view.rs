@@ -198,7 +198,7 @@ pub fn flight_planning_ui(
                             state: Default::default(),
                         };
 
-                        components::flight::flight(ui, &flight);
+                        components::Flight::new(&flight);
 
                         if ui.button("Plan Flight").clicked() {
                             let schedule_flight = ScheduleFlightCommand {
@@ -275,7 +275,7 @@ pub fn flight_list_ui(
             });
 
         if let Some(flight) = &flight_planning_input.selected_flight {
-            components::flight::flight(ui, flight);
+            components::Flight::new(flight);
             if ui.button("Replicate Flight").clicked() {
                 let new_flight = ScheduleFlightCommand {
                     flight_id: ScheduleFlightCommand::generate_id(),

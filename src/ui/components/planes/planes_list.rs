@@ -1,5 +1,5 @@
-use super::{plane, SelectedPlane};
-use crate::{game::GameResource, model::commands::SellPlaneCommand};
+use super::SelectedPlane;
+use crate::{game::GameResource, model::commands::SellPlaneCommand, ui::components};
 use bevy::prelude::ResMut;
 use bevy_egui::egui;
 
@@ -48,12 +48,11 @@ pub fn planes_list(
             ui.heading("Selected Airplane Details");
         });
 
-        plane(
-            ui,
+        ui.add(components::Plane::new(
             airplane,
             &game_resource.simulation.environment.flights,
             &game_resource.simulation.environment.bases,
-        );
+        ));
 
         if ui.button("Sell Airplane").clicked() {
             let cmd = SellPlaneCommand {

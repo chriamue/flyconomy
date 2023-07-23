@@ -1,15 +1,29 @@
-use bevy_egui::egui;
+use crate::model;
+use bevy_egui::egui::{Response, Ui, Widget};
 
-use crate::model::Flight;
+pub struct Flight<'a> {
+    flight: &'a model::Flight,
+}
 
-pub fn flight(ui: &mut egui::Ui, flight: &Flight) {
-    ui.label(format!("Profit: ${:.2}", flight.calculate_profit()));
-    ui.label(format!("Passengers: {}", flight.calculate_booked_seats()));
-    ui.label(format!(
-        "Distance: {:.3} km",
-        flight.calculate_total_distance()
-    ));
+impl<'a> Flight<'a> {
+    pub fn new(flight: &'a model::Flight) -> Self {
+        Self { flight }
+    }
+}
 
-    let interest_score_5 = 1.0 + flight.interest_score() * 4.0;
-    ui.label(format!("Interest Score: {:.2}", interest_score_5));
+impl<'a> Widget for Flight<'a> {
+    fn ui(self, ui: &mut Ui) -> Response {
+        ui.label(format!("Profit: ${:.2}", self.flight.calculate_profit()));
+        ui.label(format!(
+            "Passengers: {}",
+            self.flight.calculate_booked_seats()
+        ));
+        ui.label(format!(
+            "Distance: {:.3} km",
+            self.flight.calculate_total_distance()
+        ));
+
+        let interest_score_5 = 1.0 + self.flight.interest_score() * 4.0;
+        ui.label(format!("Interest Score: {:.2}", interest_score_5))
+    }
 }

@@ -5,10 +5,9 @@ use crate::model::Base;
 use crate::ui::components::bases::bases_list;
 use crate::ui::components::landing_rights::{landing_rights_list, LandingRightsInput};
 use crate::ui::components::planes::{buy_plane, planes_list, SelectedPlane};
-use crate::ui::layouts::{left_layout, right_layout};
+use crate::ui::layouts::{left_center_layout, left_layout, right_layout};
 use bevy::prelude::*;
 use bevy::prelude::{App, OnUpdate, Plugin, ResMut};
-use bevy_egui::egui::{vec2, Align2};
 use bevy_egui::{egui, EguiContexts};
 use bevy_panorbit_camera::PanOrbitCamera;
 
@@ -99,91 +98,88 @@ fn selected_aerodrome_info_ui_system(
             (is_base, base)
         };
 
-        egui::Window::new("Selected Aerodrome")
-            .anchor(Align2::LEFT_CENTER, vec2(0.0, 0.0))
-            .default_open(true)
-            .show(contexts.ctx_mut(), |ui| {
-                if ui
-                    .selectable_label(false, format!("{}", selected_aerodrome.name))
-                    .clicked()
-                {
-                    let alpha = (90.0 + selected_aerodrome.lon).to_radians();
-                    let beta = selected_aerodrome.lat.to_radians();
-                    for (mut pan_orbit, _transform) in pan_orbit_query.iter_mut() {
-                        pan_orbit.target_alpha = alpha as f32;
-                        pan_orbit.target_beta = beta as f32;
-                        pan_orbit.radius = Some(1.5);
-                        pan_orbit.force_update = true;
-                    }
+        left_center_layout("Selected Aerodrome").show(contexts.ctx_mut(), |ui| {
+            if ui
+                .selectable_label(false, format!("{}", selected_aerodrome.name))
+                .clicked()
+            {
+                let alpha = (90.0 + selected_aerodrome.lon).to_radians();
+                let beta = selected_aerodrome.lat.to_radians();
+                for (mut pan_orbit, _transform) in pan_orbit_query.iter_mut() {
+                    pan_orbit.target_alpha = alpha as f32;
+                    pan_orbit.target_beta = beta as f32;
+                    pan_orbit.radius = Some(1.5);
+                    pan_orbit.force_update = true;
                 }
-                ui.label(format!("Latitude: {:.4}", selected_aerodrome.lat));
-                ui.label(format!("Longitude: {:.4}", selected_aerodrome.lon));
-                if let Some(passengers) = selected_aerodrome.passengers {
-                    ui.label(format!("Passengers: {}", passengers));
-                }
+            }
+            ui.label(format!("Latitude: {:.4}", selected_aerodrome.lat));
+            ui.label(format!("Longitude: {:.4}", selected_aerodrome.lon));
+            if let Some(passengers) = selected_aerodrome.passengers {
+                ui.label(format!("Passengers: {}", passengers));
+            }
 
-                let interest_score_5 = 1.0 + selected_aerodrome.interest_score as f32 * 4.0;
+            let interest_score_5 = 1.0 + selected_aerodrome.interest_score as f32 * 4.0;
 
-                // Create a progress bar with the new score
-                let progress_bar =
-                    egui::ProgressBar::new(interest_score_5 / 5.0) // normalize the score to [0, 1] for the ProgressBar
-                        .text(format!("Interest Score {:.2} / 5.0", interest_score_5));
+            // Create a progress bar with the new score
+            let progress_bar =
+                egui::ProgressBar::new(interest_score_5 / 5.0) // normalize the score to [0, 1] for the ProgressBar
+                    .text(format!("Interest Score {:.2} / 5.0", interest_score_5));
 
-                ui.add(progress_bar);
+            ui.add(progress_bar);
 
-                ui.separator();
+            ui.separator();
 
-                if is_base {
-                    ui.label("This is one of your bases.");
-                    if let Some(base) = base {
-                        ui.label("Airplanes at this base:");
-                        for airplane_id in &base.airplane_ids {
-                            let airplane = game_resource
-                                .simulation
-                                .environment
-                                .planes
-                                .iter()
-                                .find(|plane| &plane.id == airplane_id);
-                            if let Some(airplane) = airplane {
-                                ui.label(format!(
-                                    "Airplane ID: {}, Type: {}",
-                                    airplane.id, airplane.plane_type.name
-                                ));
-                            }
+            if is_base {
+                ui.label("This is one of your bases.");
+                if let Some(base) = base {
+                    ui.label("Airplanes at this base:");
+                    for airplane_id in &base.airplane_ids {
+                        let airplane = game_resource
+                            .simulation
+                            .environment
+                            .planes
+                            .iter()
+                            .find(|plane| &plane.id == airplane_id);
+                        if let Some(airplane) = airplane {
+                            ui.label(format!(
+                                "Airplane ID: {}, Type: {}",
+                                airplane.id, airplane.plane_type.name
+                            ));
                         }
-
-                        ui.separator();
-
-                        buy_plane(ui, selected_aerodrome_res, game_resource, selected_plane);
                     }
-                } else {
-                    let environment = &game_resource.simulation.environment;
-                    let buy_command = CreateBaseCommand {
-                        base_id: 0,
+
+                    ui.separator();
+
+                    buy_plane(ui, selected_aerodrome_res, game_resource, selected_plane);
+                }
+            } else {
+                let environment = &game_resource.simulation.environment;
+                let buy_command = CreateBaseCommand {
+                    base_id: 0,
+                    aerodrome: selected_aerodrome.clone(),
+                };
+                ui.label(format!(
+                    "Price to create base: {:.2}",
+                    buy_command.base_cost(environment)
+                ));
+                ui.label("You do not have a base at this aerodrome.");
+
+                if ui.button("Create Base").clicked() {
+                    let buy_plane = CreateBaseCommand {
+                        base_id: CreateBaseCommand::generate_id(),
                         aerodrome: selected_aerodrome.clone(),
                     };
-                    ui.label(format!(
-                        "Price to create base: {:.2}",
-                        buy_command.base_cost(environment)
-                    ));
-                    ui.label("You do not have a base at this aerodrome.");
-
-                    if ui.button("Create Base").clicked() {
-                        let buy_plane = CreateBaseCommand {
-                            base_id: CreateBaseCommand::generate_id(),
-                            aerodrome: selected_aerodrome.clone(),
-                        };
-                        game_resource.simulation.add_command(Box::new(buy_plane));
-                    }
-                    if ui.button("Buy Landing Rights").clicked() {
-                        let buy_plane = BuyLandingRightsCommand {
-                            landing_rights_id: BuyLandingRightsCommand::generate_id(),
-                            aerodrome: selected_aerodrome.clone(),
-                        };
-                        game_resource.simulation.add_command(Box::new(buy_plane));
-                    }
+                    game_resource.simulation.add_command(Box::new(buy_plane));
                 }
-            });
+                if ui.button("Buy Landing Rights").clicked() {
+                    let buy_plane = BuyLandingRightsCommand {
+                        landing_rights_id: BuyLandingRightsCommand::generate_id(),
+                        aerodrome: selected_aerodrome.clone(),
+                    };
+                    game_resource.simulation.add_command(Box::new(buy_plane));
+                }
+            }
+        });
     }
 }
 

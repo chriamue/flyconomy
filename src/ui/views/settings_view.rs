@@ -3,12 +3,12 @@ use crate::{
     ui::{
         components::{
             save_replay::{save_replay, UiInputReplayFilename},
-            style_switch::{style_switch, StyleState},
+            style_switch::StyleSwitch,
         },
         layouts::left_layout,
     },
 };
-use bevy::prelude::{App, IntoSystemConfigs, OnUpdate, Plugin, Res, ResMut};
+use bevy::prelude::{App, IntoSystemConfigs, OnUpdate, Plugin, Res, ResMut, Resource};
 use bevy_egui::EguiContexts;
 
 use super::UiView;
@@ -29,14 +29,22 @@ impl Plugin for SettingsViewPlugin {
     }
 }
 
+#[derive(Default, Resource)]
+pub struct StyleState {
+    pub is_dark: bool,
+}
+
 pub fn settings_view_system(
     mut contexts: EguiContexts,
     game_resource: Res<GameResource>,
     replay_filename: ResMut<UiInputReplayFilename>,
-    style_state: ResMut<StyleState>,
+    mut style_state: ResMut<StyleState>,
 ) {
     left_layout("Settings").show(contexts.ctx_mut(), |ui| {
-        style_switch(ui, style_state);
+        if ui.add(StyleSwitch::new(style_state.is_dark)).clicked() {
+            style_state.is_dark = !style_state.is_dark;
+        }
+
         ui.separator();
         save_replay(ui, game_resource, replay_filename)
     });

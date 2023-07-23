@@ -27,3 +27,10 @@ pub fn right_bottom_layout(title: &str) -> egui::Window {
         .default_open(true)
         .resizable(true)
 }
+
+pub fn left_center_layout(title: &str) -> egui::Window {
+    egui::Window::new(title)
+        .anchor(Align2::LEFT_CENTER, vec2(0.0, 0.0))
+        .default_open(true)
+        .resizable(true)
+}
