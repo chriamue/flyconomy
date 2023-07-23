@@ -6,6 +6,7 @@ pub mod game;
 pub mod model;
 pub mod simulation;
 pub mod ui;
+pub mod utils;
 
 pub use game::{start, start_from_replay, start_from_replay_string};
 pub use simulation::replay::Replay;

@@ -14,9 +14,16 @@ pub fn right_layout(title: &str) -> egui::Window {
         .resizable(true)
 }
 
-pub fn bottom_layout(title: &str) -> egui::Window {
+pub fn left_bottom_layout(title: &str) -> egui::Window {
     egui::Window::new(title)
-        .anchor(Align2::CENTER_BOTTOM, vec2(0.0, 0.0))
+        .anchor(Align2::LEFT_BOTTOM, vec2(0.0, 0.0))
+        .default_open(true)
+        .resizable(true)
+}
+
+pub fn right_bottom_layout(title: &str) -> egui::Window {
+    egui::Window::new(title)
+        .anchor(Align2::RIGHT_BOTTOM, vec2(0.0, 0.0))
         .default_open(true)
         .resizable(true)
 }
