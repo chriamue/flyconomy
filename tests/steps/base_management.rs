@@ -21,11 +21,19 @@ async fn the_cost_to_create_a_base_is(w: &mut BddWorld, passengers: u64, base_co
 #[when("I try to create a base at the aerodrome")]
 async fn i_try_to_create_a_base(w: &mut BddWorld) {
     let aerodrome = Aerodrome::default();
-    let cmd = CreateBaseCommand {
-        base_id: CreateBaseCommand::generate_id(),
-        aerodrome,
-    };
+    let base_id = CreateBaseCommand::generate_id();
+    let cmd = CreateBaseCommand { base_id, aerodrome };
     w.last_result = cmd.execute(&mut w.simulation.environment);
+    w.last_base_id = base_id;
+}
+
+#[given("I created a base at the aerodrome")]
+async fn i_created_a_base(w: &mut BddWorld) {
+    let aerodrome = Aerodrome::default();
+    let base_id = CreateBaseCommand::generate_id();
+    let cmd = CreateBaseCommand { base_id, aerodrome };
+    w.last_result = cmd.execute(&mut w.simulation.environment);
+    w.last_base_id = base_id;
 }
 
 #[then(regex = r"^I should (successfully|fail to) create the base$")]

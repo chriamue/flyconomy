@@ -5,6 +5,7 @@ use std::time::Duration;
 
 pub mod base_management;
 pub mod landing_rights_management;
+pub mod plane_management;
 
 #[given(regex = r"^the simulation is at timestamp (\d+)$")]
 async fn the_simulation_is_at_timestamp(w: &mut BddWorld, timestamp: Timestamp) {
@@ -89,6 +90,7 @@ async fn the_simulation_should_have_exact_airplanes(w: &mut BddWorld, airplanes:
 async fn i_have_a_starting_cash_of(w: &mut BddWorld, cash: f64) {
     w.starting_cash = cash;
     w.simulation.environment.company_finances.income.clear();
+    w.simulation.environment.company_finances.expenses.clear();
     w.simulation
         .environment
         .company_finances
