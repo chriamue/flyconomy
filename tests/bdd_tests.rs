@@ -10,6 +10,7 @@ use std::result::Result;
 pub struct BddWorld {
     simulation: Simulation,
     starting_base_count: usize,
+    starting_landing_rights_count: usize,
     starting_cash: f64,
     last_result: Result<Option<String>, Box<dyn Error>>,
 }
@@ -19,6 +20,7 @@ impl Default for BddWorld {
         let mut world = Self {
             simulation: Simulation::default(),
             starting_base_count: 0,
+            starting_landing_rights_count: 0,
             starting_cash: 0.0,
             last_result: Ok(None),
         };

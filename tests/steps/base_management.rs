@@ -5,16 +5,6 @@ use flyconomy::model::commands::Command;
 use flyconomy::model::commands::CreateBaseCommand;
 use flyconomy::model::Aerodrome;
 
-#[given(regex = r"^I have a starting cash of (\d+)$")]
-async fn i_have_a_starting_cash_of(w: &mut BddWorld, cash: f64) {
-    w.starting_cash = cash;
-    w.simulation.environment.company_finances.income.clear();
-    w.simulation
-        .environment
-        .company_finances
-        .add_income(0, cash);
-}
-
 #[given(regex = r"^the cost to create a base at an aerodrome with (\d+) passengers is (\d+)$")]
 async fn the_cost_to_create_a_base_is(w: &mut BddWorld, passengers: u64, base_cost: f64) {
     let aerodrome = Aerodrome {
@@ -59,11 +49,6 @@ async fn my_cash_should_be_reduced_by_if_the_base_was_created(w: &mut BddWorld, 
         let expected_cash = w.starting_cash - reduction;
         assert_relative_eq!(new_cash, expected_cash, epsilon = 1e-2, max_relative = 1e-2);
     }
-}
-
-#[then("I should get an InsufficientFunds error")]
-async fn i_should_get_an_insufficient_funds_error(w: &mut BddWorld) {
-    assert!(w.last_result.is_err());
 }
 
 #[then("the number of bases should remain unchanged")]
