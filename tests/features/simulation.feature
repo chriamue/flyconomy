@@ -1,3 +1,4 @@
+@simulation
 Feature: Checking simulation properties
 
   Scenario: Running the simulation until timestamp 1000

@@ -33,6 +33,7 @@ async fn the_simulation_timestamp_should_be_less_than(w: &mut BddWorld, timestam
 #[given("the simulation is running")]
 async fn the_simulation_is_running(w: &mut BddWorld) {
     w.simulation.time_multiplier = 1.0;
+    w.simulation.update(Duration::from_secs(1));
 }
 
 #[then(regex = r"the simulation should have more than (\d+) cash")]

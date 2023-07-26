@@ -1,3 +1,4 @@
+@base_management
 Feature: Base Management
 
   Scenario Outline: Creating a new base

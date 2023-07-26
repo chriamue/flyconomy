@@ -1,3 +1,4 @@
+@landing_rights_management
 Feature: Landing Rights Management
 
   As a flight operator,
@@ -26,3 +27,24 @@ Feature: Landing Rights Management
     When I try to buy landing rights at an aerodrome
     Then I should get an InsufficientFunds error
     And the number of landing rights should remain unchanged
+
+  Scenario Outline: Selling landing rights
+      Given the simulation is running
+      And I have landing rights with ID <landing_rights_id>
+      And I have a starting cash of 1000000
+      And the income for selling landing rights is <landing_rights_income>
+      When I try to sell my landing rights
+      Then I should <result> sell the landing rights
+      And my cash should be increased by <landing_rights_income> if the rights were sold
+
+      Examples:
+        | landing_rights_id | landing_rights_income | result       |
+        | 1                 | 100000                | successfully |
+        | 2                 | 100000                | successfully |
+
+    Scenario: Attempting to sell landing rights that don't exist
+      Given the simulation is running
+      And I don't have landing rights with ID 99999
+      When I try to sell my landing rights
+      Then I should get a NotExist error
+      And the number of landing rights should remain unchanged

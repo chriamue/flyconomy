@@ -1,3 +1,4 @@
+@plane_management
 Feature: Plane Management
 
   As a flight operator,
