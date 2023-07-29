@@ -21,3 +21,10 @@ Feature: Base Management
     When I try to create a base at the aerodrome
     Then I should get an InsufficientFunds error
     And the number of bases should remain unchanged
+
+  Scenario: Attempting to create a base at an airport where a base already exists
+      Given I have a base at "Frankfurt"
+      And I have a starting cash of 600000
+      When I try to create another base at "Frankfurt"
+      Then I should get a BaseAlreadyExists error
+      And my cash should remain unchanged
