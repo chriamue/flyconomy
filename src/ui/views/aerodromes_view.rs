@@ -6,6 +6,7 @@ use crate::ui::components::bases::bases_list;
 use crate::ui::components::landing_rights::{landing_rights_list, LandingRightsInput};
 use crate::ui::components::planes::{buy_plane, planes_list, SelectedPlane};
 use crate::ui::layouts::{left_center_layout, left_layout, right_layout};
+use crate::utils::filter_and_prioritize_aerodromes;
 use bevy::prelude::*;
 use bevy::prelude::{App, OnUpdate, Plugin, ResMut};
 use bevy_egui::{egui, EguiContexts};
@@ -45,14 +46,9 @@ pub fn aerodromes_ui_system(
             ui.label("Available Aerodromes:");
             ui.text_edit_singleline(&mut search_input.search_string);
 
-            for aerodrome in aerodromes.iter().filter(|a| {
-                a.name
-                    .to_lowercase()
-                    .contains(&search_input.search_string.to_lowercase())
-                    || a.code
-                        .to_lowercase()
-                        .contains(&search_input.search_string.to_lowercase())
-            }) {
+            for aerodrome in
+                filter_and_prioritize_aerodromes(&aerodromes, &search_input.search_string)
+            {
                 if ui.selectable_label(false, &aerodrome.name).clicked() {
                     ev_selected_aerodrome_change
                         .send(SelectedAerodromeChangeEvent(aerodrome.clone()));
