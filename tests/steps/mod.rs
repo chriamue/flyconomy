@@ -5,6 +5,7 @@ use std::time::Duration;
 
 pub mod base_management;
 pub mod errors;
+pub mod flight_scheduling;
 pub mod landing_rights_management;
 pub mod plane_management;
 

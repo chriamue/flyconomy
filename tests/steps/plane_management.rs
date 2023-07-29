@@ -1,7 +1,6 @@
 use crate::BddWorld;
 use cucumber::{given, then, when};
 use flyconomy::model::commands::{BuyPlaneCommand, Command, SellPlaneCommand};
-use flyconomy::model::AirPlane;
 use flyconomy::model::StringBasedWorldData;
 use flyconomy::model::WorldDataGateway;
 
@@ -39,6 +38,7 @@ async fn i_try_to_buy_the_plane(w: &mut BddWorld) {
         plane_type: plane_type.clone(),
     };
     w.last_result = cmd.execute(&mut w.simulation.environment);
+    w.last_plane_id = cmd.plane_id;
 }
 
 #[then(regex = r"^I should (successfully|fail to) buy the plane$")]
@@ -90,15 +90,12 @@ async fn i_own_a_plane_with_id_and_type(w: &mut BddWorld, plane_id: u64, plane_t
         .cloned()
         .expect("Plane type not found!");
 
-    let base_id = w.last_base_id; // Assuming the plane should belong to the last created base in the world state.
-
-    let plane = AirPlane {
-        id: plane_id,
-        base_id,
-        plane_type,
+    let cmd = BuyPlaneCommand {
+        plane_id,
+        home_base_id: w.last_base_id,
+        plane_type: plane_type.clone(),
     };
-
-    w.simulation.environment.planes.push(plane);
+    w.last_result = cmd.execute(&mut w.simulation.environment);
     w.last_plane_id = plane_id;
 }
 

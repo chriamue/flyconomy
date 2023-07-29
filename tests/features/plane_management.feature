@@ -39,6 +39,7 @@ Feature: Plane Management
 
   Scenario Outline: Selling a plane
     Given the simulation is running
+    And I have a starting cash of 2000000
     And I created a base at the aerodrome
     And I own a plane with ID <plane_id> of type <plane_type>
     And I have a starting cash of 1000000
