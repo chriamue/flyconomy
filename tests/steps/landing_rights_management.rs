@@ -82,17 +82,6 @@ async fn i_try_to_sell_my_landing_rights(w: &mut BddWorld) {
     w.simulation.update(Duration::from_secs(1));
 }
 
-#[then(regex = r"^I should get a (NotExist) error$")]
-async fn i_should_get_a_specific_error(w: &mut BddWorld, expected_error: String) {
-    match &w.last_result {
-        Err(e) => {
-            let actual_error = format!("{:?}", e);
-            assert_eq!(expected_error, actual_error, "Unexpected error");
-        }
-        _ => panic!("Expected an error"),
-    }
-}
-
 #[then(regex = r"^my cash should be increased by (\d+) if the rights were sold$")]
 async fn my_cash_should_be_increased_by_if_the_rights_were_sold(w: &mut BddWorld, increase: f64) {
     if w.last_result.is_ok() {

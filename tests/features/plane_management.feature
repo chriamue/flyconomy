@@ -36,3 +36,31 @@ Feature: Plane Management
     And the cost to buy a plane of type Small Plane is 300000
     When I try to buy the plane
     Then the simulation should have exact 1 airplane
+
+  Scenario Outline: Selling a plane
+    Given the simulation is running
+    And I created a base at the aerodrome
+    And I own a plane with ID <plane_id> of type <plane_type>
+    And I have a starting cash of 1000000
+    When I try to sell the plane with ID <plane_id>
+    Then I should <result> sell the plane
+    And my cash should increase by <plane_cost> if the plane was sold
+
+    Examples:
+      | plane_id | plane_type    | plane_cost | result       |
+      | 1        | Small Plane   | 300000     | successfully |
+      | 2        | Medium Plane  | 800000     | successfully |
+
+  Scenario: Attempting to sell a plane that doesn't exist
+    Given the simulation is running
+    And I created a base at the aerodrome
+    When I try to sell the plane with ID 99999
+    Then I should get a NotExist error
+    And the number of planes in my fleet should remain unchanged
+
+  Scenario: Checking airplane count after selling
+    Given the simulation is running
+    And I created a base at the aerodrome
+    And I own a plane with ID 1 of type Small Plane
+    When I try to sell the plane with ID 1
+    Then the simulation should have exact 0 airplanes

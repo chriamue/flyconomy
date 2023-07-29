@@ -4,6 +4,7 @@ use flyconomy::model::Timestamp;
 use std::time::Duration;
 
 pub mod base_management;
+pub mod errors;
 pub mod landing_rights_management;
 pub mod plane_management;
 

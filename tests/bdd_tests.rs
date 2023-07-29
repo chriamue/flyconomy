@@ -17,6 +17,7 @@ pub struct BddWorld {
     last_plane_type: String,
     last_base_id: u64,
     landing_rights_id: u64,
+    last_plane_id: u64,
 }
 
 impl Default for BddWorld {
@@ -31,6 +32,7 @@ impl Default for BddWorld {
             last_plane_type: String::new(),
             last_base_id: 0,
             landing_rights_id: 0,
+            last_plane_id: 0,
         };
         world.simulation.time_multiplier = 1.0;
         world
