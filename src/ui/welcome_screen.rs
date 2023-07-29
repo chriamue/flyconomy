@@ -22,29 +22,25 @@ pub fn welcome_screen_system(
             ui.label("");
 
             ui.label(
-                "Flyconomy is an economic simulation game where you manage an airline company.",
+                "Flyconomy is an economic simulation game where you're in charge of your own airline company.",
             );
+            ui.label("Your mission? Grow your airline empire through wise decision-making and strategic moves!");
 
             ui.label("Features:");
-            ui.label("- Choose your home aerodrome and buy your first aircraft.");
-            ui.label("- Plan flights by selecting an airplane and a destination aerodrome.");
-            ui.label("- Calculate the estimated distance and profit for your planned flights.");
-            ui.label("- Schedule your flights.");
+            ui.label("- Start by establishing your home base. Different aerodromes cost varying amounts, so manage your starting cash wisely!");
+            ui.label("- Expand to other aerodromes by buying landing rights and be aware of their varying costs.");
+            ui.label("- Boost your fleet by purchasing airplanes of different types. Each type has its own cost and capabilities.");
+            ui.label("- Schedule flights between your bases. Ensure your airplanes can handle the distance, and don't forget to factor in departure times.");
+            ui.label("- Monitor your financials closely. Insufficient funds can lead to failed expansions or purchases, but wise investments can lead to great rewards.");
+            ui.label("- Stay vigilant! There are many challenges, such as aerodromes where bases already exist or selling assets that don’t exist.");
 
-            ui.label("Rules:");
-            ui.label("- Start by choosing a home aerodrome and buying your first aircraft.");
-            ui.label("- Plan flight routes between aerodromes.");
-            ui.label("- Monitor fuel prices and adapt your routes.");
-            ui.label("- Reinvest your profits to buy new planes and expand.");
+            ui.label("Tips for Success:");
+            ui.label("- Always plan routes efficiently and watch out for fuel prices.");
+            ui.label("- Reinvest your profits in expanding your fleet and bases.");
+            ui.label("- Be aware of your assets. Know the planes you have, the landing rights you possess, and the bases you've established.");
+            ui.label("- Every decision has a consequence. Think before you act, strategize, and lead your airline to success!");
 
-            ui.label("Getting Started:");
-            ui.label(
-                "- Use the flight planning UI to select an airplane and a destination aerodrome.",
-            );
-            ui.label("- View the estimated distance and profit before scheduling your flight.");
-            ui.label("- Click on 'Plan Flight' to schedule your flight.");
-
-            if ui.button("Start Game").clicked() {
+            if ui.button("Dive In & Start Building Your Airline Empire!").clicked() {
                 game_state_next_state.set(GameState::Playing);
             }
         });
