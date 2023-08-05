@@ -6,7 +6,9 @@ use crate::game::GameState;
 use crate::ui::components::analytics::cash_history;
 use crate::ui::layouts::left_layout;
 use crate::ui::layouts::right_layout;
-use bevy::prelude::{App, IntoSystemConfigs, OnUpdate, Plugin, Res, ResMut};
+use bevy::prelude::in_state;
+use bevy::prelude::IntoSystemConfigs;
+use bevy::prelude::{App, Plugin, Res, ResMut, Update};
 use bevy_egui::egui::ProgressBar;
 use bevy_egui::EguiContexts;
 use strum::IntoEnumIterator;
@@ -18,13 +20,14 @@ pub struct OfficeViewPlugin;
 impl Plugin for OfficeViewPlugin {
     fn build(&self, app: &mut App) {
         app.add_systems(
+            Update,
             (
                 show_cash_history,
                 #[cfg(feature = "ai")]
                 show_manager_action_system,
             )
-                .in_set(OnUpdate(GameState::Playing))
-                .in_set(OnUpdate(UiView::Office)),
+                .run_if(in_state(GameState::Playing))
+                .run_if(in_state(UiView::Office)),
         );
     }
 }

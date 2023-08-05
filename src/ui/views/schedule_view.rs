@@ -1,5 +1,6 @@
 use bevy::prelude::{
-    App, EventWriter, IntoSystemConfigs, OnUpdate, Plugin, Query, Res, ResMut, Resource, Transform,
+    in_state, App, EventWriter, IntoSystemConfigs, Plugin, Query, Res, ResMut, Resource, Transform,
+    Update,
 };
 use bevy_egui::{egui, EguiContexts};
 use bevy_panorbit_camera::PanOrbitCamera;
@@ -25,9 +26,10 @@ impl Plugin for ScheduleViewPlugin {
     fn build(&self, app: &mut App) {
         app.insert_resource(FlightPlanningInput::default());
         app.add_systems(
+            Update,
             (flight_planning_ui, flight_list_ui)
-                .in_set(OnUpdate(GameState::Playing))
-                .in_set(OnUpdate(UiView::Schedule)),
+                .run_if(in_state(GameState::Playing))
+                .run_if(in_state(UiView::Schedule)),
         );
     }
 }

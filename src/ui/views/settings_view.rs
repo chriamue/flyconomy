@@ -8,7 +8,7 @@ use crate::{
         layouts::left_layout,
     },
 };
-use bevy::prelude::{App, IntoSystemConfigs, OnUpdate, Plugin, Res, ResMut, Resource};
+use bevy::prelude::{in_state, App, IntoSystemConfigs, Plugin, Res, ResMut, Resource, Update};
 use bevy_egui::EguiContexts;
 
 use super::UiView;
@@ -22,9 +22,10 @@ impl Plugin for SettingsViewPlugin {
             replay_filename: "last.replay.yaml".to_string(),
         });
         app.add_systems(
+            Update,
             (settings_view_system,)
-                .in_set(OnUpdate(GameState::Playing))
-                .in_set(OnUpdate(UiView::Settings)),
+                .run_if(in_state(GameState::Playing))
+                .run_if(in_state(UiView::Settings)),
         );
     }
 }

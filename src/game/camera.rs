@@ -8,9 +8,9 @@ pub struct CameraPlugin;
 
 impl Plugin for CameraPlugin {
     fn build(&self, app: &mut App) {
-        app.add_plugin(PanOrbitCameraPlugin)
-            .add_startup_system(setup_camera)
-            .add_system(keyboard_controls);
+        app.add_plugins(PanOrbitCameraPlugin)
+            .add_systems(Startup, (setup_camera,))
+            .add_systems(Update, (keyboard_controls,));
     }
 }
 

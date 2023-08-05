@@ -1,10 +1,10 @@
 use super::{
-    styles::IMAGE_STYLE, AerodromesButton, AnalyticsButton, OfficeButton, PauseButton, PlayButton,
-    ScheduleButton, SettingsButton, SkipButton, SpeedUpButton,
+    AerodromesButton, AnalyticsButton, OfficeButton, PauseButton, PlayButton, ScheduleButton,
+    SettingsButton, SkipButton, SpeedUpButton,
 };
 use bevy::prelude::*;
 
-use super::styles::{ITEM_STYLE, SIMULATION_CONTROL_STYLE};
+use super::styles::SimulationControlStyle;
 
 pub fn spawn_simulation_control_buttons(mut commands: Commands, asset_server: Res<AssetServer>) {
     build_simulation_control(&mut commands, &asset_server);
@@ -16,7 +16,7 @@ pub fn build_simulation_control(
 ) -> Entity {
     let control_entity = commands
         .spawn(NodeBundle {
-            style: SIMULATION_CONTROL_STYLE,
+            style: SimulationControlStyle::style(),
             ..Default::default()
         })
         .with_children(|parent| {
@@ -58,12 +58,12 @@ fn spawn_control_button(
 ) {
     parent
         .spawn(ButtonBundle {
-            style: ITEM_STYLE,
+            style: SimulationControlStyle::item(),
             ..Default::default()
         })
         .with_children(|parent| {
             parent.spawn(ImageBundle {
-                style: IMAGE_STYLE,
+                style: SimulationControlStyle::image(),
                 image: asset_server.load(icon_path).into(),
                 ..Default::default()
             });

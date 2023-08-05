@@ -7,8 +7,10 @@ use crate::ui::components::landing_rights::{landing_rights_list, LandingRightsIn
 use crate::ui::components::planes::{buy_plane, planes_list, SelectedPlane};
 use crate::ui::layouts::{left_center_layout, left_layout, right_layout};
 use crate::utils::filter_and_prioritize_aerodromes;
-use bevy::prelude::*;
-use bevy::prelude::{App, OnUpdate, Plugin, ResMut};
+use bevy::prelude::{
+    in_state, App, EventWriter, IntoSystemConfigs, Plugin, Query, Res, ResMut, Resource, Transform,
+    Update,
+};
 use bevy_egui::{egui, EguiContexts};
 use bevy_panorbit_camera::PanOrbitCamera;
 
@@ -23,11 +25,15 @@ impl Plugin for AerodromesUiPlugin {
         })
         .insert_resource(LandingRightsInput::default())
         .insert_resource(SelectedPlane::default())
-        .add_systems((selected_aerodrome_info_ui_system,).in_set(OnUpdate(GameState::Playing)))
         .add_systems(
+            Update,
+            (selected_aerodrome_info_ui_system,).run_if(in_state(GameState::Playing)),
+        )
+        .add_systems(
+            Update,
             (aerodromes_ui_system, player_ownership_info_ui)
-                .in_set(OnUpdate(GameState::Playing))
-                .in_set(OnUpdate(UiView::Aerodromes)),
+                .run_if(in_state(GameState::Playing))
+                .run_if(in_state(UiView::Aerodromes)),
         );
     }
 }

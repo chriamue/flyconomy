@@ -1,10 +1,13 @@
 use bevy::asset::Handle;
 use bevy::prelude::{
-    shape, App, Assets, Color, Commands, Component, Entity, EventReader, EventWriter, Mesh,
-    PbrBundle, Plugin, Query, Res, ResMut, Resource, StandardMaterial, Transform, Vec3, With,
+    shape, App, Assets, Color, Commands, Component, Entity, Event, EventReader, EventWriter, Mesh,
+    PbrBundle, Plugin, Query, Res, ResMut, Resource, StandardMaterial, Transform, Update, Vec3,
+    With,
 };
+use bevy_eventlistener::callbacks::ListenerInput;
+use bevy_mod_picking::prelude::{On, Pointer};
 use bevy_mod_picking::{
-    prelude::{Click, ListenedEvent, OnPointer, RaycastPickTarget},
+    prelude::{Click, RaycastPickTarget},
     PickableBundle,
 };
 
@@ -23,15 +26,21 @@ pub struct AerodromePlugin;
 impl Plugin for AerodromePlugin {
     fn build(&self, app: &mut App) {
         app.insert_resource(AerodromeSystem { setup_done: false })
-            .add_system(setup)
+            .add_systems(
+                Update,
+                (
+                    setup,
+                    handle_aerodrome_selected_event,
+                    handle_selected_aerodrome_change_event,
+                ),
+            )
             .add_event::<AerodromeSelectedEvent>()
             .add_event::<SelectedAerodromeChangeEvent>()
-            .insert_resource(SelectedAerodrome::default())
-            .add_system(handle_aerodrome_selected_event)
-            .add_system(handle_selected_aerodrome_change_event);
+            .insert_resource(SelectedAerodrome::default());
     }
 }
 
+#[derive(Event)]
 pub struct SelectedAerodromeChangeEvent(pub Aerodrome);
 
 #[derive(Resource)]
@@ -91,7 +100,7 @@ fn setup(
                     },
                     PickableBundle::default(),
                     RaycastPickTarget::default(),
-                    OnPointer::<Click>::send_event::<AerodromeSelectedEvent>(),
+                    On::<Pointer<Click>>::send_event::<AerodromeSelectedEvent>(),
                 ))
                 .insert(AerodromeComponent(aerodrome.clone()));
         }
@@ -99,11 +108,11 @@ fn setup(
     }
 }
 
-#[derive(Debug, Component)]
+#[derive(Debug, Component, Event)]
 struct AerodromeSelectedEvent(Entity);
 
-impl From<ListenedEvent<Click>> for AerodromeSelectedEvent {
-    fn from(click_event: ListenedEvent<Click>) -> Self {
+impl From<ListenerInput<Pointer<Click>>> for AerodromeSelectedEvent {
+    fn from(click_event: ListenerInput<Pointer<Click>>) -> Self {
         Self(click_event.target)
     }
 }

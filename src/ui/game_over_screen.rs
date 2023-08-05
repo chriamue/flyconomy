@@ -1,14 +1,17 @@
 use crate::game::{GameResource, GameState};
 use crate::model::StringBasedWorldData;
 use crate::simulation::Simulation;
-use bevy::prelude::{App, IntoSystemConfigs, NextState, OnUpdate, Plugin, ResMut};
+use bevy::prelude::{in_state, App, IntoSystemConfigs, NextState, Plugin, ResMut, Update};
 use bevy_egui::{egui, EguiContexts};
 
 pub struct GameOverScreenPlugin;
 
 impl Plugin for GameOverScreenPlugin {
     fn build(&self, app: &mut App) {
-        app.add_systems((game_over_screen_system,).in_set(OnUpdate(GameState::GameOver)));
+        app.add_systems(
+            Update,
+            (game_over_screen_system,).run_if(in_state(GameState::GameOver)),
+        );
     }
 }
 

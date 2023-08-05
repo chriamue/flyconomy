@@ -12,11 +12,11 @@ impl Plugin for ViewsPlugin {
     fn build(&self, app: &mut App) {
         app.add_state::<UiView>();
 
-        app.add_plugin(aerodromes_view::AerodromesUiPlugin);
-        app.add_plugin(analytics_view::AnalyticsViewPlugin);
-        app.add_plugin(schedule_view::ScheduleViewPlugin);
-        app.add_plugin(office_view::OfficeViewPlugin);
-        app.add_plugin(settings_view::SettingsViewPlugin);
+        app.add_plugins(aerodromes_view::AerodromesUiPlugin);
+        app.add_plugins(analytics_view::AnalyticsViewPlugin);
+        app.add_plugins(schedule_view::ScheduleViewPlugin);
+        app.add_plugins(office_view::OfficeViewPlugin);
+        app.add_plugins(settings_view::SettingsViewPlugin);
     }
 }
 

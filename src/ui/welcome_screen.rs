@@ -1,13 +1,15 @@
 use crate::game::GameState;
-use bevy::prelude::*;
-use bevy::prelude::{App, NextState, OnUpdate, Plugin, ResMut};
+use bevy::prelude::{in_state, App, IntoSystemConfigs, NextState, Plugin, ResMut, Update};
 use bevy_egui::{egui, EguiContexts};
 
 pub struct WelcomeScreenPlugin;
 
 impl Plugin for WelcomeScreenPlugin {
     fn build(&self, app: &mut App) {
-        app.add_systems((welcome_screen_system,).in_set(OnUpdate(GameState::Welcome)));
+        app.add_systems(
+            Update,
+            (welcome_screen_system,).run_if(in_state(GameState::Welcome)),
+        );
     }
 }
 

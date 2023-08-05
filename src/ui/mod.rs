@@ -15,12 +15,12 @@ pub struct UiPlugin;
 
 impl Plugin for UiPlugin {
     fn build(&self, app: &mut App) {
-        app.add_plugin(hud::HudPlugin);
-        app.add_plugin(welcome_screen::WelcomeScreenPlugin);
-        app.add_plugin(game_over_screen::GameOverScreenPlugin);
-        app.add_plugin(world_heritage_site_ui::WorldHeritageSiteUiPlugin);
-        app.add_plugin(messages::MessagesPlugin);
-        app.add_plugin(simulation_control::SimulationControlPlugin);
-        app.add_plugin(views::ViewsPlugin);
+        app.add_plugins(hud::HudPlugin);
+        app.add_plugins(welcome_screen::WelcomeScreenPlugin);
+        app.add_plugins(game_over_screen::GameOverScreenPlugin);
+        app.add_plugins(world_heritage_site_ui::WorldHeritageSiteUiPlugin);
+        app.add_plugins(messages::MessagesPlugin);
+        app.add_plugins(simulation_control::SimulationControlPlugin);
+        app.add_plugins(views::ViewsPlugin);
     }
 }

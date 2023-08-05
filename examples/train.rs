@@ -3,7 +3,7 @@ use std::time::Duration;
 use bevy::{
     prelude::{
         default, App, AssetPlugin, Commands, DespawnRecursiveExt, Entity, NextState, PluginGroup,
-        Query, Res, ResMut, Resource, State, Transform,
+        Query, Res, ResMut, Resource, Startup, State, Transform, Update,
     },
     window::{Window, WindowPlugin},
     DefaultPlugins,
@@ -115,8 +115,8 @@ pub fn start(simulation: Simulation) {
         default_environment,
         min_cash: 80_000,
     });
-    app.add_startup_system(set_initial_state);
-    app.add_system(update_ai_manager_system);
+    app.add_systems(Startup, set_initial_state);
+    app.add_systems(Update, update_ai_manager_system);
 
     app.run()
 }
@@ -144,7 +144,7 @@ pub fn update_ai_manager_system(
     query: Query<(Entity, &FlightVisual, &mut Transform)>,
     mut commands: Commands,
 ) {
-    if game_state.as_ref().0 == GameState::GameOver {
+    if game_state.as_ref().get() == &GameState::GameOver {
         game_state_next_state.set(GameState::Playing);
     }
 

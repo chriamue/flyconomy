@@ -1,7 +1,7 @@
 use bevy::prelude::*;
 
 use super::{
-    styles::{get_text_style, HUD_STYLE, IMAGE_STYLE, ITEM_STYLE, TEXT_STYLE},
+    styles::{get_text_style, HudStyle},
     CalendarText, CashText, ExpensesText, IncomeText, PlanesText, HUD,
 };
 
@@ -13,7 +13,7 @@ pub fn build_hud(commands: &mut Commands, asset_server: &Res<AssetServer>) -> En
     let hud_entity = commands
         .spawn((
             NodeBundle {
-                style: HUD_STYLE,
+                style: HudStyle::style(),
                 ..Default::default()
             },
             HUD {},
@@ -63,14 +63,14 @@ fn spawn_hud_item(
 ) {
     parent
         .spawn(NodeBundle {
-            style: ITEM_STYLE,
+            style: HudStyle::item(),
             ..Default::default()
         })
         .with_children(|parent| {
             // Text
             parent.spawn((
                 TextBundle {
-                    style: TEXT_STYLE,
+                    style: HudStyle::text(),
                     text: Text::from_section(text, get_text_style(asset_server)),
                     ..Default::default()
                 },
@@ -78,7 +78,7 @@ fn spawn_hud_item(
             ));
             // Icon
             parent.spawn(ImageBundle {
-                style: IMAGE_STYLE,
+                style: HudStyle::image(),
                 image: asset_server.load(icon_path).into(),
                 ..Default::default()
             });

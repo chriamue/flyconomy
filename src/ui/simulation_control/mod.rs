@@ -58,22 +58,29 @@ pub struct SimulationControlPlugin;
 
 impl Plugin for SimulationControlPlugin {
     fn build(&self, app: &mut App) {
-        app.add_system(spawn_simulation_control_buttons.in_schedule(OnEnter(GameState::Playing)))
-            .insert_resource(SimulationControl::default())
-            .add_systems(
-                (
-                    play_button_system,
-                    speed_up_button_system,
-                    skip_button_system,
-                    pause_button_system,
-                    settings_button_system,
-                    analytics_button_system,
-                    schedule_button_system,
-                    aerodromes_button_system,
-                    office_button_system,
-                )
-                    .in_set(OnUpdate(GameState::Playing)),
+        app.add_systems(
+            OnEnter(GameState::Playing),
+            (spawn_simulation_control_buttons,),
+        )
+        .insert_resource(SimulationControl::default())
+        .add_systems(
+            Update,
+            (
+                play_button_system,
+                speed_up_button_system,
+                skip_button_system,
+                pause_button_system,
+                settings_button_system,
+                analytics_button_system,
+                schedule_button_system,
+                aerodromes_button_system,
+                office_button_system,
             )
-            .add_system(despawn_simulation_control_buttons.in_schedule(OnExit(GameState::Playing)));
+                .run_if(in_state(GameState::Playing)),
+        )
+        .add_systems(
+            OnExit(GameState::Playing),
+            (despawn_simulation_control_buttons,),
+        );
     }
 }

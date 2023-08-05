@@ -37,8 +37,9 @@ pub struct HudPlugin;
 
 impl Plugin for HudPlugin {
     fn build(&self, app: &mut App) {
-        app.add_system(spawn_hud.in_schedule(OnEnter(GameState::Playing)))
+        app.add_systems(OnEnter(GameState::Playing), (spawn_hud,))
             .add_systems(
+                Update,
                 (
                     update_calendar_system,
                     update_cash_system,
@@ -46,8 +47,8 @@ impl Plugin for HudPlugin {
                     update_income_system,
                     update_expenses_system,
                 )
-                    .in_set(OnUpdate(GameState::Playing)),
+                    .run_if(in_state(GameState::Playing)),
             )
-            .add_system(despawn_hud.in_schedule(OnExit(GameState::Playing)));
+            .add_systems(OnExit(GameState::Playing), (despawn_hud,));
     }
 }

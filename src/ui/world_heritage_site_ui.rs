@@ -1,7 +1,7 @@
 use crate::game::world_heritage_site::SelectedWorldHeritageSite;
 use crate::game::GameState;
 use bevy::prelude::*;
-use bevy::prelude::{App, OnUpdate, Plugin};
+use bevy::prelude::{App, Plugin, Update};
 use bevy_egui::{egui, EguiContexts};
 use bevy_panorbit_camera::PanOrbitCamera;
 
@@ -12,7 +12,10 @@ impl Plugin for WorldHeritageSiteUiPlugin {
         app.insert_resource(UiInput {
             search_string: String::new(),
         })
-        .add_systems((selected_site_info_ui_system,).in_set(OnUpdate(GameState::Playing)));
+        .add_systems(
+            Update,
+            (selected_site_info_ui_system,).run_if(in_state(GameState::Playing)),
+        );
     }
 }
 

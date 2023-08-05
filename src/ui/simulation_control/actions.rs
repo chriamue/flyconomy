@@ -19,7 +19,7 @@ pub fn play_button_system(
 ) {
     for (interaction, _) in interaction_query.iter_mut() {
         match *interaction {
-            Interaction::Clicked => {
+            Interaction::Pressed => {
                 game_resource.simulation.time_multiplier = DEFAULT_TIME_MULTIPLIER;
                 simulation_control.action = SimulationControlAction::Play;
             }
@@ -35,7 +35,7 @@ pub fn speed_up_button_system(
 ) {
     for (interaction, _) in interaction_query.iter_mut() {
         match *interaction {
-            Interaction::Clicked => {
+            Interaction::Pressed => {
                 game_resource.simulation.time_multiplier *= 1.5;
                 simulation_control.action = SimulationControlAction::SpeedUp;
             }
@@ -51,7 +51,7 @@ pub fn skip_button_system(
 ) {
     for (interaction, _) in interaction_query.iter_mut() {
         match *interaction {
-            Interaction::Clicked => {
+            Interaction::Pressed => {
                 game_resource.simulation.time_multiplier = DEFAULT_TIME_MULTIPLIER;
 
                 while game_resource.simulation.commands.len() > 0 {
@@ -72,7 +72,7 @@ pub fn pause_button_system(
 ) {
     for (interaction, _) in interaction_query.iter_mut() {
         match *interaction {
-            Interaction::Clicked => {
+            Interaction::Pressed => {
                 game_resource.simulation.time_multiplier = 0.0;
                 simulation_control.action = SimulationControlAction::Pause;
             }
@@ -87,7 +87,7 @@ pub fn settings_button_system(
 ) {
     for (interaction, _) in interaction_query.iter_mut() {
         match *interaction {
-            Interaction::Clicked => {
+            Interaction::Pressed => {
                 ui_state_next_state.set(UiView::Settings);
             }
             _ => {}
@@ -101,7 +101,7 @@ pub fn analytics_button_system(
 ) {
     for (interaction, _) in interaction_query.iter_mut() {
         match *interaction {
-            Interaction::Clicked => {
+            Interaction::Pressed => {
                 ui_state_next_state.set(UiView::Analytics);
             }
             _ => {}
@@ -115,7 +115,7 @@ pub fn schedule_button_system(
 ) {
     for (interaction, _) in interaction_query.iter_mut() {
         match *interaction {
-            Interaction::Clicked => {
+            Interaction::Pressed => {
                 ui_state_next_state.set(UiView::Schedule);
             }
             _ => {}
@@ -129,7 +129,7 @@ pub fn aerodromes_button_system(
 ) {
     for (interaction, _) in interaction_query.iter_mut() {
         match *interaction {
-            Interaction::Clicked => {
+            Interaction::Pressed => {
                 ui_state_next_state.set(UiView::Aerodromes);
             }
             _ => {}
@@ -143,7 +143,7 @@ pub fn office_button_system(
 ) {
     for (interaction, _) in interaction_query.iter_mut() {
         match *interaction {
-            Interaction::Clicked => {
+            Interaction::Pressed => {
                 ui_state_next_state.set(UiView::Office);
             }
             _ => {}

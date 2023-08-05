@@ -1,10 +1,14 @@
 use bevy::asset::Handle;
 use bevy::prelude::{
-    shape, App, Assets, Color, Commands, Component, Entity, EventReader, EventWriter, Mesh,
-    PbrBundle, Plugin, Query, Res, ResMut, Resource, StandardMaterial, Transform, Vec3, With,
+    shape, App, Assets, Color, Commands, Component, Entity, Event, EventReader, EventWriter, Mesh,
+    PbrBundle, Plugin, Query, Res, ResMut, Resource, StandardMaterial, Transform, Update, Vec3,
+    With,
 };
+use bevy_eventlistener::callbacks::ListenerInput;
+use bevy_eventlistener::prelude::On;
+use bevy_mod_picking::prelude::Pointer;
 use bevy_mod_picking::{
-    prelude::{Click, ListenedEvent, OnPointer, RaycastPickTarget},
+    prelude::{Click, RaycastPickTarget},
     PickableBundle,
 };
 
@@ -23,15 +27,21 @@ pub struct WorldHeritageSitePlugin;
 impl Plugin for WorldHeritageSitePlugin {
     fn build(&self, app: &mut App) {
         app.insert_resource(WorldHeritageSiteSystem { setup_done: false })
-            .add_system(setup)
+            .add_systems(
+                Update,
+                (
+                    setup,
+                    handle_world_heritage_site_selected_event,
+                    handle_selected_world_heritage_site_change_event,
+                ),
+            )
             .add_event::<WorldHeritageSiteSelectedEvent>()
             .add_event::<SelectedWorldHeritageSiteChangeEvent>()
-            .insert_resource(SelectedWorldHeritageSite::default())
-            .add_system(handle_world_heritage_site_selected_event)
-            .add_system(handle_selected_world_heritage_site_change_event);
+            .insert_resource(SelectedWorldHeritageSite::default());
     }
 }
 
+#[derive(Event)]
 pub struct SelectedWorldHeritageSiteChangeEvent(pub WorldHeritageSite);
 
 #[derive(Resource)]
@@ -83,7 +93,7 @@ fn setup(
                     },
                     PickableBundle::default(),
                     RaycastPickTarget::default(),
-                    OnPointer::<Click>::send_event::<WorldHeritageSiteSelectedEvent>(),
+                    On::<Pointer<Click>>::send_event::<WorldHeritageSiteSelectedEvent>(),
                 ))
                 .insert(WorldHeritageSiteComponent(site.clone()));
         }
@@ -91,11 +101,11 @@ fn setup(
     }
 }
 
-#[derive(Debug, Component)]
+#[derive(Debug, Component, Event)]
 struct WorldHeritageSiteSelectedEvent(Entity);
 
-impl From<ListenedEvent<Click>> for WorldHeritageSiteSelectedEvent {
-    fn from(click_event: ListenedEvent<Click>) -> Self {
+impl From<ListenerInput<Pointer<Click>>> for WorldHeritageSiteSelectedEvent {
+    fn from(click_event: ListenerInput<Pointer<Click>>) -> Self {
         Self(click_event.target)
     }
 }
