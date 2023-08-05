@@ -12,7 +12,6 @@ const NORMAL_MAP: &str = "earth/normal_map.jpg";
 const HEIGHT_MAP: &str = "earth/elevation_surface.jpg";
 const ROUGH_MAP: &str = "earth/metallic_roughness.png";
 const ALBEDO_MAP: &str = "earth/base_color.jpg";
-const ALBEDO_MAP_HALF: &str = "earth/half_base_color.jpg";
 const EMI_MAP: &str = "earth/emissive.jpg";
 const SPIN: f32 = 0.0;
 
@@ -91,11 +90,13 @@ fn setup(
     let earth_material = {
         materials.add(StandardMaterial {
             perceptual_roughness: 0.75,
-            base_color_texture: Some(assets.load(ALBEDO_MAP_HALF)),
+            base_color_texture: Some(assets.load(ALBEDO_MAP)),
             normal_map_texture: Some(normal_handle),
             emissive: Color::rgb_u8(30, 30, 30),
             emissive_texture: Some(assets.load(EMI_MAP)),
             metallic_roughness_texture: Some(assets.load(ROUGH_MAP)),
+            depth_map: Some(assets.load(HEIGHT_MAP)),
+            parallax_depth_scale: 0.0025,
             ..Default::default()
         })
     };
