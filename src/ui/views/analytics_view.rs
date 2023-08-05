@@ -8,7 +8,7 @@ use crate::{
         layouts::{left_layout, right_layout},
     },
 };
-use bevy::prelude::{App, IntoSystemConfigs, OnUpdate, Plugin, Res};
+use bevy::prelude::{in_state, App, IntoSystemConfigs, Plugin, Res, Update};
 use bevy_egui::{egui, EguiContexts};
 
 use super::UiView;
@@ -18,9 +18,10 @@ pub struct AnalyticsViewPlugin;
 impl Plugin for AnalyticsViewPlugin {
     fn build(&self, app: &mut App) {
         app.add_systems(
+            Update,
             (company_info_system, flight_analytics_system)
-                .in_set(OnUpdate(GameState::Playing))
-                .in_set(OnUpdate(UiView::Analytics)),
+                .run_if(in_state(GameState::Playing))
+                .run_if(in_state(UiView::Analytics)),
         );
     }
 }

@@ -3,7 +3,7 @@ use std::collections::HashMap;
 use bevy::prelude::{
     App, AssetServer, Assets, BuildChildren, Color, Commands, Component, ComputedVisibility,
     DespawnRecursiveExt, Entity, GlobalTransform, PbrBundle, Plugin, Quat, Query, Res, ResMut,
-    StandardMaterial, Transform, Vec3, Visibility,
+    StandardMaterial, Transform, Update, Vec3, Visibility,
 };
 use bevy_obj::ObjPlugin;
 
@@ -14,7 +14,7 @@ pub struct PlanePlugin;
 
 impl Plugin for PlanePlugin {
     fn build(&self, app: &mut App) {
-        app.add_plugin(ObjPlugin).add_system(plane_system);
+        app.add_plugins(ObjPlugin).add_systems(Update, plane_system);
     }
 }
 

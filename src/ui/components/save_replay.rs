@@ -48,7 +48,6 @@ pub fn save_replay(
     game_resource: Res<GameResource>,
     mut replay_filename: ResMut<UiInputReplayFilename>,
 ) {
-    use wasm_bindgen::JsCast;
     use web_sys::HtmlAnchorElement;
 
     ui.horizontal(|ui| {

@@ -1,7 +1,7 @@
 use super::GameResource;
 use crate::ai::{AiManager, AiTrainerType};
-use bevy::prelude::Time;
 use bevy::prelude::{App, Plugin, Res, ResMut, Resource};
+use bevy::prelude::{Time, Update};
 use bevy::time::Timer;
 use std::sync::atomic::{AtomicUsize, Ordering};
 use strum::EnumIter;
@@ -11,7 +11,7 @@ pub struct ManagerPlugin;
 impl Plugin for ManagerPlugin {
     fn build(&self, app: &mut App) {
         app.insert_resource(GameManagers::default());
-        app.add_system(manager_action_system);
+        app.add_systems(Update, (manager_action_system,));
     }
 }
 

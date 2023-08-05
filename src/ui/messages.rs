@@ -1,5 +1,5 @@
 use crate::{game::GameResource, utils::timestamp_to_calendar_string};
-use bevy::prelude::{App, Plugin, Res};
+use bevy::prelude::{App, Plugin, Res, Update};
 use bevy_egui::{egui, EguiContexts};
 
 use super::layouts::{left_bottom_layout, right_bottom_layout};
@@ -8,8 +8,7 @@ pub struct MessagesPlugin;
 
 impl Plugin for MessagesPlugin {
     fn build(&self, app: &mut App) {
-        app.add_system(show_error_messages)
-            .add_system(show_event_messages);
+        app.add_systems(Update, (show_error_messages, show_event_messages));
     }
 }
 

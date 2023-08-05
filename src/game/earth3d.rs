@@ -26,8 +26,8 @@ impl Plugin for Earth3dPlugin {
         })
         .insert_resource(ClearColor(Color::BLACK))
         .insert_resource(Normal(None));
-        app.add_startup_system(setup);
-        app.add_system(update_normal).add_system(spin);
+        app.add_systems(Startup, (setup,))
+            .add_systems(Update, (update_normal, spin));
         app.register_type::<Spin>();
     }
 }

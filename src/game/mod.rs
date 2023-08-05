@@ -13,18 +13,13 @@ pub mod world_heritage_site;
 #[cfg(feature = "ai")]
 pub mod manager;
 
-use bevy::prelude::IntoSystemConfigs;
 use bevy_egui::EguiPlugin;
 use bevy_mod_picking::DefaultPickingPlugins;
 pub use game_state::GameState;
 
 use crate::config::LevelConfig;
 use crate::model::StringBasedWorldData;
-use crate::{
-    config::{AerodromeConfig, PlanesConfig},
-    simulation::Simulation,
-    ui, Replay,
-};
+use crate::{simulation::Simulation, ui, Replay};
 
 #[derive(Resource)]
 pub struct GameResource {
@@ -92,27 +87,29 @@ pub struct ConfigResource {
 }
 
 pub fn setup_game(app: &mut App, game_resource: GameResource) {
-    app.add_plugin(EguiPlugin)
-        .add_plugin(FrameTimeDiagnosticsPlugin::default())
-        .add_plugin(LogDiagnosticsPlugin::default())
+    app.add_plugins(EguiPlugin)
+        .add_plugins(FrameTimeDiagnosticsPlugin::default())
+        .add_plugins(LogDiagnosticsPlugin::default())
         .add_plugins(DefaultPickingPlugins)
         .add_state::<GameState>()
         .insert_resource(game_resource)
         .insert_resource(ConfigResource::default())
-        .add_startup_system(setup_lights)
-        .add_startup_system(load_config_assets)
-        .add_systems((update_simulation_system,).in_set(OnUpdate(GameState::Playing)))
-        .add_plugin(camera::CameraPlugin)
-        .add_plugin(flights::FlightsPlugin)
-        .add_plugin(aerodrome::AerodromePlugin)
-        .add_plugin(world_heritage_site::WorldHeritageSitePlugin)
-        .add_plugin(ui::UiPlugin)
-        .add_plugin(plane::PlanePlugin)
-        .add_plugin(earth3d::Earth3dPlugin)
-        .add_system(spin)
+        .add_systems(Startup, (setup_lights, load_config_assets))
+        .add_systems(
+            Update,
+            (update_simulation_system,).run_if(in_state(GameState::Playing)),
+        )
+        .add_plugins(camera::CameraPlugin)
+        .add_plugins(flights::FlightsPlugin)
+        .add_plugins(aerodrome::AerodromePlugin)
+        .add_plugins(world_heritage_site::WorldHeritageSitePlugin)
+        .add_plugins(ui::UiPlugin)
+        .add_plugins(plane::PlanePlugin)
+        .add_plugins(earth3d::Earth3dPlugin)
+        .add_systems(Update, spin)
         .register_type::<Spin>();
     #[cfg(feature = "ai")]
-    app.add_plugin(manager::ManagerPlugin);
+    app.add_plugins(manager::ManagerPlugin);
 }
 
 #[derive(Component, PartialEq, Reflect)]
@@ -231,9 +228,3 @@ pub fn start_from_replay_string(replay_string: String) {
         serde_yaml::from_str(&replay_string).expect("Failed to deserialize replay.");
     start_from_replay(replay);
 }
-
-#[derive(Resource)]
-struct PlanesConfigHandle(Handle<PlanesConfig>);
-
-#[derive(Resource)]
-struct AerodromeConfigHandle(Handle<AerodromeConfig>);

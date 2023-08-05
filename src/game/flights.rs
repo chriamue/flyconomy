@@ -1,8 +1,8 @@
 use std::collections::HashMap;
 
 use bevy::prelude::{
-    App, Assets, Color, Commands, Component, Entity, IntoSystemConfigs, OnUpdate, Plugin, Query,
-    ResMut, With,
+    in_state, App, Assets, Color, Commands, Component, Entity, IntoSystemConfigs, Plugin, Query,
+    ResMut, Update, With,
 };
 use bevy_polyline::prelude::{Polyline, PolylineBundle, PolylineMaterial};
 use bevy_polyline::PolylinePlugin;
@@ -17,14 +17,16 @@ pub struct FlightsPlugin;
 
 impl Plugin for FlightsPlugin {
     fn build(&self, app: &mut App) {
-        app.add_plugin(PolylinePlugin)
+        app.add_plugins(PolylinePlugin)
             .add_systems(
-                (draw_flight_paths_system, clean_line_system).in_set(OnUpdate(GameState::Playing)),
+                Update,
+                (draw_flight_paths_system, clean_line_system).run_if(in_state(GameState::Playing)),
             )
             .add_systems(
+                Update,
                 (draw_flight_paths_analytics_system,)
-                    .in_set(OnUpdate(GameState::Playing))
-                    .in_set(OnUpdate(UiView::Analytics)),
+                    .run_if(in_state(GameState::Playing))
+                    .run_if(in_state(UiView::Analytics)),
             );
     }
 }
