@@ -22,7 +22,7 @@ impl HudStyle {
             flex_direction: FlexDirection::Row,
             justify_content: JustifyContent::Center,
             align_items: AlignItems::Center,
-            margin: UiRect::new(Val::Px(8.0), Val::Px(8.0), Val::Px(0.0), Val::Px(0.0)),
+            margin: UiRect::new(Val::Px(16.0), Val::Px(8.0), Val::Px(0.0), Val::Px(0.0)),
             ..Style::DEFAULT
         }
     }
@@ -40,7 +40,7 @@ impl HudStyle {
         Style {
             width: Val::Auto,
             height: Val::Auto,
-            min_width: Val::Px(40.0),
+            min_width: Val::Px(80.0),
             min_height: Val::Auto,
             padding: UiRect::new(Val::Px(4.0), Val::Px(4.0), Val::Px(4.0), Val::Px(4.0)),
             ..Style::DEFAULT
