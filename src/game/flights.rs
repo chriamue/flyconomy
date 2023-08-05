@@ -1,11 +1,6 @@
 use std::collections::HashMap;
 
-use bevy::prelude::{
-    in_state, App, Assets, Color, Commands, Component, Entity, IntoSystemConfigs, Plugin, Query,
-    ResMut, Update, With,
-};
-use bevy_polyline::prelude::{Polyline, PolylineBundle, PolylineMaterial};
-use bevy_polyline::PolylinePlugin;
+use bevy::prelude::{in_state, App, Color, Gizmos, IntoSystemConfigs, Plugin, Res, Update};
 
 use crate::game::{earth3d, projection::wgs84_to_xyz};
 use crate::model::{Aerodrome, FlightState};
@@ -17,39 +12,20 @@ pub struct FlightsPlugin;
 
 impl Plugin for FlightsPlugin {
     fn build(&self, app: &mut App) {
-        app.add_plugins(PolylinePlugin)
-            .add_systems(
-                Update,
-                (draw_flight_paths_system, clean_line_system).run_if(in_state(GameState::Playing)),
-            )
-            .add_systems(
-                Update,
-                (draw_flight_paths_analytics_system,)
-                    .run_if(in_state(GameState::Playing))
-                    .run_if(in_state(UiView::Analytics)),
-            );
+        app.add_systems(
+            Update,
+            (draw_flight_paths_system,).run_if(in_state(GameState::Playing)),
+        )
+        .add_systems(
+            Update,
+            (draw_flight_paths_analytics_system,)
+                .run_if(in_state(GameState::Playing))
+                .run_if(in_state(UiView::Analytics)),
+        );
     }
 }
 
-pub fn clean_line_system(
-    mut commands: Commands,
-    line_query: Query<Entity, With<FlightLine>>,
-    analytics_query: Query<Entity, With<AnalyticsFlightLine>>,
-) {
-    for line in line_query.iter() {
-        commands.entity(line).despawn();
-    }
-    for line in analytics_query.iter() {
-        commands.entity(line).despawn();
-    }
-}
-
-pub fn draw_flight_paths_system(
-    mut commands: Commands,
-    game_resource: ResMut<GameResource>,
-    mut polyline_materials: ResMut<Assets<PolylineMaterial>>,
-    mut polylines: ResMut<Assets<Polyline>>,
-) {
+pub fn draw_flight_paths_system(game_resource: Res<GameResource>, mut gizmos: Gizmos) {
     let flight_query = game_resource.simulation.environment.flights.iter();
 
     for flight in flight_query {
@@ -77,35 +53,13 @@ pub fn draw_flight_paths_system(
                 }
                 points.push(wgs84_to_xyz(end_gps.0, end_gps.1, 0.0) * earth3d::SCALE_FACTOR as f32);
 
-                commands
-                    .spawn(PolylineBundle {
-                        polyline: polylines.add(Polyline { vertices: points }),
-                        material: polyline_materials.add(PolylineMaterial {
-                            width: 2.0,
-                            color: Color::RED,
-                            perspective: false,
-                            depth_bias: -0.0002,
-                        }),
-                        ..Default::default()
-                    })
-                    .insert(FlightLine);
+                gizmos.linestrip(points, Color::RED);
             }
         }
     }
 }
 
-#[derive(Default, Component)]
-pub struct FlightLine;
-
-#[derive(Default, Component)]
-pub struct AnalyticsFlightLine;
-
-pub fn draw_flight_paths_analytics_system(
-    mut commands: Commands,
-    game_resource: ResMut<GameResource>,
-    mut polyline_materials: ResMut<Assets<PolylineMaterial>>,
-    mut polylines: ResMut<Assets<Polyline>>,
-) {
+pub fn draw_flight_paths_analytics_system(game_resource: Res<GameResource>, mut gizmos: Gizmos) {
     let flight_query = game_resource.simulation.environment.flights.iter();
     let mut route_counts: HashMap<(u64, u64), (Aerodrome, Aerodrome, usize)> = HashMap::new();
     let mut max_count = 0;
@@ -171,17 +125,6 @@ pub fn draw_flight_paths_analytics_system(
 
         points.push(wgs84_to_xyz(end_gps.0, end_gps.1, 0.0) * earth3d::SCALE_FACTOR as f32);
 
-        commands
-            .spawn(PolylineBundle {
-                polyline: polylines.add(Polyline { vertices: points }),
-                material: polyline_materials.add(PolylineMaterial {
-                    width: 2.0,
-                    color,
-                    perspective: false,
-                    depth_bias: -0.0002,
-                }),
-                ..Default::default()
-            })
-            .insert(AnalyticsFlightLine);
+        gizmos.linestrip(points, color);
     }
 }
