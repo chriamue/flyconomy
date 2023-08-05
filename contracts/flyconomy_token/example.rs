@@ -1,4 +1,4 @@
-use flyconomy_token::FlyconomyTokenRef;
+use flyconomy_token::flyconomy_token::FlyconomyTokenRef;
 use ink::primitives::AccountId;
 use ink_e2e::subxt::utils::AccountId32;
 use ink_e2e::{build_message, subxt::config::SubstrateConfig, subxt::OnlineClient, Client};

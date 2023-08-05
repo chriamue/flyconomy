@@ -1,17 +1,12 @@
-#![cfg_attr(not(feature = "std"), no_std)]
-#![feature(min_specialization)]
+#![cfg_attr(not(feature = "std"), no_std, no_main)]
 
-pub use self::flyconomy_bases::*;
-
+#[openbrush::implementation(PSP34, PSP34Mintable, PSP34Metadata)]
 #[openbrush::contract]
 pub mod flyconomy_bases {
-    use openbrush::{
-        contracts::psp34::extensions::metadata::*,
-        traits::{Storage, String},
-    };
+    use openbrush::traits::{Storage, String};
 
-    #[ink(storage)]
     #[derive(Default, Storage)]
+    #[ink(storage)]
     pub struct FlyconomyBases {
         #[storage_field]
         psp34: psp34::Data,
@@ -19,10 +14,6 @@ pub mod flyconomy_bases {
         metadata: Data,
         next_id: u8,
     }
-
-    impl PSP34 for FlyconomyBases {}
-
-    impl PSP34Metadata for FlyconomyBases {}
 
     impl FlyconomyBases {
         #[ink(constructor)]
@@ -32,29 +23,26 @@ pub mod flyconomy_bases {
             let name_key = String::from("name");
             let symbol_key = String::from("symbol");
             let airports_url_key = String::from("airports_url");
-            instance._set_attribute(id.clone(), name_key, name);
-            instance._set_attribute(id.clone(), symbol_key, symbol);
-            instance._set_attribute(id, airports_url_key, airports_url);
+            metadata::Internal::_set_attribute(&mut instance, id.clone(), name_key, name);
+            metadata::Internal::_set_attribute(&mut instance, id.clone(), symbol_key, symbol);
+            metadata::Internal::_set_attribute(&mut instance, id, airports_url_key, airports_url);
             instance
         }
 
         #[ink(message)]
         pub fn mint_token(&mut self) -> Result<(), PSP34Error> {
-            self._mint_to(Self::env().caller(), Id::U8(self.next_id))?;
+            PSP34Mintable::mint(self, Self::env().caller(), Id::U8(self.next_id))?;
             self.next_id += 1;
             Ok(())
-        }
-
-        #[ink(message)]
-        pub fn mint(&mut self, id: Id) -> Result<(), PSP34Error> {
-            self._mint_to(Self::env().caller(), id)
         }
     }
 
     #[cfg(all(test, feature = "e2e-tests"))]
     pub mod tests {
         use openbrush::contracts::psp34::extensions::metadata::psp34metadata_external::PSP34Metadata;
+        use openbrush::contracts::psp34::extensions::mintable::psp34mintable_external::PSP34Mintable;
         use openbrush::contracts::psp34::psp34_external::PSP34;
+
         #[rustfmt::skip]
         use super::*;
         #[rustfmt::skip]
@@ -515,7 +503,7 @@ pub mod flyconomy_bases {
             for id in ids {
                 let mint_result = {
                     let _msg = build_message::<FlyconomyBasesRef>(address.clone())
-                        .call(|contract| contract.mint(id.clone()));
+                        .call(|contract| contract.mint(address_of!(alice), id.clone()));
                     client
                         .call(&ink_e2e::alice(), _msg, 0, None)
                         .await

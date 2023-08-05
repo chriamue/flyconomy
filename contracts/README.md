@@ -30,6 +30,7 @@ substrate-contracts-node --base-path chain
 
 ```bash
 cd flyconomy_token && cargo contract build
+cd flyconomy_bases && cargo contract build
 ```
 
 ### Deploy Contracts
