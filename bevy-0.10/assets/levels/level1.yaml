@@ -1,0 +1,9 @@
+name: "Level 1"
+description: "A simple level to get you started."
+environment:
+  start_capital: 1000000.0
+  landing_rights_cost: 100000.0
+  base_cost: 400000.0
+  takeoff_cost: 500.0
+  fuel_cost_per_km: 0.5
+  income_per_km: 5.0

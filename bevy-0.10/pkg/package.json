@@ -1,0 +1,23 @@
+{
+  "name": "flyconomy",
+  "collaborators": [
+    "Christian <chriamue@gmail.com>"
+  ],
+  "description": "A simple economic simulation game about managing an airline with real-world data.",
+  "version": "0.1.0",
+  "license": "MIT",
+  "repository": {
+    "type": "git",
+    "url": "https://github.com/chriamue/flyconomy"
+  },
+  "files": [
+    "flyconomy_bg.wasm",
+    "flyconomy.js",
+    "flyconomy.d.ts"
+  ],
+  "module": "flyconomy.js",
+  "types": "flyconomy.d.ts",
+  "sideEffects": [
+    "./snippets/*"
+  ]
+}

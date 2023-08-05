@@ -1,0 +1,1862 @@
+{
+    "version": 0.6,
+    "generator": "Overpass API 0.7.60.6 e2dc3e5b",
+    "osm3s": {
+        "timestamp_osm_base": "2023-06-09T18:38:36Z",
+        "timestamp_areas_base": "2023-06-09T17:09:20Z",
+        "copyright": "The data included in this document is from www.openstreetmap.org. The data is made available under ODbL."
+    },
+    "elements": [
+        {
+            "type": "node",
+            "id": 37622337,
+            "lat": 48.1802843,
+            "lon": 10.7090037,
+            "tags": {
+                "aeroway": "aerodrome",
+                "contact:pobox": "1106",
+                "contact:postcode": "86826",
+                "ele": "550",
+                "icao": "EDNS",
+                "name": "Sportflugplatz Schwabmünchen",
+                "type": "private",
+                "website": "http://www.lsv-schwabmuenchen.de/",
+                "wikidata": "Q12694915"
+            }
+        },
+        {
+            "type": "node",
+            "id": 42042357,
+            "lat": 48.6373219,
+            "lon": 8.8112267,
+            "tags": {
+                "addr:country": "DE",
+                "addr:postcode": "75392",
+                "aerodrome": "gliding",
+                "aeroway": "aerodrome",
+                "name": "Segelflugplatz Deckenpfronn",
+                "website": "https://www.fsv-sindelfingen-ev.de/index.php?id=11",
+                "wikidata": "Q1725140",
+                "wikipedia": "de:Segelfluggelände Deckenpfronn-Egelsee"
+            }
+        },
+        {
+            "type": "node",
+            "id": 115926055,
+            "lat": 50.9800239,
+            "lon": 13.9077060,
+            "tags": {
+                "aeroway": "aerodrome",
+                "icao": "EDAR",
+                "name": "Flugplatz Pirna"
+            }
+        },
+        {
+            "type": "node",
+            "id": 134286617,
+            "lat": 51.4877497,
+            "lon": 13.8796804,
+            "tags": {
+                "aeroway": "aerodrome",
+                "icao": "EDBZ",
+                "name": "Flugplatz Schwarzheide-Schipkau",
+                "wikidata": "Q1433847",
+                "wikipedia": "de:Flugplatz Schwarzheide-Schipkau"
+            }
+        },
+        {
+            "type": "node",
+            "id": 177219959,
+            "lat": 50.5976164,
+            "lon": 8.4450660,
+            "tags": {
+                "addr:city": "Aßlar",
+                "addr:country": "DE",
+                "addr:postcode": "35614",
+                "aeroway": "aerodrome",
+                "name": "Segelflugplatz Aßlar",
+                "website": "http://www.vflasslar.de/"
+            }
+        },
+        {
+            "type": "node",
+            "id": 251396824,
+            "lat": 52.7106780,
+            "lon": 9.1673589,
+            "tags": {
+                "aerodrome": "airsport",
+                "aeroway": "aerodrome",
+                "email": "info@edxi.de",
+                "icao": "EDXI",
+                "information": "Neue Platzfrequenz: 133.165 MHz",
+                "name": "Sportflugplatz Holzbalge",
+                "phone": "+49 4257 380",
+                "website": "http://www.flugplatz-nienburg.de/",
+                "wikidata": "Q20457701",
+                "wikipedia": "de:Flugplatz Nienburg-Holzbalge"
+            }
+        },
+        {
+            "type": "node",
+            "id": 252448466,
+            "lat": 49.7937551,
+            "lon": 11.1311445,
+            "tags": {
+                "aeroway": "aerodrome",
+                "ele": "498.56",
+                "iata": "URD",
+                "icao": "EDQE",
+                "name": "Verkehrslandeplatz Burg Feuerstein",
+                "operator": "Fränkische Fliegerschule Feuerstein",
+                "ref": "URD",
+                "website": "https://www.edqe.de",
+                "wikidata": "Q1433539",
+                "wikipedia": "de:Flugplatz Burg Feuerstein"
+            }
+        },
+        {
+            "type": "node",
+            "id": 253277561,
+            "lat": 51.2947185,
+            "lon": 13.3534153,
+            "tags": {
+                "aeroway": "aerodrome",
+                "iata": "IES",
+                "icao": "EDAU",
+                "name": "Verkehrslandeplatz Riesa-Göhlis"
+            }
+        },
+        {
+            "type": "node",
+            "id": 255234627,
+            "lat": 48.2517602,
+            "lon": 9.0688715,
+            "tags": {
+                "aerodrome:type": "gliding",
+                "aeroway": "aerodrome",
+                "icao": "EDSA",
+                "name": "Flugplatz Albstadt-Degerfeld",
+                "wikidata": "Q1433444",
+                "wikipedia": "de:Flugplatz Albstadt-Degerfeld"
+            }
+        },
+        {
+            "type": "node",
+            "id": 258359098,
+            "lat": 48.1742216,
+            "lon": 11.1254484,
+            "tags": {
+                "aeroway": "aerodrome",
+                "contact:fax": "+49-8146-95005",
+                "ele": "567",
+                "fax": "+49-8146-95005",
+                "frequency": "120.050",
+                "icao": "EDMJ",
+                "name": "Jesenwang",
+                "phone": "+49-8146-92030",
+                "runways": "07/25",
+                "website": "https://www.flugplatz-jesenwang.de/",
+                "wikidata": "Q1433656",
+                "wikipedia": "de:Flugplatz Jesenwang"
+            }
+        },
+        {
+            "type": "node",
+            "id": 259606807,
+            "lat": 47.9012107,
+            "lon": 7.6201892,
+            "tags": {
+                "aeroway": "aerodrome",
+                "ele": "212",
+                "icao": "EDTG",
+                "int_name": "Bremgarten Airport",
+                "name": "Sonderlandeplatz Bremgarten",
+                "operator": "Gewerbepark Breisgau GmbH",
+                "wikidata": "Q425631"
+            }
+        },
+        {
+            "type": "node",
+            "id": 267283088,
+            "lat": 53.3901805,
+            "lon": 7.2276361,
+            "tags": {
+                "addr:city": "Emden",
+                "addr:country": "DE",
+                "addr:housenumber": "103",
+                "addr:postcode": "26721",
+                "addr:street": "Gorch-Fock-Straße",
+                "aeroway": "aerodrome",
+                "email": "info@flugplatz-emden.de",
+                "fax": "+49 4921 42434",
+                "iata": "EME",
+                "icao": "EDWE",
+                "name": "Flugplatz Emden",
+                "name:pl": "Lotnisko Emden",
+                "phone": "+49 4921 42434",
+                "website": "https://www.flugplatz-emden.de/",
+                "wikidata": "Q567426",
+                "wikipedia": "de:Flugplatz Emden"
+            }
+        },
+        {
+            "type": "node",
+            "id": 268372551,
+            "lat": 50.0111981,
+            "lon": 10.2448633,
+            "tags": {
+                "aeroway": "aerodrome",
+                "icao": "EDFS",
+                "name": "Schweinfurt-Süd",
+                "operator": "Aeroclub Schweinfurt e. V.",
+                "wikidata": "Q1430947"
+            }
+        },
+        {
+            "type": "node",
+            "id": 273484836,
+            "lat": 50.9951056,
+            "lon": 7.3729597,
+            "tags": {
+                "aerodrome": "gliding",
+                "aeroway": "aerodrome",
+                "name": "Segelflugplatz Lindlar",
+                "website": "http://www.lsv-lindlar.de/",
+                "wikidata": "Q29657259",
+                "wikipedia": "de:Segelfluggelände Lindlar"
+            }
+        },
+        {
+            "type": "node",
+            "id": 274538121,
+            "lat": 48.0472981,
+            "lon": 12.5034009,
+            "tags": {
+                "aeroway": "aerodrome",
+                "icao": "EDPK",
+                "int_name": "grass landing strip Schoenberg",
+                "name": "Sonderlandeplatz Schönberg",
+                "ref": "EDPK",
+                "wikidata": "Q12694909"
+            }
+        },
+        {
+            "type": "node",
+            "id": 276664821,
+            "lat": 51.3076290,
+            "lon": 13.5528360,
+            "tags": {
+                "addr:housenumber": "25",
+                "addr:postcode": "01558",
+                "addr:street": "Zum Fliegerhorst",
+                "aerodrome:type": "regional",
+                "aeroway": "aerodrome",
+                "alt_name": "Flugplatz Großenhain",
+                "icao": "EDAK",
+                "name": "Verkehrslandeplatz Großenhain",
+                "ref": "none",
+                "website": "http://www.flugplatz-grossenhain.info",
+                "wikidata": "Q1433611",
+                "wikimedia_commons": "File:Grossenhain-Flugplatz 20220806 102719.jpg"
+            }
+        },
+        {
+            "type": "node",
+            "id": 277585456,
+            "lat": 47.5831162,
+            "lon": 10.6872008,
+            "tags": {
+                "addr:city": "Füssen",
+                "addr:postcode": "87629",
+                "addr:street": "Am Stieranger",
+                "aerodrome:type": "gliding",
+                "aeroway": "aerodrome",
+                "name": "Segelflugplatz Füssen",
+                "operator": "Luftsportverein Füssen",
+                "phone": "+49 8362 2545",
+                "website": "http://luftsportverein-fuessen.de/",
+                "wikidata": "Q110647009"
+            }
+        },
+        {
+            "type": "node",
+            "id": 277696245,
+            "lat": 49.8739996,
+            "lon": 12.3284023,
+            "tags": {
+                "aeroway": "aerodrome",
+                "name": "Segelflugplatz Tirschenreuth",
+                "note": "Motor-/Segelflugplatz",
+                "phone": "+49 9631 6090",
+                "website": "http://www.sfc-stiftland.de/"
+            }
+        },
+        {
+            "type": "node",
+            "id": 279326547,
+            "lat": 53.6816569,
+            "lon": 7.0556541,
+            "tags": {
+                "aeroway": "aerodrome",
+                "iata": "JUI",
+                "icao": "EDWJ",
+                "name": "Flugplatz Juist",
+                "website": "https://www.edwj.de/",
+                "wikidata": "Q1433664",
+                "wikipedia": "de:Flugplatz Juist"
+            }
+        },
+        {
+            "type": "node",
+            "id": 280208257,
+            "lat": 48.5463772,
+            "lon": 8.9469447,
+            "tags": {
+                "aeroway": "aerodrome",
+                "closest_town": "Ammerbuch",
+                "description": "special landing area",
+                "ele": "401",
+                "icao": "EDSP",
+                "name": "Flugplatz Poltringen",
+                "operator": "Flugsportverein Ammerbuch e.V.",
+                "source": "wikipedia",
+                "wikidata": "Q870382",
+                "wikipedia": "de:Flugplatz Poltringen"
+            }
+        },
+        {
+            "type": "node",
+            "id": 280671849,
+            "lat": 48.8030953,
+            "lon": 9.9301211,
+            "tags": {
+                "aerodrome:type": "airfield",
+                "aeroway": "aerodrome",
+                "icao": "EDTH",
+                "name": "Verkehrslandeplatz Heubach",
+                "name:en": "Heubach Airfield",
+                "website": "http://www.flugplatz-heubach.de/",
+                "wikidata": "Q1433632",
+                "wikipedia": "de:Flugplatz Heubach"
+            }
+        },
+        {
+            "type": "node",
+            "id": 286541750,
+            "lat": 50.0980191,
+            "lon": 9.8811976,
+            "tags": {
+                "aeroway": "aerodrome",
+                "frequency": "118.430",
+                "icao": "EDFJ",
+                "name": "Lager Hammelburg",
+                "website": "https://www.fsg-hammelburg.de/",
+                "wikidata": "Q1319264",
+                "wikimedia_commons": "Category:Flugplatz Lager Hammelburg",
+                "wikipedia": "de:Flugplatz Lager Hammelburg"
+            }
+        },
+        {
+            "type": "node",
+            "id": 290577447,
+            "lat": 48.9949803,
+            "lon": 10.8859320,
+            "tags": {
+                "aeroway": "aerodrome",
+                "ele": "410",
+                "icao": "EDNT",
+                "name": "Sonderlandeplatz Treuchtlingen-Bubenheim",
+                "wikidata": "Q1433899",
+                "wikipedia": "de:Flugplatz Treuchtlingen-Bubenheim"
+            }
+        },
+        {
+            "type": "node",
+            "id": 295709539,
+            "lat": 47.9095089,
+            "lon": 9.2508021,
+            "tags": {
+                "aeroway": "aerodrome",
+                "icao": "EDTP",
+                "name": "Pfullendorf",
+                "wikidata": "Q1433798"
+            }
+        },
+        {
+            "type": "node",
+            "id": 297136278,
+            "lat": 47.6776378,
+            "lon": 11.9635431,
+            "tags": {
+                "aeroway": "aerodrome",
+                "name": "Segelflugplatz LSC Schliersee",
+                "website": "https://lsc-schliersee.de/"
+            }
+        },
+        {
+            "type": "node",
+            "id": 297373615,
+            "lat": 48.6212050,
+            "lon": 9.6557623,
+            "tags": {
+                "aeroway": "aerodrome",
+                "ele": "706",
+                "icao": "EDSO",
+                "name": "Flugplatz Nortel",
+                "wikidata": "Q27478864",
+                "wikipedia": "de:Flugplatz Gruibingen-Nortel"
+            }
+        },
+        {
+            "type": "node",
+            "id": 307645742,
+            "lat": 51.6897254,
+            "lon": 7.8146617,
+            "tags": {
+                "addr:city": "Hamm",
+                "addr:country": "DE",
+                "addr:housenumber": "24",
+                "addr:postcode": "59065",
+                "addr:street": "Heessener Straße",
+                "aerodrome:type": "airfield",
+                "aeroway": "aerodrome",
+                "ele": "57.91",
+                "icao": "EDLH",
+                "name": "Flugplatz Hamm-Lippewiesen",
+                "operator": "Luftsportclub Hamm e.V.",
+                "wikidata": "Q1328020",
+                "wikipedia": "de:Flugplatz Hamm-Lippewiesen"
+            }
+        },
+        {
+            "type": "node",
+            "id": 308647819,
+            "lat": 51.9407267,
+            "lon": 8.9055730,
+            "tags": {
+                "aeroway": "aerodrome",
+                "icao": "EDLJ",
+                "name": "Flugplatz Detmold",
+                "wheelchair": "no",
+                "wikidata": "Q1433568"
+            }
+        },
+        {
+            "type": "node",
+            "id": 310208043,
+            "lat": 50.1476850,
+            "lon": 11.0463710,
+            "tags": {
+                "aeroway": "aerodrome",
+                "icao": "EDQL",
+                "name": "Verkehrslandeplatz Lichtenfels",
+                "operator": "Aero-Club Lichtenfels e.V.",
+                "ref": "EDQL",
+                "wheelchair": "yes",
+                "wikidata": "Q1433699"
+            }
+        },
+        {
+            "type": "node",
+            "id": 311162162,
+            "lat": 48.8492103,
+            "lon": 10.3357730,
+            "tags": {
+                "aeroway": "aerodrome",
+                "icao": "EDNQ",
+                "name": "Sonderlandeplatz Bopfingen",
+                "wikidata": "Q20464711"
+            }
+        },
+        {
+            "type": "node",
+            "id": 317855325,
+            "lat": 48.9536266,
+            "lon": 10.3239509,
+            "tags": {
+                "aeroway": "aerodrome",
+                "name": "UL-Fluggelände Walxheim",
+                "website": "http://www.fliegervereinwalxheim.de"
+            }
+        },
+        {
+            "type": "node",
+            "id": 321474848,
+            "lat": 53.2714592,
+            "lon": 7.4447965,
+            "tags": {
+                "addr:city": "Leer",
+                "addr:housenumber": "83",
+                "addr:postcode": "26789",
+                "addr:street": "Kloster-Thedinga-Straße",
+                "aeroway": "aerodrome",
+                "icao": "EDWF",
+                "name": "Flugplatz Leer-Papenburg",
+                "operator": "Flugplatz Leer-Papenburg GmbH",
+                "phone": "+49 491 5566",
+                "wikidata": "Q1272354"
+            }
+        },
+        {
+            "type": "node",
+            "id": 327244783,
+            "lat": 48.6586022,
+            "lon": 9.6240963,
+            "tags": {
+                "aeroway": "aerodrome",
+                "icao": "EDSE",
+                "name": "Göppingen-Bezgenriet",
+                "operator": "Flugschule Göppingen",
+                "wikidata": "Q15110788"
+            }
+        },
+        {
+            "type": "node",
+            "id": 330451258,
+            "lat": 50.9047143,
+            "lon": 9.2407106,
+            "tags": {
+                "aerodrome:type": "gliding",
+                "aeroway": "aerodrome",
+                "name": "Segelfluggelände Ziegenhain",
+                "web": "http://www.fsv-schwalm.de/startseite/flugplatz/",
+                "wikidata": "Q22691634"
+            }
+        },
+        {
+            "type": "node",
+            "id": 332009179,
+            "lat": 53.9204128,
+            "lon": 13.2197688,
+            "tags": {
+                "aerodrome:type": "public",
+                "aeroway": "aerodrome",
+                "ele": "7",
+                "icao": "EDUW",
+                "name": "Flugplatz Tutow",
+                "website": "http://www.flugplatz-tutow.de",
+                "wikidata": "Q1433909",
+                "wikipedia": "de:Flugplatz Tutow"
+            }
+        },
+        {
+            "type": "node",
+            "id": 340442661,
+            "lat": 48.6127224,
+            "lon": 9.4772415,
+            "tags": {
+                "aerodrome": "regional",
+                "aeroway": "aerodrome",
+                "icao": "EDTN",
+                "name": "Flugplatz Nabern/Teck",
+                "wikidata": "Q15110791"
+            }
+        },
+        {
+            "type": "node",
+            "id": 343430394,
+            "lat": 48.8723406,
+            "lon": 8.2091435,
+            "tags": {
+                "aeroway": "aerodrome",
+                "name": "Segelfluggelände Baldenau"
+            }
+        },
+        {
+            "type": "node",
+            "id": 345754349,
+            "lat": 53.5605559,
+            "lon": 9.5000352,
+            "tags": {
+                "aeroway": "aerodrome",
+                "frequency": "123.000 MHz",
+                "icao": "EDHS",
+                "name": "Flugplatz Stade",
+                "website": "http://www.flugplatz-stade.de/",
+                "wikidata": "Q1433878",
+                "wikipedia": "de:Flugplatz Stade"
+            }
+        },
+        {
+            "type": "node",
+            "id": 348127144,
+            "lat": 53.1297170,
+            "lon": 9.3513785,
+            "tags": {
+                "aeroway": "aerodrome",
+                "icao": "EDXQ",
+                "name": "Flugplatz Rotenburg",
+                "wikidata": "Q12694740"
+            }
+        },
+        {
+            "type": "node",
+            "id": 361211516,
+            "lat": 52.4817769,
+            "lon": 14.0879455,
+            "tags": {
+                "aerodrome:type": "gliding",
+                "aeroway": "aerodrome",
+                "blind:description:de": "Segelfliegen für Blinde ist auf dem Flugplatz Eggersdorf möglich, siehe http://www.absv.de/zum_aktualisieren/PS06052008.htm",
+                "contact:website": "http://www.segelflug-eggersdorf.de/",
+                "icao": "EDCE",
+                "name": "Sonderlandeplatz Eggersdorf",
+                "operator": "Flugplatzbetreibergesellschaft Eggersdorf/Müncheberg",
+                "wikidata": "Q1433576",
+                "wikipedia": "de:Flugplatz Eggersdorf"
+            }
+        },
+        {
+            "type": "node",
+            "id": 367098598,
+            "lat": 48.5293981,
+            "lon": 9.4000922,
+            "tags": {
+                "aerodrome:type": "gliding",
+                "aeroway": "aerodrome",
+                "name": "Flugplatz Hülben"
+            }
+        },
+        {
+            "type": "node",
+            "id": 380465701,
+            "lat": 52.9860233,
+            "lon": 8.5718083,
+            "tags": {
+                "aerodrome:type": "gliding",
+                "aeroway": "aerodrome",
+                "alt_name": "Große Höhe",
+                "contact:phone": "+49 4222 2710",
+                "contact:vhf": "123.375 Mhz",
+                "contact:website": "http://www.lsvdelmenhorst.de/",
+                "name": "Segelflugplatz Große Höhe",
+                "wikimedia_commons": "File:Segelfluggelände Große Höhe.jpg",
+                "wikipedia": "de:Segelfluggelände Große Höhe"
+            }
+        },
+        {
+            "type": "node",
+            "id": 382042762,
+            "lat": 51.5938473,
+            "lon": 12.2293394,
+            "tags": {
+                "addr:city": "Sandersdorf-Brehna",
+                "addr:housenumber": "1",
+                "addr:postcode": "06792",
+                "addr:street": "Am Flugplatz",
+                "addr:suburb": "Sandersdorf",
+                "aerodrome:type": "gliding",
+                "aeroway": "aerodrome",
+                "contact:website": "http://www.flugplatz-renneritz.de",
+                "ele": "94",
+                "icao": "EDOX",
+                "name": "Flugplatz Renneritz",
+                "operator": "Segelflugverein Wolfen e.V.",
+                "wikidata": "Q1433823",
+                "wikipedia": "de:Flugplatz Renneritz"
+            }
+        },
+        {
+            "type": "node",
+            "id": 416821576,
+            "lat": 47.8529884,
+            "lon": 8.3749901,
+            "tags": {
+                "aeroway": "aerodrome",
+                "name": "Segelflugplatz Reiselfingen"
+            }
+        },
+        {
+            "type": "node",
+            "id": 454630497,
+            "lat": 50.1375249,
+            "lon": 11.7965697,
+            "tags": {
+                "aeroway": "aerodrome",
+                "icao": "EDNZ",
+                "name": "Zell-Haidberg",
+                "wikidata": "Q12692931"
+            }
+        },
+        {
+            "type": "node",
+            "id": 497509379,
+            "lat": 48.5702855,
+            "lon": 11.9334598,
+            "tags": {
+                "aeroway": "aerodrome",
+                "ele": "484",
+                "name": "Segelflugplatz Gammelsdorf"
+            }
+        },
+        {
+            "type": "node",
+            "id": 503449255,
+            "lat": 48.1799989,
+            "lon": 11.9276385,
+            "tags": {
+                "aerodrome:type": "airfield",
+                "aeroway": "aerodrome",
+                "ele": "515",
+                "name": "Straßham UL",
+                "operator": "Sepp Christler",
+                "website": "https://www.ul-strassham.de/"
+            }
+        },
+        {
+            "type": "node",
+            "id": 528985601,
+            "lat": 48.5047059,
+            "lon": 8.4777035,
+            "tags": {
+                "aeroway": "aerodrome",
+                "glider": "yes",
+                "name": "Segelfluggelände Musbach / Freudenstadt",
+                "website": "http://www.fg-freudenstadt.de"
+            }
+        },
+        {
+            "type": "node",
+            "id": 549965902,
+            "lat": 50.7942379,
+            "lon": 9.5608845,
+            "tags": {
+                "aerodrome:type": "gliding",
+                "aeroway": "aerodrome",
+                "name": "Segelflugplatz Langenberg",
+                "name:en": "Langenberg Gliding Site",
+                "website": "http://www.flugplatz-langenberg.de/index.html"
+            }
+        },
+        {
+            "type": "node",
+            "id": 570034235,
+            "lat": 48.3957370,
+            "lon": 12.7216444,
+            "tags": {
+                "aeroway": "aerodrome",
+                "alt_name": "Zainach",
+                "icao": "EDME",
+                "name": "Flugplatz Eggenfelden",
+                "operator": "Eggenfelden",
+                "ref": "EDME",
+                "website": "http://www.flugplatz-eggenfelden.de/",
+                "wikidata": "Q1433578",
+                "wikipedia": "de:Flugplatz Eggenfelden"
+            }
+        },
+        {
+            "type": "node",
+            "id": 603054442,
+            "lat": 48.7461970,
+            "lon": 9.8623119,
+            "tags": {
+                "aerodrome:type": "gliding",
+                "aeroway": "aerodrome",
+                "name": "Segelflugplatz Hornberg",
+                "postal_code": "73529",
+                "website": "https://extern.flg-gd.de/",
+                "wikidata": "Q108239162"
+            }
+        },
+        {
+            "type": "node",
+            "id": 661090022,
+            "lat": 51.5489193,
+            "lon": 13.2315041,
+            "tags": {
+                "aeroway": "aerodrome",
+                "icao": "EDUF",
+                "name": "Flugplatz Falkenberg-Lönnewitz",
+                "wikidata": "Q12693651",
+                "wikipedia": "de:Flugplatz Falkenberg-Lönnewitz"
+            }
+        },
+        {
+            "type": "node",
+            "id": 692768888,
+            "lat": 48.5328153,
+            "lon": 8.6813654,
+            "tags": {
+                "aeroway": "aerodrome",
+                "name": "Segelfluggelände Haiterbach-Nagold"
+            }
+        },
+        {
+            "type": "node",
+            "id": 703812845,
+            "lat": 51.1166029,
+            "lon": 9.2865696,
+            "tags": {
+                "access": "private",
+                "aerodrome:type": "military",
+                "aeroway": "aerodrome",
+                "ele": "171",
+                "iata": "FRZ",
+                "icao": "ETHF",
+                "name": "Heeresflugplatz Fritzlar",
+                "name:en": "Fritzlar Air Base",
+                "wikidata": "Q830551",
+                "wikipedia": "en:Fritzlar Air Base"
+            }
+        },
+        {
+            "type": "node",
+            "id": 765183770,
+            "lat": 49.4580607,
+            "lon": 9.1028750,
+            "tags": {
+                "aeroway": "aerodrome",
+                "name": "Segelflugplatz"
+            }
+        },
+        {
+            "type": "node",
+            "id": 777800953,
+            "lat": 51.2647930,
+            "lon": 6.8536761,
+            "tags": {
+                "aerodrome:type": "gliding",
+                "aeroway": "aerodrome",
+                "alt_name": "Segelfluggelände des Düsseldorfer Aeroclubs Abteilung Segelflug",
+                "name": "Segelfluggelände Düsseldorf-Wolfsaap",
+                "operator": "Düsseldorfer Aero-Klub e.V.",
+                "website": "http://wolfsaap.de/"
+            }
+        },
+        {
+            "type": "node",
+            "id": 919581876,
+            "lat": 50.6614318,
+            "lon": 8.0221003,
+            "tags": {
+                "aeroway": "aerodrome",
+                "name": "Flugplatz Hof (Westerwald)"
+            }
+        },
+        {
+            "type": "node",
+            "id": 924531656,
+            "lat": 50.2874925,
+            "lon": 10.4199975,
+            "tags": {
+                "aerodrome:type": "airfield",
+                "aeroway": "aerodrome",
+                "name": "Aero Club Bad Königshofen",
+                "website": "https://www.amhimmelreich.com/"
+            }
+        },
+        {
+            "type": "node",
+            "id": 958336122,
+            "lat": 53.7248567,
+            "lon": 7.3732427,
+            "tags": {
+                "aeroway": "aerodrome",
+                "frequency": "123.050 MHz",
+                "iata": "BMR",
+                "icao": "EDWZ",
+                "name": "Flugplatz Baltrum",
+                "wikidata": "Q1433501",
+                "wikipedia": "de:Flugplatz Baltrum"
+            }
+        },
+        {
+            "type": "node",
+            "id": 1042031863,
+            "lat": 51.5708994,
+            "lon": 13.0511625,
+            "tags": {
+                "aeroway": "aerodrome",
+                "icao": "EDOG",
+                "name": "Flugplatz Torgau-Beilrode",
+                "wikidata": "Q12691849"
+            }
+        },
+        {
+            "type": "node",
+            "id": 1042032049,
+            "lat": 51.4511108,
+            "lon": 14.1994438,
+            "tags": {
+                "aeroway": "aerodrome",
+                "icao": "EDAT",
+                "name": "Flugplatz Nardt - Lětanišćo Narć",
+                "name:de": "Flugplatz Nardt",
+                "name:hsb": "Lětanišćo Narć",
+                "operator": "Aeroklub Hoyerswerda e.V.",
+                "source": "ourairports.com",
+                "website": "https://www.flugplatz-nardt.de/",
+                "wikidata": "Q12694122"
+            }
+        },
+        {
+            "type": "node",
+            "id": 1042032084,
+            "lat": 51.5755577,
+            "lon": 14.1369438,
+            "tags": {
+                "aerodrome": "regional",
+                "aeroway": "aerodrome",
+                "contact:website": "http://www.flugplatz-welzow.de/",
+                "ele": "114",
+                "icao": "EDCY",
+                "name": "Flugplatz Spremberg-Welzow",
+                "name:dsb": "Lětanišćo Grodk-Wjelcej",
+                "name:en": "Spremberg-Welzow Airport",
+                "name:hsb": "Lětanišćo Grodk-Wjelcej",
+                "wikidata": "Q20466135",
+                "wikipedia": "de:Flugplatz Welzow"
+            }
+        },
+        {
+            "type": "node",
+            "id": 1042032096,
+            "lat": 51.0630228,
+            "lon": 9.4195529,
+            "tags": {
+                "aerodrome:type": "gliding",
+                "aeroway": "aerodrome",
+                "icao": "EDEM",
+                "name": "Flugplatz Mosenberg",
+                "operator": "Luftsportverein Homberg/Efze",
+                "website": "http://www.feuerwehr-bddiger.de",
+                "wikidata": "Q1433738"
+            }
+        },
+        {
+            "type": "node",
+            "id": 1042032131,
+            "lat": 51.0005381,
+            "lon": 8.3080998,
+            "tags": {
+                "aeroway": "aerodrome",
+                "ele": "545",
+                "icao": "EDGQ",
+                "name": "Sonderlandeplatz Schameder",
+                "operator": "FSV-Schameder",
+                "source": "ourairports.com",
+                "website": "http://www.flugplatz-schameder.de",
+                "wikidata": "Q12694905"
+            }
+        },
+        {
+            "type": "node",
+            "id": 1042032142,
+            "lat": 50.5669441,
+            "lon": 8.8697224,
+            "tags": {
+                "aeroway": "aerodrome",
+                "icao": "EDGR",
+                "name": "Flugplatz Gießen-Reiskirchen",
+                "source": "ourairports.com",
+                "wikidata": "Q20461517"
+            }
+        },
+        {
+            "type": "node",
+            "id": 1042032180,
+            "lat": 53.6997223,
+            "lon": 9.7405558,
+            "tags": {
+                "aerodrome:type": "airfield",
+                "aeroway": "aerodrome",
+                "ele": "10",
+                "icao": "EDHO",
+                "name": "Flugplatz Ahrenlohe",
+                "wikidata": "Q1433439",
+                "wikipedia": "de:Flugplatz Ahrenlohe"
+            }
+        },
+        {
+            "type": "node",
+            "id": 1042032295,
+            "lat": 48.4261093,
+            "lon": 12.3452778,
+            "tags": {
+                "aeroway": "aerodrome",
+                "icao": "EDMP",
+                "name": "Flugplatz Vilsbiburg",
+                "name:de": "Flugplatz Vilsbiburg",
+                "name:en": "Vilsbiburg Airfield",
+                "wikidata": "Q1433928"
+            }
+        },
+        {
+            "type": "node",
+            "id": 1042032301,
+            "lat": 49.0647849,
+            "lon": 10.4012867,
+            "tags": {
+                "aeroway": "aerodrome",
+                "ele": "487",
+                "icao": "EDND",
+                "name": "Sonderlandeplatz Dinkelsbühl-Sinbronn",
+                "ref": "EDND",
+                "source": "ourairports.com",
+                "wikidata": "Q12692447"
+            }
+        },
+        {
+            "type": "node",
+            "id": 1042032305,
+            "lat": 49.1304910,
+            "lon": 11.4434233,
+            "tags": {
+                "aeroway": "aerodrome",
+                "ele": "390",
+                "icao": "EDNI",
+                "name": "Flugplatz Berching",
+                "wikidata": "Q12691884"
+            }
+        },
+        {
+            "type": "node",
+            "id": 1042032306,
+            "lat": 48.2383347,
+            "lon": 12.9766674,
+            "tags": {
+                "aeroway": "aerodrome",
+                "ele": "347",
+                "icao": "EDNK",
+                "name": "Flugplatz Kirchdorf/Inn",
+                "operator": "Fliegerclub Kirchdorf/Inn e. V.",
+                "operator:type": "community",
+                "source": "ourairports.com",
+                "website": "http://www.ednk.eu/",
+                "wikidata": "Q12693376"
+            }
+        },
+        {
+            "type": "node",
+            "id": 1042032307,
+            "lat": 48.8704282,
+            "lon": 10.5056867,
+            "tags": {
+                "aeroway": "aerodrome",
+                "ele": "422",
+                "icao": "EDNO",
+                "name": "Landeplatz Nördlingen",
+                "note": "Sonderlandeplatz",
+                "wikidata": "Q1433776",
+                "wikipedia": "de:Flugplatz Nördlingen"
+            }
+        },
+        {
+            "type": "node",
+            "id": 1042032308,
+            "lat": 48.4202766,
+            "lon": 12.8647223,
+            "tags": {
+                "aeroway": "aerodrome",
+                "icao": "EDNP",
+                "name": "Flugplatz Pfarrkirchen",
+                "name:en": "Pfarrkirchen Airfield",
+                "ref": "EDNP",
+                "wikidata": "Q1433795"
+            }
+        },
+        {
+            "type": "node",
+            "id": 1042032309,
+            "lat": 48.2390853,
+            "lon": 11.5589418,
+            "tags": {
+                "aeroway": "aerodrome",
+                "ele": "486",
+                "icao": "EDNX",
+                "name": "Sonderlandeplatz Schleißheim",
+                "wikidata": "Q126210",
+                "wikipedia": "de:Flugplatz Schleißheim"
+            }
+        },
+        {
+            "type": "node",
+            "id": 1042032320,
+            "lat": 51.2958274,
+            "lon": 13.0793927,
+            "tags": {
+                "aeroway": "aerodrome",
+                "icao": "EDOQ",
+                "name": "Flugplatz Oschatz",
+                "operator": "Fliegerclub Oschatz e. V.",
+                "website": "http://www.flugplatz-oschatz.de/",
+                "wikidata": "Q1433786",
+                "wikipedia": "de:Flugplatz Oschatz"
+            }
+        },
+        {
+            "type": "node",
+            "id": 1042032337,
+            "lat": 48.9611414,
+            "lon": 10.2358987,
+            "tags": {
+                "aeroway": "aerodrome",
+                "icao": "EDPY",
+                "name": "Sonderlandeplatz Ellwangen",
+                "name:de": "Sonderlandeplatz Ellwangen",
+                "wikidata": "Q50824759",
+                "wikipedia": "de:Flugplatz Ellwangen"
+            }
+        },
+        {
+            "type": "node",
+            "id": 1042032364,
+            "lat": 50.5658416,
+            "lon": 7.6533082,
+            "tags": {
+                "aeroway": "aerodrome",
+                "icao": "EDRW",
+                "name": "Flugplatz Dierdorf-Wienau",
+                "name:de": "Flugplatz Dierdorf-Wienau",
+                "name:en": "Dierdorf-Wienau Airfield",
+                "website": "http://www.lsv-neuwied.de/",
+                "wikidata": "Q1433577",
+                "wikipedia": "de:Flugplatz Dierdorf-Wienau"
+            }
+        },
+        {
+            "type": "node",
+            "id": 1042032373,
+            "lat": 48.7919426,
+            "lon": 8.1858330,
+            "tags": {
+                "aeroway": "aerodrome",
+                "icao": "EDTB",
+                "name": "Sonderlandeplatz Baden-Oos",
+                "source": "ourairports.com",
+                "wikidata": "Q20459735",
+                "wikipedia": "de:Flugplatz Baden-Oos"
+            }
+        },
+        {
+            "type": "node",
+            "id": 1042034423,
+            "lat": 49.6517607,
+            "lon": 7.3050252,
+            "tags": {
+                "access": "no",
+                "aerodrome:type": "military",
+                "aeroway": "aerodrome",
+                "alt_name": "Baumholder Airfield",
+                "icao": "ETEK",
+                "military": "airfield",
+                "name": "Baumholder Army Air Field",
+                "operator": "US Army",
+                "short_name": "Baumholder AAF",
+                "wikidata": "Q811581",
+                "wikipedia": "de:Baumholder Army Airfield"
+            }
+        },
+        {
+            "type": "node",
+            "id": 1042034446,
+            "lat": 52.2788449,
+            "lon": 9.0845767,
+            "tags": {
+                "aeroway": "aerodrome",
+                "alt_name": "Flugplatz Bückeburg",
+                "icao": "ETHB",
+                "int_name": "Buckeburg Airport",
+                "landuse": "military",
+                "military": "airfield",
+                "name": "Heeresflugplatz Bückeburg",
+                "operator": "GAM",
+                "source": "Bückeburg unter https://www.milais.org/pages/publications.php",
+                "wikidata": "Q830263"
+            }
+        },
+        {
+            "type": "node",
+            "id": 1042034458,
+            "lat": 52.2912445,
+            "lon": 7.3871930,
+            "tags": {
+                "aeroway": "aerodrome",
+                "icao": "ETHE",
+                "name": "Rheine Bentlage Air Base",
+                "wikidata": "Q327626"
+            }
+        },
+        {
+            "type": "node",
+            "id": 1042034582,
+            "lat": 52.7232018,
+            "lon": 7.3263302,
+            "tags": {
+                "aeroway": "aerodrome",
+                "icao": "ETWM",
+                "landuse": "military",
+                "military": "airfield",
+                "name": "Flugplatz Meppen",
+                "note": "Die Bezeichnung \"Flugplatz\" ist m.E. irreführend; es ist ein Piste f. Kleinflugzeuge der Streitkräfte, sehr selten benutzt, eingezäunt u. für die Öffentlichkeit nicht zugänglich. M. E. sollte die Bezeichnung \"Fliegerhorst\" benutzt werden (s. u. Wikidata) ",
+                "wikidata": "Q1298295"
+            }
+        },
+        {
+            "type": "node",
+            "id": 1048181974,
+            "lat": 51.5422858,
+            "lon": 8.5798914,
+            "tags": {
+                "aerodrome:type": "gliding",
+                "aeroway": "aerodrome",
+                "contact:website": "http://www.ac-bueren.de/",
+                "leisure": "pitch",
+                "name": "Segelflugplatz Büren",
+                "sport": "gliding"
+            }
+        },
+        {
+            "type": "node",
+            "id": 1075475407,
+            "lat": 49.1756675,
+            "lon": 8.1387349,
+            "tags": {
+                "aeroway": "aerodrome",
+                "email": "info@aeroclub-landau.de",
+                "fax": "+49 6323 7040553",
+                "name": "Landau-Ebenberg",
+                "note": "Besucherinformation: http://www.aec-landau.de http://djk-landau.de Frequenz: 123.375 Bahn 10/28",
+                "phone": "+49 6323 6332",
+                "website": "http://www.aec-landau.de"
+            }
+        },
+        {
+            "type": "node",
+            "id": 1224672957,
+            "lat": 49.2155595,
+            "lon": 11.4014445,
+            "tags": {
+                "aeroway": "aerodrome",
+                "name": "Forst"
+            }
+        },
+        {
+            "type": "node",
+            "id": 1277275634,
+            "lat": 49.3289492,
+            "lon": 11.4795203,
+            "tags": {
+                "aeroway": "aerodrome",
+                "name": "Segelfluggelände Ottenberg",
+                "wikidata": "Q24544143"
+            }
+        },
+        {
+            "type": "node",
+            "id": 1277366060,
+            "lat": 49.3898713,
+            "lon": 11.4261170,
+            "tags": {
+                "aerodrome:type": "gliding",
+                "aeroway": "aerodrome",
+                "internet_access": "wlan",
+                "internet_access:fee": "customers",
+                "name": "Segelflugplatz Post-Sportverein Nürnberg",
+                "nohousenumber": "yes",
+                "operator": "Segelflieger im Post-SV Nürnberg e.V.",
+                "phone": "+49 9189 310",
+                "website": "https://www.altdorf-hagenhausen.de/"
+            }
+        },
+        {
+            "type": "node",
+            "id": 1427892124,
+            "lat": 49.9100276,
+            "lon": 7.9080792,
+            "tags": {
+                "IFR": "yes",
+                "aerodrome:type": "private",
+                "aeroway": "aerodrome",
+                "icao": "EDEL",
+                "name": "Sportflugplatz Langenlonsheim",
+                "ref": "EDEL",
+                "wikidata": "Q6485922"
+            }
+        },
+        {
+            "type": "node",
+            "id": 1537869085,
+            "lat": 48.5568689,
+            "lon": 9.8212052,
+            "tags": {
+                "aerodrome:type": "gliding",
+                "aeroway": "aerodrome",
+                "alt_name": "Flugplatz Oppingen",
+                "name": "Segelfluggelände Oppingen-Au",
+                "wikidata": "Q2265968"
+            }
+        },
+        {
+            "type": "node",
+            "id": 1573048112,
+            "lat": 47.7390205,
+            "lon": 12.1163311,
+            "tags": {
+                "aeroway": "aerodrome",
+                "name": "Segelflugplatz Brannenburg"
+            }
+        },
+        {
+            "type": "node",
+            "id": 1710093507,
+            "lat": 48.4861572,
+            "lon": 10.2830058,
+            "tags": {
+                "aeroway": "aerodrome",
+                "icao": "EDMG",
+                "name": "Flugplatz Günzburg Donauried",
+                "wikidata": "Q1433615"
+            }
+        },
+        {
+            "type": "node",
+            "id": 1861923056,
+            "lat": 48.4136620,
+            "lon": 9.7633570,
+            "tags": {
+                "aeroway": "aerodrome",
+                "name": "Ultraleichtflugplatz Seißen"
+            }
+        },
+        {
+            "type": "node",
+            "id": 1932102910,
+            "lat": 48.1865245,
+            "lon": 8.7227867,
+            "tags": {
+                "aeroway": "aerodrome",
+                "ele": "745",
+                "icao": "EDSZ",
+                "name": "Rottweil-Zepfenhan",
+                "wikidata": "Q12695663"
+            }
+        },
+        {
+            "type": "node",
+            "id": 1991761923,
+            "lat": 49.3513988,
+            "lon": 9.1205190,
+            "tags": {
+                "aeroway": "aerodrome",
+                "name": "Segelflugplatz Schreckhof"
+            }
+        },
+        {
+            "type": "node",
+            "id": 2136037888,
+            "lat": 52.6635094,
+            "lon": 7.9313275,
+            "tags": {
+                "addr:city": "Quakenbrück",
+                "addr:postcode": "49610",
+                "aerodrome": "gliding",
+                "aeroway": "aerodrome",
+                "name": "Luftsportverein Quakenbrück",
+                "short_name": "LSV Quakenbrück"
+            }
+        },
+        {
+            "type": "node",
+            "id": 2291493148,
+            "lat": 51.0854506,
+            "lon": 9.9194324,
+            "tags": {
+                "aerodrome:type": "gliding",
+                "aeroway": "aerodrome",
+                "leisure": "sports_centre",
+                "name": "Segelfluggelände Dornberg",
+                "sport": "glider_flying"
+            }
+        },
+        {
+            "type": "node",
+            "id": 2300621758,
+            "lat": 49.8374991,
+            "lon": 11.0473259,
+            "tags": {
+                "aerodrome:type": "gliding",
+                "aeroway": "aerodrome",
+                "ele": "519",
+                "name": "Segelflugplatz Friesen",
+                "website": "http://home.arcor-online.de/alois.laumer/platz-te/fries-wa.htm"
+            }
+        },
+        {
+            "type": "node",
+            "id": 2772019619,
+            "lat": 50.4902361,
+            "lon": 9.8478791,
+            "tags": {
+                "addr:postcode": "36163",
+                "aeroway": "aerodrome",
+                "name": "Huhnrain bei Poppenhausen"
+            }
+        },
+        {
+            "type": "node",
+            "id": 2790124340,
+            "lat": 48.9521126,
+            "lon": 12.1475218,
+            "tags": {
+                "aeroway": "aerodrome",
+                "icao": "EDNR",
+                "name": "Flugplatz Oberhinkofen",
+                "operator": "Luftsportverein Regensburg e.V.",
+                "website": "http://www.luftsportverein-regensburg.de/"
+            }
+        },
+        {
+            "type": "node",
+            "id": 2982615770,
+            "lat": 47.9267912,
+            "lon": 12.2871915,
+            "tags": {
+                "aerodrome:type": "airfield",
+                "aeroway": "aerodrome",
+                "ele": "514",
+                "icao": "EDPC",
+                "name": "Flugplatz Bad Endorf",
+                "phone": "+49 8053 209496",
+                "wikidata": "Q51656078"
+            }
+        },
+        {
+            "type": "node",
+            "id": 2982667028,
+            "lat": 47.9462835,
+            "lon": 12.2043496,
+            "tags": {
+                "aeroway": "aerodrome",
+                "icao": "EDNV",
+                "name": "Sonderlandeplatz Vogtareuth",
+                "wikidata": "Q12695500"
+            }
+        },
+        {
+            "type": "node",
+            "id": 3084175380,
+            "lat": 52.0838149,
+            "lon": 10.0179164,
+            "tags": {
+                "aerodrome:type": "gliding",
+                "aeroway": "aerodrome",
+                "ele": "190",
+                "name": "Segelflugplatz Wesseln"
+            }
+        },
+        {
+            "type": "node",
+            "id": 3554808116,
+            "lat": 50.7077183,
+            "lon": 8.0832824,
+            "tags": {
+                "aeroway": "aerodrome",
+                "ele": "599",
+                "iata": "SGE",
+                "icao": "EDGS",
+                "name": "Siegerlandflughafen",
+                "passengers": "32070",
+                "wikidata": "Q685497",
+                "wikimedia_commons": "Category:Siegerland Airport",
+                "wikipedia": "de:Flughafen Siegerland"
+            }
+        },
+        {
+            "type": "node",
+            "id": 3563817193,
+            "lat": 49.6972212,
+            "lon": 11.1412303,
+            "tags": {
+                "aerodrome:type": "gliding",
+                "aeroway": "aerodrome",
+                "name": "Segelflugplatz Dobenreuth"
+            }
+        },
+        {
+            "type": "node",
+            "id": 3583070620,
+            "lat": 51.5336866,
+            "lon": 10.5787240,
+            "tags": {
+                "aeroway": "aerodrome",
+                "name": "UL-Flugplatz Hohenstein"
+            }
+        },
+        {
+            "type": "node",
+            "id": 3713420370,
+            "lat": 48.3461815,
+            "lon": 8.6379021,
+            "tags": {
+                "aeroway": "aerodrome",
+                "designation": "ULM",
+                "name": "UL-Gelände Sulz am Neckar",
+                "source": "www.fsg-sulz.de"
+            }
+        },
+        {
+            "type": "node",
+            "id": 3716635469,
+            "lat": 49.8647566,
+            "lon": 6.7866615,
+            "tags": {
+                "aeroway": "aerodrome",
+                "icao": "EDRT",
+                "name": "Flugplatz Trier-Föhren",
+                "name:de": "Flugplatz Trier-Föhren",
+                "wikidata": "Q371691",
+                "wikipedia": "de:Flugplatz Trier-Föhren"
+            }
+        },
+        {
+            "type": "node",
+            "id": 3798340173,
+            "lat": 49.2905901,
+            "lon": 9.1708370,
+            "tags": {
+                "aeroway": "aerodrome",
+                "name": "Gundelsheim Ultraleicht"
+            }
+        },
+        {
+            "type": "node",
+            "id": 3798415034,
+            "lat": 52.6682064,
+            "lon": 8.3261595,
+            "tags": {
+                "aerodrome:type": "airfield",
+                "aeroway": "aerodrome",
+                "ele": "102",
+                "name": "Paradiek Lohne bei Vechta"
+            }
+        },
+        {
+            "type": "node",
+            "id": 3875101915,
+            "lat": 47.7002691,
+            "lon": 10.0215063,
+            "tags": {
+                "aerodrome": "gliding",
+                "aeroway": "aerodrome",
+                "name": "Luftsportgruppe Isny e.V."
+            }
+        },
+        {
+            "type": "node",
+            "id": 4441659208,
+            "lat": 51.6414026,
+            "lon": 7.4223896,
+            "tags": {
+                "aeroway": "aerodrome",
+                "name": "UL-Gelände Waltrop"
+            }
+        },
+        {
+            "type": "node",
+            "id": 4443573046,
+            "lat": 53.3282460,
+            "lon": 10.8331218,
+            "tags": {
+                "aeroway": "aerodrome",
+                "name": "Sonderlandeplatz Teldau Amholz",
+                "name:de": "Sonderlandeplatz Teldau Amholz",
+                "name:en": "Teldau Amholz Airstrip",
+                "website": "http://www.elbeflugschule.de/flugplatz.htm"
+            }
+        },
+        {
+            "type": "node",
+            "id": 4459621657,
+            "lat": 51.3727044,
+            "lon": 11.1437998,
+            "tags": {
+                "aeroway": "aerodrome",
+                "alt_name": "Udersleben",
+                "icao": "EDOF",
+                "name": "Flugplatz Bad Frankenhausen",
+                "wikidata": "Q1433495"
+            }
+        },
+        {
+            "type": "node",
+            "id": 4476267379,
+            "lat": 49.0244633,
+            "lon": 10.6580091,
+            "tags": {
+                "aeroway": "aerodrome",
+                "name": "UL-Gelände Geilsheim"
+            }
+        },
+        {
+            "type": "node",
+            "id": 4485018624,
+            "lat": 52.1592188,
+            "lon": 7.2413261,
+            "tags": {
+                "aeroway": "aerodrome",
+                "name": "UL-Flugplatz Metelen",
+                "web": "http://www.ul-metelen.de"
+            }
+        },
+        {
+            "type": "node",
+            "id": 4493823411,
+            "lat": 50.6091385,
+            "lon": 10.0877542,
+            "tags": {
+                "aeroway": "aerodrome",
+                "name": "UL-Gelände Weidberg-Kaltenwestheim",
+                "source": "http://www.dulv.de/Flugplatz/details.php?id=1215"
+            }
+        },
+        {
+            "type": "node",
+            "id": 4533336883,
+            "lat": 48.4336943,
+            "lon": 7.9719421,
+            "tags": {
+                "aeroway": "aerodrome",
+                "name": "Fluggelände Ohlsbach (Sonderlandeplatz)",
+                "sport": "free_flying",
+                "website": "https://ortenauer-dgf.de/index.php/gelaende/fluggelaende-ohlsbach"
+            }
+        },
+        {
+            "type": "node",
+            "id": 4567005111,
+            "lat": 49.6899793,
+            "lon": 8.5845384,
+            "tags": {
+                "aeroway": "aerodrome",
+                "name": "Bensheimer Stadt"
+            }
+        },
+        {
+            "type": "node",
+            "id": 4679856485,
+            "lat": 49.0317829,
+            "lon": 11.1410909,
+            "tags": {
+                "aeroway": "aerodrome",
+                "name": "Gersdorf UL",
+                "website": "http://an03369.hp.altmuehlnet.de"
+            }
+        },
+        {
+            "type": "node",
+            "id": 4685702069,
+            "lat": 49.3516785,
+            "lon": 10.0758517,
+            "tags": {
+                "aeroway": "aerodrome",
+                "name": "Segelflugplatz Leuzendorf",
+                "website": "http://hohenloher-luftsportgruppe.de/UnserFluggelaende.php"
+            }
+        },
+        {
+            "type": "node",
+            "id": 4914251364,
+            "lat": 50.6044179,
+            "lon": 8.7289532,
+            "tags": {
+                "addr:city": "Gießen",
+                "addr:postcode": "35396",
+                "addr:street": "Martha-Mendel-Weg",
+                "aeroway": "aerodrome",
+                "name": "Segelflugplatz Gießen-Wieseck",
+                "operator": "Flugsportverein Gießen e.V.",
+                "operator:type": "public",
+                "website": "https://www.fsv-giessen.de/"
+            }
+        },
+        {
+            "type": "node",
+            "id": 5705908168,
+            "lat": 49.4083841,
+            "lon": 6.8906571,
+            "tags": {
+                "aeroway": "aerodrome",
+                "name": "La Motte UL",
+                "note": "Zulassung nur für Motorschirme, nur für Mitglieder\"",
+                "private": "yes",
+                "restricted": "yes",
+                "website": "http://www.gleitschirmjaeger-saar.de"
+            }
+        },
+        {
+            "type": "node",
+            "id": 5926449757,
+            "lat": 50.7505540,
+            "lon": 9.2485979,
+            "tags": {
+                "aerodrome:type": "gliding",
+                "aeroway": "aerodrome",
+                "name": "Segelflugplatz Alsfeld",
+                "name:en": "Alsfeld Gliding Site",
+                "operator": "LSV Alsfeld"
+            }
+        },
+        {
+            "type": "node",
+            "id": 6176429075,
+            "lat": 48.6370731,
+            "lon": 8.7320662,
+            "tags": {
+                "aeroway": "aerodrome",
+                "name": "Segelfluggelände Kengelberg"
+            }
+        },
+        {
+            "type": "node",
+            "id": 6176460414,
+            "lat": 47.8247867,
+            "lon": 11.7044006,
+            "tags": {
+                "aeroway": "aerodrome",
+                "name": "Flugplatz Warngau",
+                "website": "http://www.fliegerclub-warngau.de/"
+            }
+        },
+        {
+            "type": "node",
+            "id": 6177192107,
+            "lat": 50.2438470,
+            "lon": 11.3578593,
+            "tags": {
+                "aerodrome:type": "gliding",
+                "aeroway": "aerodrome",
+                "name": "Segelfluggelände Kronach",
+                "name:en": "Kronach Glider Field",
+                "operator": "Aeroclub Frankenwald",
+                "website": "http://www.flugplatz-kronach.de/"
+            }
+        },
+        {
+            "type": "node",
+            "id": 6177238873,
+            "lat": 47.8517272,
+            "lon": 11.6667536,
+            "tags": {
+                "aeroway": "aerodrome",
+                "name": "UL-Flugplatz Kleinhartpenning"
+            }
+        },
+        {
+            "type": "node",
+            "id": 6177265885,
+            "lat": 53.3749464,
+            "lon": 8.8502399,
+            "tags": {
+                "aerodrome:type": "gliding",
+                "aeroway": "aerodrome",
+                "name": "Flugplatz Holste-Hellingst"
+            }
+        },
+        {
+            "type": "node",
+            "id": 6187902841,
+            "lat": 49.2112220,
+            "lon": 12.6589280,
+            "tags": {
+                "aeroway": "aerodrome",
+                "name": "Segelflugplatz Cham-Janahof"
+            }
+        },
+        {
+            "type": "node",
+            "id": 6221495105,
+            "lat": 47.8323781,
+            "lon": 9.3018666,
+            "tags": {
+                "aeroway": "aerodrome",
+                "name": "Segelflugplatz Heiligenberg"
+            }
+        },
+        {
+            "type": "node",
+            "id": 6221546422,
+            "lat": 53.6713805,
+            "lon": 13.3981431,
+            "tags": {
+                "aerodrome:type": "regional",
+                "aeroway": "aerodrome",
+                "name": "UL-Flugplatz Roggenhagen",
+                "source": "www.dulv.de"
+            }
+        },
+        {
+            "type": "node",
+            "id": 6225155527,
+            "lat": 48.5545091,
+            "lon": 9.9017696,
+            "tags": {
+                "aeroway": "aerodrome",
+                "name": "Segelfluggelände Urspring",
+                "name:de": "Segelfluggelände Urspring",
+                "name:en": "Urspring Glider field",
+                "website": "http://sfg-hegy.de/"
+            }
+        },
+        {
+            "type": "node",
+            "id": 6471970945,
+            "lat": 51.6368318,
+            "lon": 11.6149507,
+            "tags": {
+                "aeroway": "aerodrome",
+                "description": "Landeplatz nach §25 LuftVG",
+                "name": "Airfield Gerbstedt",
+                "operator": "FlyingFish"
+            }
+        },
+        {
+            "type": "node",
+            "id": 8240032888,
+            "lat": 47.9147601,
+            "lon": 9.7101825,
+            "tags": {
+                "aeroway": "aerodrome",
+                "name": "Flugplatz Bad Waldsee-Reute",
+                "website": "http://fliegerwaldsee.de/"
+            }
+        },
+        {
+            "type": "node",
+            "id": 9822891115,
+            "lat": 53.5341565,
+            "lon": 7.8848754,
+            "tags": {
+                "aeroway": "aerodrome",
+                "disused": "yes",
+                "icao": "ETNJ",
+                "name": "Flugplatz Jever (NATO)",
+                "note": "Seit der Einstellung des Flugbetriebes und Entwidmung 2013 heißt der Fliegerhorst Jever nur noch Flugplatz Jever",
+                "source:name": "https://dserver.bundestag.de/btd/18/015/1801532.pdf",
+                "wikidata": "Q1428519",
+                "wikipedia": "de:Flugplatz Jever"
+            }
+        },
+        {
+            "type": "node",
+            "id": 10845458383,
+            "lat": 51.1283111,
+            "lon": 12.0124132,
+            "tags": {
+                "aeroway": "aerodrome",
+                "name": "Gleitschirm Flugplatz Teuchern (Startplatz Ost)"
+            }
+        },
+        {
+            "type": "node",
+            "id": 10845496579,
+            "lat": 51.1256596,
+            "lon": 11.9956088,
+            "tags": {
+                "aeroway": "aerodrome",
+                "name": "Gleitschirm Flugplatz Teuchern (Startplatz West)"
+            }
+        }
+    ]
+}
