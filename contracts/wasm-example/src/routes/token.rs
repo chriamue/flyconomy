@@ -1,21 +1,24 @@
-use yew::prelude::*;
+use anyhow::anyhow;
+use futures::FutureExt;
+use std::str::FromStr;
+use subxt::utils::AccountId32;
 use subxt::OnlineClient;
 use subxt::PolkadotConfig;
-use anyhow::anyhow;
-use web_sys::HtmlInputElement;
-use futures::FutureExt;
-use subxt::utils::AccountId32;
-use web_sys::EventTarget;
 use wasm_bindgen::JsCast;
+use web_sys::EventTarget;
+use web_sys::HtmlInputElement;
+use yew::prelude::*;
 
 use crate::services::get_accounts;
 use crate::services::Account;
+use crate::services::TokenService;
 
 pub struct TokenComponent {
     account: Option<String>,
     balance: Option<u128>,
     online_client: Option<OnlineClient<PolkadotConfig>>,
     stage: TokenStage,
+    token_service: Option<TokenService>,
 }
 
 pub enum TokenStage {
@@ -26,17 +29,18 @@ pub enum TokenStage {
     DisplayBalance(u128), // The balance can be u128 for illustrative purposes
     RequestingAccounts,
     SelectAccount(Vec<Account>),
+    Signing(Account),
 }
 
 pub enum Message {
     Error(anyhow::Error),
     OnlineClientCreated(OnlineClient<PolkadotConfig>),
-    ChangeAccount(String),
-    RequestBalance,
-    ReceivedBalance(u128),
+    TokenServiceCreated(TokenService),
     RequestAccounts,
     ReceivedAccounts(Vec<Account>),
     SignWithAccount(usize),
+    RequestBalance,
+    ReceivedBalance(u128),
 }
 
 impl Component for TokenComponent {
@@ -51,11 +55,17 @@ impl Component for TokenComponent {
                 Err(err) => Message::Error(anyhow!("Online Client could not be created. Make sure you have a local node running:\n{err}")),
             }
         }));
+        ctx.link()
+            .send_future(TokenService::new().map(|res| match res {
+                Ok(service) => Message::TokenServiceCreated(service),
+                Err(err) => Message::Error(anyhow!("Failed to create TokenService: {}", err)),
+            }));
         TokenComponent {
             account: None,
             balance: None,
             stage: TokenStage::CreatingOnlineClient,
             online_client: None,
+            token_service: None,
         }
     }
 
@@ -65,8 +75,8 @@ impl Component for TokenComponent {
                 self.online_client = Some(online_client);
                 self.stage = TokenStage::EnterAccount;
             }
-            Message::ChangeAccount(account_str) => {
-                // Here you can convert the account string to AccountId32 and update self.account
+            Message::TokenServiceCreated(service) => {
+                self.token_service = Some(service);
             }
             Message::SignWithAccount(i) => {
                 if let TokenStage::SelectAccount(accounts) = &self.stage {
@@ -75,11 +85,32 @@ impl Component for TokenComponent {
                     let account_source = account.source.clone();
                     let account_id: AccountId32 = account_address.parse().unwrap();
                     self.account = Some(account_address);
+
+                    self.stage = TokenStage::Signing(account.clone());
+                    ctx.link()
+                        .send_future(async move { Message::RequestBalance });
                 }
             }
             Message::RequestBalance => {
-                self.stage = TokenStage::RequestingBalance;
-                // Here you would send a request to fetch the balance for the given account
+                if let Some(account) = &self.account {
+                    let account_clone = account.clone();
+                    let service_clone = self.token_service.as_ref().unwrap().clone();
+                    let link = ctx.link();
+
+                    link.send_future(async move {
+                        let account_id: AccountId32 =
+                            AccountId32::from_str(&account_clone).unwrap();
+                        match service_clone
+                            .get_balance_of(&account_id, account_clone.clone())
+                            .await
+                        {
+                            Ok(balance) => Message::ReceivedBalance(balance),
+                            Err(_) => {
+                                Message::Error(anyhow!("Failed to fetch balance.".to_string()))
+                            }
+                        }
+                    });
+                }
             }
             Message::ReceivedBalance(balance) => {
                 self.balance = Some(balance);
@@ -96,13 +127,7 @@ impl Component for TokenComponent {
                 ));
             }
             Message::ReceivedAccounts(accounts) => {
-                // For simplicity, if only one account is returned, set it directly.
-                if accounts.len() == 1 {
-                    self.account = Some(accounts[0].address.to_string());
-                    self.stage = TokenStage::EnterAccount;
-                } else {
-                    self.stage = TokenStage::SelectAccount(accounts);
-                }
+                self.stage = TokenStage::SelectAccount(accounts);
             }
         }
         true
@@ -116,20 +141,16 @@ impl Component for TokenComponent {
             TokenStage::CreatingOnlineClient => {
                 html!(<div>{"Creating Online Client..."}</div>)
             }
-            TokenStage::RequestingAccounts => {
-                html!(<div>{"Querying extensions for accounts..."}</div>)
-            }
             TokenStage::EnterAccount => {
+                let get_accounts_click = ctx.link().callback(|_| Message::RequestAccounts);
                 html!(<>
                     <div>
-                        <input type="text"
-                            value={self.account.clone()}
-                        />
-                        <button onclick={ctx.link().callback(|_| Message::RequestAccounts)}>
-                            {"Get Accounts"}
-                        </button>
+                        <button onclick={get_accounts_click}> {"=> Select an Account"} </button>
                     </div>
                 </>)
+            }
+            TokenStage::RequestingAccounts => {
+                html!(<div>{"Querying extensions for accounts..."}</div>)
             }
             TokenStage::SelectAccount(accounts) => {
                 if accounts.is_empty() {
@@ -150,6 +171,9 @@ impl Component for TokenComponent {
                         </>
                     )
                 }
+            }
+            TokenStage::Signing(_) => {
+                html!(<div>{"Singing message with browser extension..."}</div>)
             }
             TokenStage::RequestingBalance => {
                 html!(<div>{"Requesting balance for the account..."}</div>)

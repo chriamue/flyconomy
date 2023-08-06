@@ -6,9 +6,9 @@ This directory contains the smart contracts for the project.
 
 ```bash
 curl https://sh.rustup.rs -sSf | sh
-rustup install nightly-2023-01-01
+rustup install nightly-2023-08-03
 rustup component add rust-src
-cargo install --force --locked cargo-contract
+cargo install --force --locked cargo-contract --version 4.0.0-alpha
 ```
 
 ## Contracts

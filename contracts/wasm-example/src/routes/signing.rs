@@ -193,7 +193,7 @@ impl Component for SigningExamplesComponent {
                         match submit_wait_finalized_and_get_extrinsic_success_event(
                             signed_extrinsic,
                         )
-                            .await
+                        .await
                         {
                             Ok(remark_event) => Message::ExtrinsicFinalized { remark_event },
                             Err(err) => Message::ExtrinsicFailed(err),

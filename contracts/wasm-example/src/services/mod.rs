@@ -6,11 +6,14 @@ use serde_json::json;
 use std::fmt::Write;
 use subxt::ext::codec::Encode;
 use subxt::tx::PartialExtrinsic;
-use subxt::{self, OnlineClient, PolkadotConfig};
 use subxt::utils::AccountId32;
+use subxt::{self, OnlineClient, PolkadotConfig};
 use wasm_bindgen::prelude::*;
 use wasm_bindgen_futures::JsFuture;
 use yew::{AttrValue, Callback};
+
+pub mod token_service;
+pub use token_service::TokenService;
 
 #[subxt::subxt(runtime_metadata_path = "polkadot_metadata_small.scale")]
 pub mod polkadot {}
@@ -128,7 +131,6 @@ fn encode_to_hex_reverse<E: Encode>(input: &E) -> String {
     bytes.reverse();
     format!("0x{}", hex::encode(bytes))
 }
-
 
 /// communicates with JavaScript to obtain a signature for the `partial_extrinsic` via a browser extension (e.g. polkadot-js or Talisman)
 ///
