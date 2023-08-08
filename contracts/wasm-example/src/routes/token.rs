@@ -1,7 +1,10 @@
 use anyhow::anyhow;
 use futures::FutureExt;
 use std::str::FromStr;
+use subxt::ext::codec::{Decode, Encode};
 use subxt::utils::AccountId32;
+use subxt::utils::MultiSignature;
+use subxt::dynamic::Value;
 use subxt::OnlineClient;
 use subxt::PolkadotConfig;
 use wasm_bindgen::JsCast;
@@ -9,9 +12,9 @@ use web_sys::EventTarget;
 use web_sys::HtmlInputElement;
 use yew::prelude::*;
 
-use crate::services::get_accounts;
-use crate::services::Account;
-use crate::services::TokenService;
+use crate::services::{
+    extension_signature_for_partial_extrinsic, get_accounts, polkadot, Account, TokenService,
+};
 
 pub struct TokenComponent {
     account: Option<String>,
@@ -84,11 +87,50 @@ impl Component for TokenComponent {
                     let account_address = account.address.clone();
                     let account_source = account.source.clone();
                     let account_id: AccountId32 = account_address.parse().unwrap();
-                    self.account = Some(account_address);
 
+                    let message = account_address.clone().into_bytes();
                     self.stage = TokenStage::Signing(account.clone());
+
+                    let remark_call = polkadot::tx()
+                        .system()
+                        .remark(message.to_vec());
+
+                    let payload = subxt::dynamic::tx("System", "remark", vec![
+                        Value::from_bytes("Hello there")
+                    ]);
+
+                    let api = self.online_client.as_ref().unwrap().clone();
+
+                    self.account = Some(account_address.to_string());
+
                     ctx.link()
-                        .send_future(async move { Message::RequestBalance });
+                    .send_future(
+                        async move {
+                            let partial_extrinsic =
+                                match api.tx().create_partial_signed(&payload, &account_id, Default::default()).await {
+                                    Ok(partial_extrinsic) => partial_extrinsic,
+                                    Err(err) => {
+                                        return Message::Error(anyhow!("could not create partial extrinsic:\n{:?}", err));
+                                    }
+                                };
+
+                            let Ok(signature) = extension_signature_for_partial_extrinsic(&partial_extrinsic, &api, &account_id, account_source, account_address).await else {
+                                return Message::Error(anyhow!("Signing via extension failed"));
+                            };
+
+                            let Ok(multi_signature) = MultiSignature::decode(&mut &signature[..]) else {
+                                return Message::Error(anyhow!("MultiSignature Decoding"));
+                            };
+
+                            let signed_extrinsic = partial_extrinsic.sign_with_address_and_signature(&account_id.into(), &multi_signature);
+
+                            // do a dry run (to debug in the js console if the extrinsic would work)
+                            let dry_res = signed_extrinsic.dry_run(None).await;
+                            web_sys::console::log_1(&format!("Dry Run Result: {:?}", dry_res).into());
+
+                            Message::RequestBalance
+                        }
+                    );
                 }
             }
             Message::RequestBalance => {
