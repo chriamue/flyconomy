@@ -15,7 +15,7 @@ use yew::{AttrValue, Callback};
 pub mod token_service;
 pub use token_service::TokenService;
 
-#[subxt::subxt(runtime_metadata_path = "polkadot_metadata_small.scale")]
+#[subxt::subxt(runtime_metadata_path = "metadata.scale")]
 pub mod polkadot {}
 
 pub(crate) async fn fetch_constant_block_length() -> Result<String, subxt::Error> {

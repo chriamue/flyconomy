@@ -1,20 +1,62 @@
+use crate::services::polkadot::contracts::calls::types::Call;
+use crate::services::polkadot::runtime_types::sp_weights::weight_v2::Weight;
 use anyhow::anyhow;
+use blake2::{Blake2s256, Digest};
 use futures::FutureExt;
 use std::str::FromStr;
-use subxt::ext::codec::{Decode, Encode};
-use subxt::utils::AccountId32;
-use subxt::utils::MultiSignature;
 use subxt::dynamic::Value;
+use subxt::ext::codec::{Decode, Encode};
+use subxt::tx::Payload;
+use subxt::utils::AccountId32;
+use subxt::utils::MultiAddress;
+use subxt::utils::MultiSignature;
 use subxt::OnlineClient;
 use subxt::PolkadotConfig;
+use subxt_signer::sr25519::dev;
 use wasm_bindgen::JsCast;
 use web_sys::EventTarget;
 use web_sys::HtmlInputElement;
 use yew::prelude::*;
+use std::hash::Hash;
 
 use crate::services::{
     extension_signature_for_partial_extrinsic, get_accounts, polkadot, Account, TokenService,
 };
+
+fn blake2_256(input: &[u8]) -> Vec<u8> {
+    let mut hasher = Blake2s256::new();
+    hasher.update(input);
+    hasher.finalize().to_vec()
+}
+
+const PROOF_SIZE: u64 = u64::MAX / 2;
+
+fn create_playload() -> Payload<Call> {
+    let alice_pair_signer = dev::alice();
+
+    let contract = "5HKJ1GtqcvfxyMiK41KjgMb5rjiaT1uyQUHCqbC9KBqyLmWG";
+
+    let mut call_data = Vec::<u8>::new();
+    call_data.append(&mut (&blake2_256("psp22::totalSupply".as_bytes())[..3]).to_vec());
+    /*call_data.append(&mut scale::Encode::encode(
+        &(AccountId32::from_str(
+            &"5GrwvaEF5zXb26Fz9rcQpDWS57CtERHpNehXCPcNoHGKutQY",
+        )
+        .unwrap()),
+    ));*/
+    //let call_data = ("psp22::totalSupply".hash()[..3], ).encode();
+
+    polkadot::tx().contracts().call(
+        AccountId32::from_str(contract).unwrap().into(),
+        0,
+        Weight {
+            ref_time: 500_000_000_000,
+            proof_size: PROOF_SIZE,
+        },
+        None,
+        call_data,
+    )
+}
 
 pub struct TokenComponent {
     account: Option<String>,
@@ -91,13 +133,9 @@ impl Component for TokenComponent {
                     let message = account_address.clone().into_bytes();
                     self.stage = TokenStage::Signing(account.clone());
 
-                    let remark_call = polkadot::tx()
-                        .system()
-                        .remark(message.to_vec());
+                    let remark_call = polkadot::tx().system().remark(message.to_vec());
 
-                    let payload = subxt::dynamic::tx("System", "remark", vec![
-                        Value::from_bytes("Hello there")
-                    ]);
+                    let payload = create_playload();
 
                     let api = self.online_client.as_ref().unwrap().clone();
 
@@ -106,6 +144,13 @@ impl Component for TokenComponent {
                     ctx.link()
                     .send_future(
                         async move {
+
+                            let result =  api.tx()
+                            .sign_and_submit_then_watch_default(&payload, &dev::alice())
+                            .await.unwrap().wait_for_finalized_success()
+                            .await.unwrap();
+                            web_sys::console::log_1(&format!("Run Result: {:?}", result).into());
+
                             let partial_extrinsic =
                                 match api.tx().create_partial_signed(&payload, &account_id, Default::default()).await {
                                     Ok(partial_extrinsic) => partial_extrinsic,

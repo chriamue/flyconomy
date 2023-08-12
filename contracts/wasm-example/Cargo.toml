@@ -9,6 +9,7 @@ rust-version = "1.70.0"
 [dependencies]
 futures = "0.3.28"
 subxt = { version="0.31", default-features = false, features = ["jsonrpsee", "web"] }
+subxt-signer = { version = "0.31.0", features = ["subxt"] }
 yew = { version = "0.20.0", features = ["csr"] }
 web-sys = "0.3.63"
 hex = "0.4.3"
@@ -19,3 +20,6 @@ wasm-bindgen-futures = "0.4.36"
 anyhow = "1.0.71"
 serde = "1.0.163"
 serde_json = "1.0.96"
+blake2 = { version = "0.10.4", default-features = false }
+scale = { package = "parity-scale-codec", version = "3.0.0", features = ["derive"] }
+sp-core = { version = "21.0.0", default-features = false }
