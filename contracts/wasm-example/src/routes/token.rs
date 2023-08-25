@@ -34,10 +34,22 @@ const PROOF_SIZE: u64 = u64::MAX / 2;
 fn create_playload() -> Payload<Call> {
     let alice_pair_signer = dev::alice();
 
-    let contract = "5HKJ1GtqcvfxyMiK41KjgMb5rjiaT1uyQUHCqbC9KBqyLmWG";
+    let contract = "5FmHL1qCfDPQMjzbP9wwXFvdF2GKPP8TqZHLQv5UeuAd6gLn";
+    let selector = "9bae9d5e";
+
+    let contract: MultiAddress<AccountId32, ()> = AccountId32::from_str(contract).unwrap().into();
 
     let mut call_data = Vec::<u8>::new();
-    call_data.append(&mut (&blake2_256("psp22::totalSupply".as_bytes())[..3]).to_vec());
+
+    let bytes = hex::decode(selector).expect("Decoding failed");
+
+    // Append to the vector
+    call_data.extend(bytes);
+
+    web_sys::console::log_1(&format!("Contract: {:?}", contract).into());
+    web_sys::console::log_1(&format!("Call Data: {:?}", call_data).into());
+
+    //call_data.append(&mut (&blake2_256("PSP22::total_supply".as_bytes())[0..4]).to_vec());
     /*call_data.append(&mut scale::Encode::encode(
         &(AccountId32::from_str(
             &"5GrwvaEF5zXb26Fz9rcQpDWS57CtERHpNehXCPcNoHGKutQY",
@@ -47,7 +59,7 @@ fn create_playload() -> Payload<Call> {
     //let call_data = ("psp22::totalSupply".hash()[..3], ).encode();
 
     polkadot::tx().contracts().call(
-        AccountId32::from_str(contract).unwrap().into(),
+        contract,
         0,
         Weight {
             ref_time: 500_000_000_000,
@@ -144,7 +156,7 @@ impl Component for TokenComponent {
                     ctx.link()
                     .send_future(
                         async move {
-
+                            web_sys::console::log_1(&format!("Payload: {:?}", payload).into());
                             let result =  api.tx()
                             .sign_and_submit_then_watch_default(&payload, &dev::alice())
                             .await.unwrap().wait_for_finalized_success()

@@ -22,7 +22,7 @@ The PSP22 contract is a standard ERC20 contract with additional functionality to
 Start a testnode with the following command:
 
 ```bash
-cargo install contracts-node --git https://github.com/paritytech/substrate-contracts-node.git --tag v0.26.0 --force
+cargo install contracts-node --git https://github.com/paritytech/substrate-contracts-node.git --tag v0.30.0 --force
 substrate-contracts-node --base-path chain
 ```
 
