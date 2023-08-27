@@ -1,11 +1,11 @@
-use std::collections::HashMap;
-
 use bevy::prelude::{
-    App, AssetServer, Assets, BuildChildren, Color, Commands, Component, ComputedVisibility,
-    DespawnRecursiveExt, Entity, GlobalTransform, PbrBundle, Plugin, Quat, Query, Res, ResMut,
-    StandardMaterial, Transform, Update, Vec3, Visibility,
+    App, AssetServer, BuildChildren, ChildBuilder, Commands, Component, ComputedVisibility,
+    DespawnRecursiveExt, Entity, GlobalTransform, Plugin, Quat, Query, Res, Transform, Update,
+    Vec3, Visibility,
 };
+use bevy::scene::SceneBundle;
 use bevy_obj::ObjPlugin;
+use std::collections::HashMap;
 
 use super::{projection::wgs84_to_xyz, GameResource};
 use crate::{game::earth3d, model::FlightState};
@@ -27,7 +27,6 @@ pub fn plane_system(
     mut commands: Commands,
     mut query: Query<(Entity, &FlightVisual, &mut Transform)>,
     asset_server: Res<AssetServer>,
-    mut materials: ResMut<Assets<StandardMaterial>>,
     game_resource: Res<GameResource>,
 ) {
     let current_time = game_resource.simulation.environment.timestamp;
@@ -64,17 +63,10 @@ pub fn plane_system(
                         transform.look_at(destination, Vec3::Y);
                     }
                 } else {
-                    // Spawn a new visual representation of the plane
-                    let plane_mesh = asset_server.load("plane.obj");
-                    let plane_material = materials.add(Color::rgb(0.0, 0.6, 0.0).into());
-
-                    let scale = Vec3::new(1.0, 1.0, 1.0) * 12_000.0 * earth3d::SCALE_FACTOR as f32;
-
                     let mut transform = Transform {
                         translation: position,
                         ..Default::default()
                     };
-
                     transform.look_at(destination, Vec3::Y);
                     commands
                         .spawn((
@@ -86,17 +78,11 @@ pub fn plane_system(
                                 flight_id: flight.flight_id,
                             },
                         ))
-                        .with_children(|child_builder| {
-                            child_builder.spawn(PbrBundle {
-                                mesh: plane_mesh,
-                                material: plane_material,
-                                transform: Transform {
-                                    rotation: Quat::from_rotation_y(std::f32::consts::PI),
-                                    scale,
-                                    ..Default::default()
-                                },
-                                ..Default::default()
-                            });
+                        .with_children(|child_builder| match flight.airplane.plane_type.id {
+                            0 => small_plane_model(child_builder, &asset_server),
+                            1 => medium_plane_model(child_builder, &asset_server),
+                            2 => big_plane_model(child_builder, &asset_server),
+                            _ => small_plane_model(child_builder, &asset_server),
                         });
                 }
             }
@@ -105,4 +91,48 @@ pub fn plane_system(
             commands.entity(*entity).despawn_recursive();
         }
     }
+}
+
+fn small_plane_model(child_builder: &mut ChildBuilder, asset_server: &Res<AssetServer>) {
+    let scale = Vec3::new(1.0, 1.0, 1.0) * 12_000.0 * earth3d::SCALE_FACTOR as f32;
+
+    child_builder.spawn(SceneBundle {
+        scene: asset_server.load("airplanes/business_jet.glb#Scene0"),
+        transform: Transform {
+            rotation: Quat::from_rotation_y(std::f32::consts::PI),
+            scale,
+            ..Default::default()
+        },
+        ..Default::default()
+    });
+}
+
+fn medium_plane_model(child_builder: &mut ChildBuilder, asset_server: &Res<AssetServer>) {
+    let scale = Vec3::new(1.0, 1.0, 1.0) * 12_000.0 * earth3d::SCALE_FACTOR as f32;
+
+    child_builder.spawn(SceneBundle {
+        scene: asset_server.load("airplanes/airbus.glb#Scene0"),
+        transform: Transform {
+            rotation: Quat::from_rotation_y(std::f32::consts::PI),
+            scale,
+            translation: Vec3::new(0.0, 0.0, 0.0),
+            ..Default::default()
+        },
+        ..Default::default()
+    });
+}
+
+fn big_plane_model(child_builder: &mut ChildBuilder, asset_server: &Res<AssetServer>) {
+    let scale = Vec3::new(1.0, 1.0, 1.0) * 25.0 * 12_000.0 * earth3d::SCALE_FACTOR as f32;
+
+    child_builder.spawn(SceneBundle {
+        scene: asset_server.load("airplanes/boeing.glb#Scene0"),
+        transform: Transform {
+            rotation: Quat::from_rotation_y(std::f32::consts::PI * -0.5),
+            scale,
+            translation: Vec3::new(0.0, 0.0, 0.0),
+            ..Default::default()
+        },
+        ..Default::default()
+    });
 }
