@@ -24,9 +24,19 @@ The icons used in the application are sourced from [Game-icons.net](https://game
 The data on World Heritage Sites is sourced from [Kaggle](https://www.kaggle.com/datasets/ujwalkandi/unesco-world-heritage-sites?select=whc-sites-2019.csv).
 It is under the CC0: Public Domain license.
 
-## plane.obj
+## Airplane Models
 
-The 3D model of the plane used in the application is sourced from [cgtrader.com](https://www.cgtrader.com/items/4140769/download-page)
+### airbus.glb
+The 3D model of the plane used in the application is sourced from [cgtrader.com](https://www.cgtrader.com/free-3d-models/aircraft/private-aircraft/airplane-free-3d-model)
+Royalty Free License by abhijith360
+
+### business_jet.glb
+The 3D model of the plane used in the application is sourced from [cgtrader.com](https://www.cgtrader.com/free-3d-models/aircraft/jet/bussines-jet-3d-model-by-nikdox)
+Royalty Free License by nikdox
+
+### boeing.glb
+The 3D model of the plane used in the application is sourced from [cgtrader.com](https://www.cgtrader.com/free-3d-print-models/games-toys/toys/plane-70c5ca4a-78d8-40b4-826b-cc6fa70b137b)
+Royalty Free License by schildi2018
 
 ### Attribution
 
