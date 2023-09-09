@@ -1,10 +1,14 @@
 mod environment_iterators;
+
 use crate::model::CompanyFinances;
 
-use super::{AirPlane, Base, EnvironmentConfig, Flight, LandingRights, Timestamp};
+use super::{
+    identity::Identity, AirPlane, Base, EnvironmentConfig, Flight, LandingRights, Timestamp,
+};
 
 #[derive(Debug, Clone)]
 pub struct Environment {
+    pub identity: Identity,
     pub config: EnvironmentConfig,
     pub company_finances: CompanyFinances,
     pub planes: Vec<AirPlane>,
@@ -17,6 +21,7 @@ pub struct Environment {
 impl Environment {
     pub fn new(config: EnvironmentConfig) -> Self {
         Self {
+            identity: Identity::default(),
             company_finances: CompanyFinances::new(config.start_capital),
             config,
             planes: vec![],

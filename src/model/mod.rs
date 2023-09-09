@@ -8,6 +8,7 @@ mod environment;
 mod environment_config;
 pub mod events;
 mod flight;
+pub mod identity;
 mod landing_rights;
 mod plane_type;
 mod world_data;

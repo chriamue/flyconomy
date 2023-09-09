@@ -2,13 +2,13 @@ use crate::{
     game::{GameResource, GameState},
     ui::{
         components::{
+            config::{identity_alias, style_switch::StyleSwitch},
             save_replay::{save_replay, UiInputReplayFilename},
-            style_switch::StyleSwitch,
         },
         layouts::left_layout,
     },
 };
-use bevy::prelude::{in_state, App, IntoSystemConfigs, Plugin, Res, ResMut, Resource, Update};
+use bevy::prelude::{in_state, App, IntoSystemConfigs, Plugin, ResMut, Resource, Update};
 use bevy_egui::EguiContexts;
 
 use super::UiView;
@@ -37,7 +37,7 @@ pub struct StyleState {
 
 pub fn settings_view_system(
     mut contexts: EguiContexts,
-    game_resource: Res<GameResource>,
+    mut game_resource: ResMut<GameResource>,
     replay_filename: ResMut<UiInputReplayFilename>,
     mut style_state: ResMut<StyleState>,
 ) {
@@ -45,8 +45,13 @@ pub fn settings_view_system(
         if ui.add(StyleSwitch::new(style_state.is_dark)).clicked() {
             style_state.is_dark = !style_state.is_dark;
         }
+        ui.separator();
+
+        ui.add(identity_alias::IdentityAlias::new(
+            &mut game_resource.simulation.environment.identity,
+        ));
 
         ui.separator();
-        save_replay(ui, game_resource, replay_filename)
+        save_replay(ui, game_resource.into(), replay_filename)
     });
 }
