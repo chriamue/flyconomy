@@ -15,7 +15,7 @@ impl<'a> IdentityAlias<'a> {
 impl<'a> Widget for IdentityAlias<'a> {
     fn ui(self, ui: &mut Ui) -> Response {
         #[cfg(target = "wasm32")]
-        ui.label(self.identity.id());
+        ui.label(&format!("{:02x?}", self.identity.id()));
 
         ui.horizontal(|ui| {
             let mut alias = self.identity.alias();
