@@ -9,19 +9,11 @@ pub struct WorldHeritageSiteUiPlugin;
 
 impl Plugin for WorldHeritageSiteUiPlugin {
     fn build(&self, app: &mut App) {
-        app.insert_resource(UiInput {
-            search_string: String::new(),
-        })
-        .add_systems(
+        app.add_systems(
             Update,
             (selected_site_info_ui_system,).run_if(in_state(GameState::Playing)),
         );
     }
-}
-
-#[derive(Resource, Default)]
-pub struct UiInput {
-    pub search_string: String,
 }
 
 fn selected_site_info_ui_system(

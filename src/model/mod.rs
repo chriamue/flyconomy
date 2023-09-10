@@ -1,6 +1,7 @@
 mod aerodrome;
 mod airplane;
 pub mod analytics;
+mod attraction;
 mod base;
 pub mod commands;
 mod company_finances;
@@ -16,6 +17,7 @@ mod world_heritage_site;
 
 pub use aerodrome::Aerodrome;
 pub use airplane::AirPlane;
+pub use attraction::Attraction;
 pub use base::Base;
 pub use company_finances::CompanyFinances;
 pub use environment::Environment;

@@ -2,6 +2,7 @@ use bevy::prelude::{App, Plugin};
 
 pub mod components;
 
+mod attraction_ui;
 mod game_over_screen;
 mod hud;
 mod layouts;
@@ -18,6 +19,7 @@ impl Plugin for UiPlugin {
         app.add_plugins(hud::HudPlugin);
         app.add_plugins(welcome_screen::WelcomeScreenPlugin);
         app.add_plugins(game_over_screen::GameOverScreenPlugin);
+        app.add_plugins(attraction_ui::AttractionUiPlugin);
         app.add_plugins(world_heritage_site_ui::WorldHeritageSiteUiPlugin);
         app.add_plugins(messages::MessagesPlugin);
         app.add_plugins(simulation_control::SimulationControlPlugin);

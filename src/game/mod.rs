@@ -2,6 +2,7 @@ use bevy::diagnostic::LogDiagnosticsPlugin;
 use bevy::{diagnostic::FrameTimeDiagnosticsPlugin, prelude::*};
 
 pub mod aerodrome;
+pub mod attraction;
 mod camera;
 pub mod earth3d;
 pub mod flights;
@@ -102,6 +103,7 @@ pub fn setup_game(app: &mut App, game_resource: GameResource) {
         .add_plugins(camera::CameraPlugin)
         .add_plugins(flights::FlightsPlugin)
         .add_plugins(aerodrome::AerodromePlugin)
+        .add_plugins(attraction::AttractionPlugin)
         .add_plugins(world_heritage_site::WorldHeritageSitePlugin)
         .add_plugins(ui::UiPlugin)
         .add_plugins(plane::PlanePlugin)

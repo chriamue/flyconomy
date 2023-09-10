@@ -3,9 +3,11 @@ use serde::{Deserialize, Serialize};
 use crate::model::{EnvironmentConfig, PlaneType};
 
 mod aerodrome_config;
+mod attraction_config;
 mod world_heritage_site_config;
 
 pub use aerodrome_config::{load_airports, AerodromeConfig};
+pub use attraction_config::parse_attractions_csv;
 pub use world_heritage_site_config::parse_world_heritage_site_csv;
 
 #[derive(Serialize, Deserialize, Debug, bevy::reflect::TypeUuid, Clone)]
