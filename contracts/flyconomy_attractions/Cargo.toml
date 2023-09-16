@@ -12,7 +12,7 @@ path = "src/lib.rs"
 
 [dependencies]
 ink = { version = "4.3.0", default-features = false }
-openbrush = { git = "https://github.com/Brushfam/openbrush-contracts", tag = "4.0.0-beta.1", default-features = false, features = ["psp34"] }
+openbrush = { git = "https://github.com/Brushfam/openbrush-contracts", tag = "4.0.0-beta", default-features = false, features = ["psp34"] }
 scale = { package = "parity-scale-codec", version = "3.6", default-features = false, features = ["derive"] }
 scale-info = { version = "2.9", default-features = false, features = ["derive"] }
 
