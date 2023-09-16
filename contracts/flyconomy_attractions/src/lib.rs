@@ -66,6 +66,46 @@ pub mod flyconomy_attractions {
                 attraction.lon,
             ))
         }
+
+        #[ink(message)]
+        pub fn set_name(&mut self, id: Id, name: ink::prelude::string::String) -> Result<(), PSP34Error> {
+            let mut attraction = self.attractions.get(&id).ok_or(PSP34Error::TokenNotExists)?;
+            attraction.name = name;
+            self.attractions.insert(id, &attraction);
+            Ok(())
+        }
+
+        #[ink(message)]
+        pub fn get_name(&self, id: Id) -> Result<ink::prelude::string::String, PSP34Error> {
+            let attraction = self.attractions.get(&id).ok_or(PSP34Error::TokenNotExists)?;
+            Ok(attraction.name.clone())
+        }
+
+        #[ink(message)]
+        pub fn set_description(&mut self, id: Id, description: ink::prelude::string::String) -> Result<(), PSP34Error> {
+            let mut attraction = self.attractions.get(&id).ok_or(PSP34Error::TokenNotExists)?;
+            attraction.description = description;
+            self.attractions.insert(id, &attraction);
+            Ok(())
+        }
+
+        #[ink(message)]
+        pub fn get_description(&self, id: Id) -> Result<ink::prelude::string::String, PSP34Error> {
+            let attraction = self.attractions.get(&id).ok_or(PSP34Error::TokenNotExists)?;
+            Ok(attraction.description.clone())
+        }
+
+        #[ink(message)]
+        pub fn update_token(&mut self, id:Id, name: ink::prelude::string::String, description: ink::prelude::string::String, lat: i32, lon: i32) -> Result<(), PSP34Error> {
+            let mut attraction = self.attractions.get(&id).ok_or(PSP34Error::TokenNotExists)?;
+            attraction.name = name;
+            attraction.description = description;
+            attraction.lat = lat;
+            attraction.lon = lon;
+            self.attractions.insert(id, &attraction);
+            Ok(())
+        }
+
     }
 
     #[cfg(test)]
@@ -119,6 +159,44 @@ pub mod flyconomy_attractions {
             assert_eq!(lat, 1);
             assert_eq!(lon, 2);
         }
+
+        #[ink::test]
+        fn set_name_works() {
+            let mut contract = Contract::new();
+            assert_eq!(PSP34Impl::total_supply(&contract), 0);
+            contract.mint(address_of!(Alice), Id::U8(1)).unwrap();
+            assert_eq!(PSP34Impl::total_supply(&contract), 1);
+            contract.set_name(Id::U8(1), "test".to_string()).unwrap();
+            let name = contract.get_name(Id::U8(1)).unwrap();
+            assert_eq!(name, "test");
+        }
+
+        #[ink::test]
+        fn set_description_works() {
+            let mut contract = Contract::new();
+            assert_eq!(PSP34Impl::total_supply(&contract), 0);
+            contract.mint(address_of!(Alice), Id::U8(1)).unwrap();
+            assert_eq!(PSP34Impl::total_supply(&contract), 1);
+            contract.set_description(Id::U8(1), "test".to_string()).unwrap();
+            let description = contract.get_description(Id::U8(1)).unwrap();
+            assert_eq!(description, "test");
+        }
+
+        #[ink::test]
+        fn update_token_works() {
+            let mut contract = Contract::new();
+            assert_eq!(PSP34Impl::total_supply(&contract), 0);
+            contract.mint(address_of!(Alice), Id::U8(1)).unwrap();
+            assert_eq!(PSP34Impl::total_supply(&contract), 1);
+            contract.update_token(Id::U8(1), "test".to_string(), "test".to_string(), 1, 2).unwrap();
+            let (lat, lon) = contract.get_location(Id::U8(1)).unwrap();
+            assert_eq!(lat, 1);
+            assert_eq!(lon, 2);
+            let name = contract.get_name(Id::U8(1)).unwrap();
+            assert_eq!(name, "test");
+            let description = contract.get_description(Id::U8(1)).unwrap();
+            assert_eq!(description, "test");
+        }
     }
 
     #[cfg(all(test, feature = "e2e-tests"))]
@@ -133,7 +211,7 @@ pub mod flyconomy_attractions {
         #[rustfmt::skip]
         use super::*;
         #[rustfmt::skip]
-        use ink_e2e::{build_message, PolkadotConfig};
+        use ink_e2e::build_message;
 
         use test_helpers::{address_of, balance_of};
 
@@ -489,6 +567,180 @@ pub mod flyconomy_attractions {
 
             assert_eq!(get_location_result, Ok((1, 2)));
 
+            Ok(())
+        }
+
+        #[ink_e2e::test]
+        async fn set_name_works(mut client: ink_e2e::Client<C, E>) -> E2EResult<()> {
+            let constructor = ContractRef::new();
+            let address = client
+                .instantiate(
+                    "flyconomy_attractions",
+                    &ink_e2e::alice(),
+                    constructor,
+                    0,
+                    None,
+                )
+                .await
+                .expect("instantiate failed")
+                .account_id;
+
+            let psp34_id1 = Id::U8(1u8);
+
+            let mint_result_1 = {
+                let _msg = build_message::<ContractRef>(address.clone())
+                    .call(|contract| contract.mint(address_of!(Bob), psp34_id1.clone()));
+                client
+                    .call(&ink_e2e::alice(), _msg, 0, None)
+                    .await
+                    .expect("call failed")
+            }
+            .return_value();
+
+            assert_eq!(mint_result_1, Ok(()));
+
+            let set_name_result = {
+                let _msg = build_message::<ContractRef>(address.clone())
+                    .call(|contract| contract.set_name(psp34_id1.clone(), "test".to_string()));
+                client
+                    .call(&ink_e2e::alice(), _msg, 0, None)
+                    .await
+                    .expect("call failed")
+            }
+            .return_value();
+
+            assert_eq!(set_name_result, Ok(()));
+
+            let get_name_result = {
+                let _msg = build_message::<ContractRef>(address.clone())
+                    .call(|contract| contract.get_name(psp34_id1.clone()));
+                client.call_dry_run(&ink_e2e::alice(), &_msg, 0, None).await
+            }
+            .return_value();
+
+            assert_eq!(get_name_result, Ok("test".to_string()));
+
+            Ok(())
+        }
+
+        #[ink_e2e::test]
+        async fn set_description_works(mut client: ink_e2e::Client<C, E>) -> E2EResult<()> {
+            let constructor = ContractRef::new();
+            let address = client
+                .instantiate(
+                    "flyconomy_attractions",
+                    &ink_e2e::alice(),
+                    constructor,
+                    0,
+                    None,
+                )
+                .await
+                .expect("instantiate failed")
+                .account_id;
+
+            let psp34_id1 = Id::U8(1u8);
+
+            let mint_result_1 = {
+                let _msg = build_message::<ContractRef>(address.clone())
+                    .call(|contract| contract.mint(address_of!(Bob), psp34_id1.clone()));
+                client
+                    .call(&ink_e2e::alice(), _msg, 0, None)
+                    .await
+                    .expect("call failed")
+            }
+            .return_value();
+
+            assert_eq!(mint_result_1, Ok(()));
+
+            let set_description_result = {
+                let _msg = build_message::<ContractRef>(address.clone())
+                    .call(|contract| contract.set_description(psp34_id1.clone(), "test".to_string()));
+                client
+                    .call(&ink_e2e::alice(), _msg, 0, None)
+                    .await
+                    .expect("call failed")
+            }
+            .return_value();
+
+            assert_eq!(set_description_result, Ok(()));
+
+            let get_description_result = {
+                let _msg = build_message::<ContractRef>(address.clone())
+                    .call(|contract| contract.get_description(psp34_id1.clone()));
+                client.call_dry_run(&ink_e2e::alice(), &_msg, 0, None).await
+            }
+            .return_value();
+
+            assert_eq!(get_description_result, Ok("test".to_string()));
+
+            Ok(())
+        }
+
+        #[ink_e2e::test]
+        async fn update_token_works(mut client: ink_e2e::Client<C, E>) -> E2EResult<()> {
+            let constructor = ContractRef::new();
+            let address = client
+                .instantiate(
+                    "flyconomy_attractions",
+                    &ink_e2e::alice(),
+                    constructor,
+                    0,
+                    None,
+                )
+                .await
+                .expect("instantiate failed")
+                .account_id;
+
+            let psp34_id1 = Id::U8(1u8);
+
+            let mint_result_1 = {
+                let _msg = build_message::<ContractRef>(address.clone())
+                    .call(|contract| contract.mint(address_of!(Bob), psp34_id1.clone()));
+                client
+                    .call(&ink_e2e::alice(), _msg, 0, None)
+                    .await
+                    .expect("call failed")
+            }
+            .return_value();
+
+            assert_eq!(mint_result_1, Ok(()));
+
+            let update_token_result = {
+                let _msg = build_message::<ContractRef>(address.clone())
+                    .call(|contract| contract.update_token(psp34_id1.clone(), "test".to_string(), "test".to_string(), 1, 2));
+                client
+                    .call(&ink_e2e::alice(), _msg, 0, None)
+                    .await
+                    .expect("call failed")
+            }
+            .return_value();
+
+            assert_eq!(update_token_result, Ok(()));
+
+            let get_location_result = {
+                let _msg = build_message::<ContractRef>(address.clone())
+                    .call(|contract| contract.get_location(psp34_id1.clone()));
+                client.call_dry_run(&ink_e2e::alice(), &_msg, 0, None).await
+            }
+            .return_value();
+
+            assert_eq!(get_location_result, Ok((1, 2)));
+
+            let get_name_result = {
+                let _msg = build_message::<ContractRef>(address.clone())
+                    .call(|contract| contract.get_name(psp34_id1.clone()));
+                client.call_dry_run(&ink_e2e::alice(), &_msg, 0, None).await
+            }
+            .return_value();
+
+            assert_eq!(get_name_result, Ok("test".to_string()));
+
+            let get_description_result = {
+                let _msg = build_message::<ContractRef>(address.clone())
+                    .call(|contract| contract.get_description(psp34_id1.clone()));
+                client.call_dry_run(&ink_e2e::alice(), &_msg, 0, None).await
+            }.return_value();
+            assert_eq!(get_description_result, Ok("test".to_string()));
             Ok(())
         }
     }
