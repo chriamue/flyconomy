@@ -60,7 +60,7 @@ async function main() {
 
   console.log(`Minted token with ID ${tokenId} to address ${to}`);
 
-  gasLimit = await flyconomyAttractions.methods.mint(to).estimateGas({ from: web3.eth.defaultAccount });
+  gasLimit = await flyconomyAttractions.methods.updateToken(tokenId, name, description, parseInt(lat, 10), parseInt(lon, 10)).estimateGas({ from: web3.eth.defaultAccount });
 
   const updateTx = {
     from: web3.eth.defaultAccount,

@@ -1,3 +1,3 @@
 [workspace]
 resolver = "2"
-members = ["flyconomy_attractions", "test_helpers", "tests"]
+members = ["flyconomy_attractions", "test_helpers", "flyconomy_contracts_client"]

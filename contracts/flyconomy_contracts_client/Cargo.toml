@@ -1,7 +1,10 @@
 [package]
-name = "tests"
+name = "flyconomy-contracts-client"
 version = "0.1.0"
 edition = "2021"
+
+[lib]
+
 
 [dependencies]
 dotenv = "0.15.0"
