@@ -1,10 +1,6 @@
-use flyconomy_contracts_client::create_contract;
-use serde::Deserialize;
+use flyconomy_contracts_client::{AttractionContract, Web3Contract};
 use std::env;
 use structopt::StructOpt;
-use web3::contract::Contract;
-use web3::transports::Http;
-use web3::types::U256;
 
 #[derive(StructOpt, Debug)]
 #[structopt(name = "contract-cli")]
@@ -39,29 +35,6 @@ pub enum Command {
     AllLocations,
 }
 
-#[derive(Debug, Deserialize)]
-struct AllLocations {
-    ids: Vec<U256>,
-    lats: Vec<i32>,
-    lons: Vec<i32>,
-}
-
-async fn get_all_locations(
-    contract: &Contract<Http>,
-) -> Result<AllLocations, Box<dyn std::error::Error>> {
-    let result = contract
-        .query(
-            "getAllLocations",
-            (),
-            None,
-            web3::contract::Options::default(),
-            None,
-        )
-        .await?;
-    let (ids, lats, lons): (Vec<U256>, Vec<i32>, Vec<i32>) = result;
-    Ok(AllLocations { ids, lats, lons })
-}
-
 #[tokio::main]
 async fn main() -> Result<(), Box<dyn std::error::Error>> {
     dotenv::dotenv().ok();
@@ -69,71 +42,34 @@ async fn main() -> Result<(), Box<dyn std::error::Error>> {
     let contract_address = env::var("CONTRACT").expect("CONTRACT is not set in .env file");
 
     let opt = Opt::from_args();
-    let contract = create_contract(node_url, contract_address).await?;
+
+    let contract: Box<dyn AttractionContract> =
+        Box::new(Web3Contract::new(node_url, contract_address).await?);
 
     match opt.cmd {
         Command::TotalSupply => {
-            let result = contract
-                .query(
-                    "totalSupply",
-                    (),
-                    None,
-                    web3::contract::Options::default(),
-                    None,
-                )
-                .await?;
-            let total_supply: u64 = result;
+            let total_supply: u64 = contract.get_total_supply().await?;
             println!("Total Supply: {}", total_supply);
         }
         Command::Location { id } => {
-            let result = contract
-                .query(
-                    "getLocation",
-                    id,
-                    None,
-                    web3::contract::Options::default(),
-                    None,
-                )
-                .await?;
-            let (lat, lon): (i32, i32) = result;
+            let (lat, lon): (f64, f64) = contract.get_location(id).await?;
             println!(
                 "Location of ID {}: Latitude: {}, Longitude: {}",
                 id, lat, lon
             );
         }
         Command::Name { id } => {
-            let result = contract
-                .query(
-                    "getName",
-                    id,
-                    None,
-                    web3::contract::Options::default(),
-                    None,
-                )
-                .await?;
-            let name: String = result;
+            let name: String = contract.get_name(id).await?;
             println!("Name of ID {}: {}", id, name);
         }
         Command::Description { id } => {
-            let result = contract
-                .query(
-                    "getDescription",
-                    id,
-                    None,
-                    web3::contract::Options::default(),
-                    None,
-                )
-                .await?;
-            let description: String = result;
+            let description: String = contract.get_description(id).await?;
             println!("Description of ID {}: {}", id, description);
         }
         Command::AllLocations => {
-            let locations = get_all_locations(&contract).await?;
-            for (i, id) in locations.ids.iter().enumerate() {
-                println!(
-                    "ID: {}, Latitude: {}, Longitude: {}",
-                    id, locations.lats[i], locations.lons[i]
-                );
+            let locations = contract.get_all_locations().await?;
+            for (i, attraction) in locations.iter().enumerate() {
+                println!("ID: {}, {:?}", i, attraction);
             }
         }
     }

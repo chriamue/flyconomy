@@ -1,8 +1,14 @@
+use async_trait::async_trait;
 use serde_json::Value;
 use std::str::FromStr;
 use web3::contract::Contract;
 use web3::transports::Http;
-use web3::types::Address;
+use web3::types::{Address, U256};
+
+use crate::Attraction;
+use crate::AttractionContract;
+
+const PRECITION: f64 = 10000.0;
 
 pub async fn create_contract(
     node_url: String,
@@ -22,4 +28,133 @@ pub async fn create_contract(
 
     let contract = Contract::from_json(web3.eth(), contract_address, &serde_json::to_vec(abi)?)?;
     Ok(contract)
+}
+
+pub struct Web3Contract {
+    contract: Contract<Http>,
+}
+
+impl Web3Contract {
+    pub async fn new(
+        node_url: String,
+        contract_address: String,
+    ) -> Result<Self, Box<dyn std::error::Error>> {
+        let contract = create_contract(node_url, contract_address).await?;
+        Ok(Self { contract })
+    }
+}
+
+#[async_trait]
+impl AttractionContract for Web3Contract {
+    async fn get_all_locations(&self) -> Result<Vec<Attraction>, Box<dyn std::error::Error>> {
+        let result = self
+            .contract
+            .query(
+                "getAllLocations",
+                (),
+                None,
+                web3::contract::Options::default(),
+                None,
+            )
+            .await?;
+        let (ids, lats, lons): (Vec<U256>, Vec<i32>, Vec<i32>) = result;
+
+        let mut attractions = Vec::new();
+
+        for (i, id) in ids.iter().enumerate() {
+            let id = id.as_u64();
+            let lat = lats[i];
+            let lon = lons[i];
+            let name: String = self.get_name(id as u64).await?;
+            let description: String = self.get_description(id as u64).await?;
+
+            let attraction = Attraction::new(
+                id as u64,
+                lat as f64 / PRECITION,
+                lon as f64 / PRECITION,
+                name,
+                description,
+            );
+            attractions.push(attraction);
+        }
+        Ok(attractions)
+    }
+
+    async fn get_name(&self, id: u64) -> Result<String, Box<dyn std::error::Error>> {
+        let result = self
+            .contract
+            .query(
+                "getName",
+                id,
+                None,
+                web3::contract::Options::default(),
+                None,
+            )
+            .await?;
+        let name: String = result;
+        Ok(name)
+    }
+
+    async fn get_description(&self, id: u64) -> Result<String, Box<dyn std::error::Error>> {
+        let result = self
+            .contract
+            .query(
+                "getDescription",
+                id,
+                None,
+                web3::contract::Options::default(),
+                None,
+            )
+            .await?;
+        let description: String = result;
+        Ok(description)
+    }
+
+    async fn get_lat(&self, id: u64) -> Result<f64, Box<dyn std::error::Error>> {
+        let result = self
+            .contract
+            .query("getLat", id, None, web3::contract::Options::default(), None)
+            .await?;
+        let lat: i32 = result;
+        Ok(lat as f64 / PRECITION)
+    }
+
+    async fn get_lon(&self, id: u64) -> Result<f64, Box<dyn std::error::Error>> {
+        let result = self
+            .contract
+            .query("getLon", id, None, web3::contract::Options::default(), None)
+            .await?;
+        let lon: i32 = result;
+        Ok(lon as f64 / PRECITION)
+    }
+
+    async fn get_location(&self, id: u64) -> Result<(f64, f64), Box<dyn std::error::Error>> {
+        let result = self
+            .contract
+            .query(
+                "getLocation",
+                id,
+                None,
+                web3::contract::Options::default(),
+                None,
+            )
+            .await?;
+        let (lat, lon): (i32, i32) = result;
+        Ok((lat as f64 / PRECITION, lon as f64 / PRECITION))
+    }
+
+    async fn get_total_supply(&self) -> Result<u64, Box<dyn std::error::Error>> {
+        let result = self
+            .contract
+            .query(
+                "totalSupply",
+                (),
+                None,
+                web3::contract::Options::default(),
+                None,
+            )
+            .await?;
+        let total_supply: u64 = result;
+        Ok(total_supply)
+    }
 }
