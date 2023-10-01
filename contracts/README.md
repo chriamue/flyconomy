@@ -79,6 +79,15 @@ npm run mint -- 0xYourAddress "Taunus Mountains" "A mountain range in Hesse, Ger
 npm run run -- --network sepolia
 ```
 
+### update token
+
+```bash
+npm run update -- 0 "Taunus Mountains" "A mountain range in Hesse, Germany located north of Frankfurt" 502337, 84581
+npm run update -- 1 "Biebrich Palace" "A Baroque residence in the borough of Biebrich in the city of Wiesbaden" 500375, 82341
+npm run update -- 2 "Saalburg" "A reconstructed Roman fort located near Bad Homburg" 502713, 85667
+npm run update -- 3 "Pferdskopf" "A basalt peak with an almost alpine flair in the Rhön Mountains" 504905, 99197
+```
+
 ## Deployed Contracts
 
 ### Sepolia

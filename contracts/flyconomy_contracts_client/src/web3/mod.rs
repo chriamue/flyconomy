@@ -2,19 +2,21 @@ use async_trait::async_trait;
 use serde_json::Value;
 use std::str::FromStr;
 use web3::contract::Contract;
-use web3::transports::Http;
+use web3::transports::WebSocket;
 use web3::types::{Address, U256};
 
 use crate::Attraction;
 use crate::AttractionContract;
 
-const PRECITION: f64 = 10000.0;
+pub const PRECITION: f64 = 10000.0;
+pub const DEFAULT_NODE_URL: &str = "wss://sepolia.infura.io/ws/v3/ddb5feac7d6e4ee8b45fdc2ff9355c54";
+pub const DEFAULT_CONTRACT_ADDRESS: &str = "0x6338b648a9156827e3423A33cb2d32b09076906b";
 
 pub async fn create_contract(
-    node_url: String,
-    contract_address: String,
-) -> Result<Contract<Http>, Box<dyn std::error::Error>> {
-    let http = Http::new(&node_url)?;
+    node_url: &str,
+    contract_address: &str,
+) -> Result<Contract<WebSocket>, Box<dyn std::error::Error>> {
+    let http = WebSocket::new(&node_url).await?;
     let web3 = web3::Web3::new(http);
     let contract_address = Address::from_str(&contract_address[2..])?;
 
@@ -31,13 +33,13 @@ pub async fn create_contract(
 }
 
 pub struct Web3Contract {
-    contract: Contract<Http>,
+    contract: Contract<WebSocket>,
 }
 
 impl Web3Contract {
     pub async fn new(
-        node_url: String,
-        contract_address: String,
+        node_url: &str,
+        contract_address: &str,
     ) -> Result<Self, Box<dyn std::error::Error>> {
         let contract = create_contract(node_url, contract_address).await?;
         Ok(Self { contract })

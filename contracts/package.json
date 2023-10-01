@@ -6,7 +6,8 @@
     "compile": "hardhat compile",
     "test": "hardhat test",
     "deploy": "hardhat run scripts/deployFlyconomyAttractions.ts",
-    "mint": "ts-node scripts/mintFlyconomyAttractions.ts"
+    "mint": "ts-node scripts/mintFlyconomyAttractions.ts",
+    "update": "ts-node scripts/updateFlyconomyAttractions.ts"
   },
   "devDependencies": {
     "@nomicfoundation/hardhat-toolbox": "^3.0.0",

@@ -1,7 +1,7 @@
 use async_trait::async_trait;
 
 mod attraction;
-mod web3;
+pub mod web3;
 
 pub use crate::attraction::*;
 pub use crate::web3::*;
