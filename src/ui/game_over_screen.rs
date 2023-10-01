@@ -1,5 +1,4 @@
 use crate::game::{GameResource, GameState};
-use crate::model::StringBasedWorldData;
 use crate::simulation::Simulation;
 use bevy::prelude::{in_state, App, IntoSystemConfigs, NextState, Plugin, ResMut, Update};
 use bevy_egui::{egui, EguiContexts};
@@ -44,7 +43,10 @@ pub fn game_over_screen_system(
             if ui.button("Restart Game").clicked() {
                 game_resources.simulation = Simulation::new(
                     Default::default(),
-                    Box::new(StringBasedWorldData::default()),
+                    #[cfg(not(feature = "web3"))]
+                    Box::new(crate::model::world_data::StringBasedWorldData::default()),
+                    #[cfg(feature = "web3")]
+                    Box::new(crate::model::world_data::web3_world_data::Web3WorldData::default()),
                 );
                 game_state_next_state.set(GameState::Welcome);
             }

@@ -3,6 +3,9 @@ use crate::{
     config::{load_airports, parse_attractions_csv, parse_world_heritage_site_csv, PlanesConfig},
 };
 
+#[cfg(feature = "web3")]
+pub mod web3_world_data;
+
 use super::{Aerodrome, Attraction, PlaneType, WorldHeritageSite};
 
 pub trait WorldDataGateway: Sync + Send {

@@ -36,7 +36,10 @@ impl Default for Simulation {
     fn default() -> Self {
         Self::new(
             EnvironmentConfig::default(),
+            #[cfg(not(feature = "web3"))]
             Box::new(crate::model::StringBasedWorldData::default()),
+            #[cfg(feature = "web3")]
+            Box::new(crate::model::world_data::web3_world_data::Web3WorldData::default()),
         )
     }
 }
@@ -168,7 +171,7 @@ impl Simulation {
                 }
             }
             Err(error) => {
-                println!("{}", error);
+                log::error!("Error executing command: {}", error);
                 self.error_messages
                     .push((self.elapsed_time.as_millis(), error.to_string()));
 

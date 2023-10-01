@@ -1,5 +1,7 @@
 use bevy::diagnostic::LogDiagnosticsPlugin;
 use bevy::{diagnostic::FrameTimeDiagnosticsPlugin, prelude::*};
+use bevy_egui::EguiPlugin;
+use bevy_mod_picking::DefaultPickingPlugins;
 
 pub mod aerodrome;
 pub mod attraction;
@@ -14,12 +16,9 @@ pub mod world_heritage_site;
 #[cfg(feature = "ai")]
 pub mod manager;
 
-use bevy_egui::EguiPlugin;
-use bevy_mod_picking::DefaultPickingPlugins;
 pub use game_state::GameState;
 
 use crate::config::LevelConfig;
-use crate::model::StringBasedWorldData;
 use crate::{simulation::Simulation, ui, Replay};
 
 #[derive(Resource)]
@@ -38,23 +37,38 @@ impl GameResource {
                 .expect("Failed to load level1"),
             _ => panic!("Unknown level {}", level),
         };
+        let world_data_gateway = {
+            #[cfg(not(feature = "web3"))]
+            {
+                crate::model::world_data::StringBasedWorldData::default()
+            }
+            #[cfg(feature = "web3")]
+            {
+                crate::model::world_data::web3_world_data::Web3WorldData::default()
+            }
+        };
 
         Self {
             level,
-            simulation: Simulation::new(
-                level_config.environment,
-                Box::new(StringBasedWorldData::default()),
-            ),
+            simulation: Simulation::new(level_config.environment, Box::new(world_data_gateway)),
             replay: None,
             game_over_cash: 10_000.0,
         }
     }
 
     pub fn from_replay(replay: Replay) -> Self {
-        let mut simulation = Simulation::new(
-            replay.initial_config.clone(),
-            Box::new(StringBasedWorldData::default()),
-        );
+        let world_data_gateway = {
+            #[cfg(not(feature = "web3"))]
+            {
+                crate::model::world_data::StringBasedWorldData::default()
+            }
+            #[cfg(feature = "web3")]
+            {
+                crate::model::world_data::web3_world_data::Web3WorldData::default()
+            }
+        };
+        let mut simulation =
+            Simulation::new(replay.initial_config.clone(), Box::new(world_data_gateway));
         for timestamped_command in &replay.command_history {
             simulation.add_command_timed(timestamped_command.clone());
         }
@@ -70,15 +84,7 @@ impl GameResource {
 
 impl Default for GameResource {
     fn default() -> Self {
-        Self {
-            level: String::from("default"),
-            simulation: Simulation::new(
-                LevelConfig::default().environment,
-                Box::new(StringBasedWorldData::default()),
-            ),
-            replay: None,
-            game_over_cash: 10_000.0,
-        }
+        Self::new(String::from("default"))
     }
 }
 
@@ -112,6 +118,8 @@ pub fn setup_game(app: &mut App, game_resource: GameResource) {
         .register_type::<Spin>();
     #[cfg(feature = "ai")]
     app.add_plugins(manager::ManagerPlugin);
+
+    log::info!("Game setup complete.");
 }
 
 #[derive(Component, PartialEq, Reflect)]
@@ -172,61 +180,4 @@ fn update_simulation_system(
     {
         game_state_next_state.set(GameState::GameOver);
     }
-}
-
-#[cfg_attr(target_arch = "wasm32", wasm_bindgen::prelude::wasm_bindgen)]
-pub fn start() {
-    let level = "level1".to_string();
-    let game_resource = GameResource::new(level);
-
-    let mut app = App::new();
-
-    app.add_plugins(
-        DefaultPlugins
-            .set(WindowPlugin {
-                primary_window: Some(Window {
-                    title: "Flyconomy".into(),
-                    resolution: (1280., 720.).into(),
-                    fit_canvas_to_parent: true,
-                    prevent_default_event_handling: true,
-                    canvas: Some("#bevy".to_string()),
-                    ..default()
-                }),
-                ..default()
-            })
-            .set(AssetPlugin { ..default() }),
-    );
-    setup_game(&mut app, game_resource);
-    app.run()
-}
-
-pub fn start_from_replay(replay: Replay) {
-    let game_resource = GameResource::from_replay(replay);
-
-    let mut app = App::new();
-
-    app.add_plugins(
-        DefaultPlugins
-            .set(WindowPlugin {
-                primary_window: Some(Window {
-                    title: "Flyconomy".into(),
-                    resolution: (1280., 720.).into(),
-                    fit_canvas_to_parent: true,
-                    prevent_default_event_handling: true,
-                    canvas: Some("#bevy".to_string()),
-                    ..default()
-                }),
-                ..default()
-            })
-            .set(AssetPlugin { ..default() }),
-    );
-    setup_game(&mut app, game_resource);
-    app.run()
-}
-
-#[cfg_attr(target_arch = "wasm32", wasm_bindgen::prelude::wasm_bindgen)]
-pub fn start_from_replay_string(replay_string: String) {
-    let replay: Replay =
-        serde_yaml::from_str(&replay_string).expect("Failed to deserialize replay.");
-    start_from_replay(replay);
 }
