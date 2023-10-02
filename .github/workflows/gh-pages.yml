@@ -90,7 +90,7 @@ jobs:
           version: "latest"
 
       - run: cargo install --locked trunk
-      - run: cd contracts/flyconomy_contracts_app && trunk build --release --public-url /contracts-app/
+      - run: cd contracts/flyconomy_contracts_app && trunk build --release --public-url /flyconomy/contracts-app/
       - run: mkdir dist/ && mv contracts/flyconomy_contracts_app/dist dist/contracts-app
 
       - name: Deploy

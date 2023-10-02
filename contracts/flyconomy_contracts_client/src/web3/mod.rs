@@ -38,7 +38,7 @@ pub async fn create_contract(
     let contract_address = Address::from_str(&contract_address[2..])?;
 
     let contract_bytes = include_bytes!(
-        "../../../artifacts/contracts/FlyconomyAttractions.sol/FlyconomyAttractions.json"
+        "FlyconomyAttractions.json"
     );
     let contract_json: Value = serde_json::from_slice(contract_bytes)?;
     let abi = contract_json["abi"]
