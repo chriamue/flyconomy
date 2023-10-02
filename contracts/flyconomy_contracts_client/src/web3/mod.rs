@@ -2,22 +2,39 @@ use async_trait::async_trait;
 use serde_json::Value;
 use std::str::FromStr;
 use web3::contract::Contract;
+#[cfg(not(target_arch = "wasm32"))]
 use web3::transports::WebSocket;
+#[cfg(target_arch = "wasm32")]
+use web3::transports::Http;
 use web3::types::{Address, U256};
 
 use crate::Attraction;
 use crate::AttractionContract;
 
+#[cfg(not(target_arch = "wasm32"))]
+pub type Transport = WebSocket;
+#[cfg(target_arch = "wasm32")]
+pub type Transport = Http;
+
 pub const PRECITION: f64 = 10000.0;
+
+#[cfg(not(target_arch = "wasm32"))]
 pub const DEFAULT_NODE_URL: &str = "wss://sepolia.infura.io/ws/v3/ddb5feac7d6e4ee8b45fdc2ff9355c54";
+
+#[cfg(target_arch = "wasm32")]
+pub const DEFAULT_NODE_URL: &str = "https://sepolia.infura.io/v3/ddb5feac7d6e4ee8b45fdc2ff9355c54";
+
 pub const DEFAULT_CONTRACT_ADDRESS: &str = "0x6338b648a9156827e3423A33cb2d32b09076906b";
 
 pub async fn create_contract(
     node_url: &str,
     contract_address: &str,
-) -> Result<Contract<WebSocket>, Box<dyn std::error::Error>> {
-    let http = WebSocket::new(&node_url).await?;
-    let web3 = web3::Web3::new(http);
+) -> Result<Contract<Transport>, Box<dyn std::error::Error>> {
+    #[cfg(not(target_arch = "wasm32"))]
+    let transport = Transport::new(&node_url).await?;
+    #[cfg(target_arch = "wasm32")]
+    let transport = Transport::new(&node_url)?;
+    let web3 = web3::Web3::new(transport);
     let contract_address = Address::from_str(&contract_address[2..])?;
 
     let contract_bytes = include_bytes!(
@@ -33,7 +50,7 @@ pub async fn create_contract(
 }
 
 pub struct Web3Contract {
-    contract: Contract<WebSocket>,
+    contract: Contract<Transport>,
 }
 
 impl Web3Contract {
@@ -46,7 +63,7 @@ impl Web3Contract {
     }
 }
 
-#[async_trait]
+#[async_trait(?Send)]
 impl AttractionContract for Web3Contract {
     async fn get_all_locations(&self) -> Result<Vec<Attraction>, Box<dyn std::error::Error>> {
         let result = self

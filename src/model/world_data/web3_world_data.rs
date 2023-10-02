@@ -1,18 +1,19 @@
 use super::*;
 use crate::model::Attraction;
-use async_std::task;
+use async_std::task::block_on;
 use flyconomy_contracts_client::{web3::*, AttractionContract, Web3Contract};
 use std::sync::Arc;
+use std::sync::RwLock;
 
 pub struct Web3WorldData {
-    attractions: Arc<Vec<Attraction>>,
+    attractions: Arc<RwLock<Vec<Attraction>>>,
     string_based_world_data: StringBasedWorldData,
 }
 
 impl Default for Web3WorldData {
     fn default() -> Self {
         let mut data = Self {
-            attractions: Arc::new(Vec::new()),
+            attractions: Arc::new(RwLock::new(Vec::new())),
             string_based_world_data: StringBasedWorldData::default(),
         };
         match data.reload() {
@@ -29,24 +30,37 @@ impl Default for Web3WorldData {
 
 impl Web3WorldData {
     pub fn reload_attractions(&mut self) -> Result<(), String> {
-        let attractions: Vec<flyconomy_contracts_client::Attraction> = task::block_on(async move {
-            let contract = Web3Contract::new(DEFAULT_NODE_URL, DEFAULT_CONTRACT_ADDRESS).await?;
-            contract.get_all_locations().await
-        })
-        .map_err(|e| format!("Failed to get attractions: {}", e))?;
+        let attractions_rwlock = Arc::clone(&self.attractions);
 
-        let attractions: Vec<Attraction> = attractions
-            .into_iter()
-            .map(|attraction| Attraction {
-                id: attraction.id,
-                name: attraction.name,
-                description: attraction.description,
-                lat: attraction.lat,
-                lon: attraction.lon,
-            })
-            .collect();
+        block_on(async move {
+            let result: Result<(), Box<dyn std::error::Error>> = async {
+                let contract =
+                    Web3Contract::new(DEFAULT_NODE_URL, DEFAULT_CONTRACT_ADDRESS).await?;
+                let attractions = contract.get_all_locations().await?;
 
-        self.attractions = Arc::new(attractions);
+                let attractions: Vec<Attraction> = attractions
+                    .into_iter()
+                    .map(|attraction| Attraction {
+                        id: attraction.id,
+                        name: attraction.name,
+                        description: attraction.description,
+                        lat: attraction.lat,
+                        lon: attraction.lon,
+                    })
+                    .collect();
+
+                log::info!("Got attractions: {:?}", attractions);
+                let mut attractions_lock = attractions_rwlock.write().unwrap();
+                *attractions_lock = attractions;
+                Ok(())
+            }
+            .await;
+
+            if let Err(e) = result {
+                log::error!("Failed to get attractions: {}", e);
+            }
+        });
+
         Ok(())
     }
 }
@@ -56,8 +70,8 @@ impl WorldDataGateway for Web3WorldData {
         self.string_based_world_data.aerodromes()
     }
 
-    fn attractions(&self) -> &Vec<Attraction> {
-        &self.attractions
+    fn attractions(&self) -> Vec<Attraction> {
+        self.attractions.read().unwrap().to_vec()
     }
 
     fn world_heritage_sites(&self) -> &Vec<WorldHeritageSite> {

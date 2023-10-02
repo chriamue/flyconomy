@@ -63,9 +63,21 @@ fn setup(
     mut materials: ResMut<Assets<StandardMaterial>>,
     mut attraction_system: ResMut<AttractionSystem>,
     game_resource: Res<GameResource>,
+    attraction_query: Query<Entity, With<AttractionComponent>>,
 ) {
-    if !attraction_system.setup_done {
-        let attractions = game_resource.simulation.world_data_gateway.attractions();
+    let attractions = game_resource.simulation.world_data_gateway.attractions();
+
+    if attraction_system.setup_done && attractions.len() == attraction_query.iter().count() {
+        return;
+    }
+
+    if attractions.len() != attraction_query.iter().count() {
+        // If they differ, clear all existing attraction entities
+        for entity in attraction_query.iter() {
+            commands.entity(entity).despawn();
+        }
+
+        // Reload attractions
         for attraction in attractions {
             let position =
                 wgs84_to_xyz(attraction.lat, attraction.lon, 0.0) * earth3d::SCALE_FACTOR as f32;
@@ -95,8 +107,9 @@ fn setup(
                 ))
                 .insert(AttractionComponent(attraction.clone()));
         }
-        attraction_system.setup_done = true;
     }
+
+    attraction_system.setup_done = true;
 }
 
 #[derive(Debug, Component, Event)]

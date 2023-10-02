@@ -13,7 +13,7 @@ pub trait WorldDataGateway: Sync + Send {
     fn aerodromes(&self) -> &Vec<Aerodrome>;
     fn plane_types(&self) -> &Vec<PlaneType>;
     fn world_heritage_sites(&self) -> &Vec<WorldHeritageSite>;
-    fn attractions(&self) -> &Vec<Attraction>;
+    fn attractions(&self) -> Vec<Attraction>;
 }
 
 pub struct StringBasedWorldData {
@@ -95,8 +95,8 @@ impl WorldDataGateway for StringBasedWorldData {
         &self.aerodromes
     }
 
-    fn attractions(&self) -> &Vec<Attraction> {
-        &self.attractions
+    fn attractions(&self) -> Vec<Attraction> {
+        self.attractions.to_vec()
     }
 
     fn world_heritage_sites(&self) -> &Vec<WorldHeritageSite> {
