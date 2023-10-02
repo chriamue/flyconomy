@@ -11,6 +11,12 @@ pub enum Msg {
     Error(Box<dyn std::error::Error>),
     GetAttractions,
     ReceiveResponse(Result<Vec<Attraction>, anyhow::Error>),
+    AttractionChosen(Attraction),
+}
+
+#[derive(PartialEq, Properties, Clone)]
+pub struct Props {
+    pub select_attraction: Callback<Attraction>,
 }
 
 pub struct AttractionList {
@@ -18,9 +24,19 @@ pub struct AttractionList {
     error: Option<String>,
 }
 
+impl AttractionList {
+    fn select_button(&self, ctx: &Context<Self>, attraction: &Attraction) -> Html {
+        let attraction_clone = attraction.clone();
+        let cb = ctx.link().callback(move |_| Msg::AttractionChosen(attraction_clone.clone()));
+        html! {
+            <button onclick={cb}>{attraction.name.clone()}</button>
+        }
+    }
+}
+
 impl Component for AttractionList {
     type Message = Msg;
-    type Properties = ();
+    type Properties = Props;
 
     fn create(ctx: &Context<Self>) -> Self {
         ctx.link().send_message(Msg::GetAttractions);
@@ -71,6 +87,10 @@ impl Component for AttractionList {
                 self.error = Some(err.to_string());
                 true
             }
+            Msg::AttractionChosen(attraction) => {
+                ctx.props().select_attraction.emit(attraction.clone());
+                false
+            },
         }
     }
 
@@ -85,7 +105,7 @@ impl Component for AttractionList {
                 <h1>{ "Attractions" }</h1>
                 <p>{ "Here are some attractions" }</p>
                 <ul>
-                    { for self.attractions.iter().map(|attraction| self.view_attraction(attraction)) }
+                    { for self.attractions.iter().map(|attraction| self.view_attraction(ctx, attraction)) }
                 </ul>
                 <p>{ error_text }</p>
             </div>
@@ -94,10 +114,10 @@ impl Component for AttractionList {
 }
 
 impl AttractionList {
-    fn view_attraction(&self, attraction: &Attraction) -> Html {
+    fn view_attraction(&self, ctx: &Context<Self>, attraction: &Attraction) -> Html {
         html! {
             <li key={attraction.id}>
-                <h2>{ &attraction.name }</h2>
+                <h2>{ Self::select_button(&self, ctx, &attraction) }</h2>
                 <p>{ &attraction.description }</p>
                 <p>{ format!("Latitude: {}", &attraction.lat) }</p>
                 <p>{ format!("Longitude: {}", &attraction.lon) }</p>

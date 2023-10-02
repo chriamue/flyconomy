@@ -1,0 +1,26 @@
+html,
+body {
+  box-sizing: border-box;
+}
+
+body {
+  display: flex;
+  flex-direction: column;
+  height: 400px;
+  width: 800px;
+  margin: 2em auto;
+
+  .map {
+    height: 400px;
+  }
+
+  .component-container {
+    border-radius: 0.5em;
+    padding: 1em;
+  }
+
+  .map-container {
+    border: 1px solid red;
+    margin-bottom: 1em;
+  }
+}
