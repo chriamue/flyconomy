@@ -1,0 +1,1 @@
+html,body{box-sizing:border-box}body{display:flex;flex-direction:column;height:400px;width:800px;margin:2em auto}body .map{height:400px}body .component-container{border-radius:.5em;padding:1em}body .map-container{border:1px solid red;margin-bottom:1em}
