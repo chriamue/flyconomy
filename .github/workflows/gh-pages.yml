@@ -21,7 +21,7 @@ jobs:
         with:
           version: "latest"
 
-      - run: wasm-pack build --target web
+      - run: wasm-pack build --features=web3 --target web
       - run: ls
 
       - name: copy page
@@ -55,7 +55,7 @@ jobs:
         with:
           version: "latest"
 
-      - run: wasm-pack build --target web
+      - run: wasm-pack build --features=web3 --target web
       - run: ls
 
       - name: copy page
