@@ -17,7 +17,7 @@ features = ["ai"]
 [features]
 default = ["ai"]
 ai = ["rurel"]
-web3 = ["flyconomy-contracts-client"]
+web3 = ["flyconomy_contracts_client"]
 rayon = ["dep:rayon"]
 bdd = []                              # cucumber tests
 
@@ -65,7 +65,7 @@ strsim = "0.10.0"
 structopt = "0.3.26"
 strum = { version = "0.25", features = ["derive"] }
 thiserror = "1.0"
-flyconomy-contracts-client = { path = "contracts/flyconomy_contracts_client", default-features = false, optional = true }
+flyconomy_contracts_client = { path = "contracts/flyconomy_contracts_client", default-features = false, optional = true }
 
 [target.'cfg(target_arch = "wasm32")'.dependencies]
 console_error_panic_hook = "0.1"

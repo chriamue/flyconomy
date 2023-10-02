@@ -1,5 +1,5 @@
 [package]
-name = "flyconomy-contracts-client"
+name = "flyconomy_contracts_client"
 version = "0.1.0"
 edition = "2021"
 
