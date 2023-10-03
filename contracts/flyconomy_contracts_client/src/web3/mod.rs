@@ -26,14 +26,19 @@ pub const DEFAULT_NODE_URL: &str = "https://sepolia.infura.io/v3/ddb5feac7d6e4ee
 
 pub const DEFAULT_CONTRACT_ADDRESS: &str = "0x6338b648a9156827e3423A33cb2d32b09076906b";
 
-pub async fn create_contract(
-    node_url: &str,
-    contract_address: &str,
-) -> Result<Contract<Transport>, Box<dyn std::error::Error>> {
+pub enum TransportType {
     #[cfg(not(target_arch = "wasm32"))]
-    let transport = Transport::new(&node_url).await?;
+    WebSocket(String),
     #[cfg(target_arch = "wasm32")]
-    let transport = Transport::new(&node_url)?;
+    Http(String),
+    #[cfg(target_arch = "wasm32")]
+    Eip1193
+}
+
+pub async fn create_contract(
+    contract_address: &str,
+    transport: Transport,
+) -> Result<Contract<Transport>, Box<dyn std::error::Error>> {
     let web3 = web3::Web3::new(transport);
     let contract_address = Address::from_str(&contract_address[2..])?;
 
@@ -55,10 +60,18 @@ pub struct Web3Contract {
 
 impl Web3Contract {
     pub async fn new(
-        node_url: &str,
+        transport_type: TransportType,
         contract_address: &str,
     ) -> Result<Self, Box<dyn std::error::Error>> {
-        let contract = create_contract(node_url, contract_address).await?;
+        let transport = match transport_type {
+            #[cfg(not(target_arch = "wasm32"))]
+            TransportType::WebSocket(node_url) => WebSocket::new(&node_url).await?,
+            #[cfg(target_arch = "wasm32")]
+            TransportType::Http(node_url) => Http::new(&node_url)?,
+            #[cfg(target_arch = "wasm32")]
+            TransportType::Eip1193 => unimplemented!(),
+        };
+        let contract = create_contract(contract_address, transport).await?;
         Ok(Self { contract })
     }
 }
@@ -175,5 +188,11 @@ impl AttractionContract for Web3Contract {
             .await?;
         let total_supply: u64 = result;
         Ok(total_supply)
+    }
+
+    async fn update(
+        &self, attraction: Attraction
+    ) -> Result<(), Box<dyn std::error::Error>> {
+        unimplemented!()
     }
 }

@@ -15,4 +15,7 @@ pub trait AttractionContract {
     async fn get_lon(&self, id: u64) -> Result<f64, Box<dyn std::error::Error>>;
     async fn get_location(&self, id: u64) -> Result<(f64, f64), Box<dyn std::error::Error>>;
     async fn get_total_supply(&self) -> Result<u64, Box<dyn std::error::Error>>;
+    async fn update(
+        &self, attraction: Attraction
+    ) -> Result<(), Box<dyn std::error::Error>>;
 }
