@@ -58,6 +58,18 @@ Flyconomy is a captivating 2D economic simulation game where you step into the s
 
 3. Land safely on [Localhost](http://localhost:8000).
 
+## Web3 Integration for Attractions: NFTs 🌐
+
+Flyconomy goes beyond traditional gaming by integrating Non-Fungible Tokens (NFTs) for attractions. This allows players to truly own, update, and transfer parts of the game world.
+
+### How does it work?
+
+1. **NFTs as Attractions**: Each attraction in Flyconomy is represented as an NFT. Owning an NFT gives you the right to update its name, description, and GPS location.
+2. **Minting New Attractions**: Players can mint new attractions up to a total of 1000. This means you can create and add your own landmarks to the game, making it a truly community-driven experience.
+3. **Transferring Ownership**: After the initial 1000 attractions are minted, you'll need to acquire a token from another player to update an attraction. This ensures that the game world remains dynamic, with attractions potentially changing based on player trades and decisions.
+
+🔗 **Mint or Update an Attraction**: [https://blog.chriamue.de/flyconomy/contracts-app/](https://blog.chriamue.de/flyconomy/contracts-app/)
+
 ## Be a Part of Our Journey: Contributing 🤝
 
 Your insights can propel Flyconomy to greater heights. Feel free to join our open-source journey.
