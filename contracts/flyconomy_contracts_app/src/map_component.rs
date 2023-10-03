@@ -51,7 +51,7 @@ impl Component for MapComponent {
         let leaflet_map = Map::new_with_element(&container, &JsValue::NULL);
         let lat = Point(props.attraction.lat, props.attraction.lon);
 
-        let message = ctx.link().callback(Msg::MapClicked);
+        let message: Callback<LatLng> = ctx.link().callback(Msg::MapClicked);
 
         let cb: Closure<dyn FnMut(MouseEvent)> = Closure::wrap(Box::new(move |e: MouseEvent| {
             message.emit(e.latlng());

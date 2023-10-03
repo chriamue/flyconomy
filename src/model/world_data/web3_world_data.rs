@@ -34,17 +34,16 @@ impl Web3WorldData {
 
         block_on(async move {
             let result: Result<(), Box<dyn std::error::Error>> = async {
-                let transport = {
+                let contract = {
                     #[cfg(not(target_arch = "wasm32"))]
                     {
-                        TransportType::WebSocket(DEFAULT_NODE_URL.into())
+                        Web3Contract::new_websocket(DEFAULT_NODE_URL, DEFAULT_CONTRACT_ADDRESS).await?
                     }
                     #[cfg(target_arch = "wasm32")]
                     {
-                        TransportType::Html(DEFAULT_NODE_URL.into())
+                        Web3Contract::new_html(DEFAULT_NODE_URL, DEFAULT_CONTRACT_ADDRESS).await?
                     }
                 };
-                let contract = Web3Contract::new(transport, DEFAULT_CONTRACT_ADDRESS).await?;
                 let attractions = contract.get_all_locations().await?;
 
                 let attractions: Vec<Attraction> = attractions

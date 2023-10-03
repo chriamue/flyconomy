@@ -44,7 +44,7 @@ async fn main() -> Result<(), Box<dyn std::error::Error>> {
     let opt = Opt::from_args();
 
     let contract: Box<dyn AttractionContract> =
-        Box::new(Web3Contract::new(TransportType::WebSocket(node_url.into()), &contract_address).await?);
+        Box::new(Web3Contract::new_websocket(&node_url, &contract_address).await?);
 
     match opt.cmd {
         Command::TotalSupply => {

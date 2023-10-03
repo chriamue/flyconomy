@@ -1,10 +1,12 @@
 use flyconomy_contracts_client::Attraction;
 use leaflet::LatLng;
+use web_sys::console;
 use yew::prelude::*;
 
 mod attraction_details;
 mod attraction_list;
 mod map_component;
+mod web3;
 
 use attraction_details::AttractionDetails;
 use attraction_list::AttractionList;
@@ -13,6 +15,8 @@ use map_component::MapComponent;
 enum Msg {
     SelectedAttraction(Attraction),
     MapClicked(Option<LatLng>),
+    UpdateAttraction(Attraction),
+    AttractionUpdated(Attraction),
 }
 
 struct App {
@@ -31,13 +35,24 @@ impl Component for App {
         }
     }
 
-    fn update(&mut self, _ctx: &Context<Self>, msg: Self::Message) -> bool {
+    fn update(&mut self, ctx: &Context<Self>, msg: Self::Message) -> bool {
         match msg {
             Msg::SelectedAttraction(attraction) => {
                 self.attraction = Some(attraction);
             }
             Msg::MapClicked(latlng) => {
                 self.latlng = latlng;
+            }
+            Msg::UpdateAttraction(attraction) => {
+                let attraction = attraction.clone();
+                ctx.link().send_future(async move {
+                    let attraction = attraction.clone();
+                    web3::update(attraction.clone()).await.unwrap();
+                    Msg::AttractionUpdated(attraction)
+                });
+            }
+            Msg::AttractionUpdated(attraction) => {
+                console::log_1(&format!("Updated attraction: {:?}", attraction).into());
             }
         }
         true
@@ -46,6 +61,7 @@ impl Component for App {
     fn view(&self, ctx: &Context<Self>) -> Html {
         let select_attraction_cb = ctx.link().callback(Msg::SelectedAttraction);
         let map_clicked_cb = ctx.link().callback(Msg::MapClicked);
+        let update_attraction_cb = ctx.link().callback(Msg::UpdateAttraction);
 
         let map_component = match &self.attraction {
             Some(attraction) => html! {
@@ -56,14 +72,14 @@ impl Component for App {
             },
         };
 
-        let latlng: Option<(f32, f32)> = match &self.latlng {
-            Some(latlng) => Some((latlng.lat() as f32, latlng.lng() as f32)),
+        let latlng: Option<(f64, f64)> = match &self.latlng {
+            Some(latlng) => Some((latlng.lat(), latlng.lng())),
             None => None,
         };
 
         let attraction_details = match &self.attraction {
             Some(attraction) => html! {
-                <AttractionDetails attraction={attraction.clone()} selected_latlng={latlng} />
+                <AttractionDetails attraction={attraction.clone()} selected_latlng={latlng} on_update={update_attraction_cb} />
             },
             None => html! {
                 <></>

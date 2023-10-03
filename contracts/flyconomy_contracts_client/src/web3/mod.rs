@@ -1,20 +1,19 @@
 use async_trait::async_trait;
 use serde_json::Value;
+use web3::Transport;
+use web3::Web3;
 use std::str::FromStr;
 use web3::contract::Contract;
 #[cfg(not(target_arch = "wasm32"))]
 use web3::transports::WebSocket;
 #[cfg(target_arch = "wasm32")]
 use web3::transports::Http;
+#[cfg(target_arch = "wasm32")]
+use web3::transports::eip_1193::Eip1193;
 use web3::types::{Address, U256};
 
 use crate::Attraction;
 use crate::AttractionContract;
-
-#[cfg(not(target_arch = "wasm32"))]
-pub type Transport = WebSocket;
-#[cfg(target_arch = "wasm32")]
-pub type Transport = Http;
 
 pub const PRECITION: f64 = 10000.0;
 
@@ -26,19 +25,10 @@ pub const DEFAULT_NODE_URL: &str = "https://sepolia.infura.io/v3/ddb5feac7d6e4ee
 
 pub const DEFAULT_CONTRACT_ADDRESS: &str = "0x6338b648a9156827e3423A33cb2d32b09076906b";
 
-pub enum TransportType {
-    #[cfg(not(target_arch = "wasm32"))]
-    WebSocket(String),
-    #[cfg(target_arch = "wasm32")]
-    Http(String),
-    #[cfg(target_arch = "wasm32")]
-    Eip1193
-}
-
-pub async fn create_contract(
+pub async fn create_contract<T: Transport>(
     contract_address: &str,
-    transport: Transport,
-) -> Result<Contract<Transport>, Box<dyn std::error::Error>> {
+    transport: T,
+) -> Result<(Web3<T>, Contract<T>), Box<dyn std::error::Error>> {
     let web3 = web3::Web3::new(transport);
     let contract_address = Address::from_str(&contract_address[2..])?;
 
@@ -51,33 +41,50 @@ pub async fn create_contract(
         .ok_or("Failed to extract ABI")?;
 
     let contract = Contract::from_json(web3.eth(), contract_address, &serde_json::to_vec(abi)?)?;
-    Ok(contract)
+    Ok((web3, contract))
 }
 
-pub struct Web3Contract {
-    contract: Contract<Transport>,
+pub struct Web3Contract<T> where T: Transport {
+    web3: Web3<T>,
+    contract: Contract<T>,
 }
 
-impl Web3Contract {
-    pub async fn new(
-        transport_type: TransportType,
+#[cfg(not(target_arch = "wasm32"))]
+impl Web3Contract<WebSocket> {
+    pub async fn new_websocket(
+        node_url: &str,
         contract_address: &str,
     ) -> Result<Self, Box<dyn std::error::Error>> {
-        let transport = match transport_type {
-            #[cfg(not(target_arch = "wasm32"))]
-            TransportType::WebSocket(node_url) => WebSocket::new(&node_url).await?,
-            #[cfg(target_arch = "wasm32")]
-            TransportType::Http(node_url) => Http::new(&node_url)?,
-            #[cfg(target_arch = "wasm32")]
-            TransportType::Eip1193 => unimplemented!(),
-        };
-        let contract = create_contract(contract_address, transport).await?;
-        Ok(Self { contract })
+        let (web3, contract) = create_contract(contract_address, WebSocket::new(node_url).await?).await?;
+        Ok(Self { web3, contract })
+    }
+}
+
+#[cfg(target_arch = "wasm32")]
+impl Web3Contract<Http> {
+    pub async fn new_http(
+        node_url: &str,
+        contract_address: &str,
+    ) -> Result<Self, Box<dyn std::error::Error>> {
+        let (web3, contract) = create_contract(contract_address, Http::new(node_url)?).await?;
+        Ok(Self { web3, contract })
+    }
+}
+
+#[cfg(target_arch = "wasm32")]
+impl Web3Contract<Eip1193> {
+    pub async fn new_eip1193(
+        contract_address: &str,
+    ) -> Result<Self, Box<dyn std::error::Error>> {
+        let provider = web3::transports::eip_1193::Provider::default().unwrap().unwrap();
+        let transport =  web3::transports::eip_1193::Eip1193::new(provider);
+        let (web3, contract) = create_contract(contract_address, transport).await?;
+        Ok(Self { web3, contract })
     }
 }
 
 #[async_trait(?Send)]
-impl AttractionContract for Web3Contract {
+impl <T: Transport> AttractionContract for Web3Contract<T> {
     async fn get_all_locations(&self) -> Result<Vec<Attraction>, Box<dyn std::error::Error>> {
         let result = self
             .contract
@@ -193,6 +200,30 @@ impl AttractionContract for Web3Contract {
     async fn update(
         &self, attraction: Attraction
     ) -> Result<(), Box<dyn std::error::Error>> {
-        unimplemented!()
+        let attraction_id = attraction.id;
+        let attraction_name = attraction.name;
+        let attraction_description = attraction.description;
+        let attraction_lat = (attraction.lat * PRECITION) as i32;
+        let attraction_lon = (attraction.lon * PRECITION) as i32;
+
+        let addrs = self.web3.eth().request_accounts().await?;
+        let from = addrs[0];
+
+        let _result = self
+            .contract
+            .call(
+                "updateToken",
+                (
+                    attraction_id,
+                    attraction_name,
+                    attraction_description,
+                    attraction_lat,
+                    attraction_lon,
+                ),
+                from,
+                web3::contract::Options::default(),
+            )
+            .await?;
+        Ok(())
     }
 }
