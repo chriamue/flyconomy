@@ -27,7 +27,9 @@ pub struct AttractionList {
 impl AttractionList {
     fn select_button(&self, ctx: &Context<Self>, attraction: &Attraction) -> Html {
         let attraction_clone = attraction.clone();
-        let cb = ctx.link().callback(move |_| Msg::AttractionChosen(attraction_clone.clone()));
+        let cb = ctx
+            .link()
+            .callback(move |_| Msg::AttractionChosen(attraction_clone.clone()));
         html! {
             <button onclick={cb}>{attraction.name.clone()}</button>
         }
@@ -90,7 +92,7 @@ impl Component for AttractionList {
             Msg::AttractionChosen(attraction) => {
                 ctx.props().select_attraction.emit(attraction.clone());
                 false
-            },
+            }
         }
     }
 

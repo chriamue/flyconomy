@@ -1,12 +1,15 @@
+use gloo_console::console;
 use gloo_utils::document;
-use leaflet::{LatLng, Map, TileLayer, Circle};
+use leaflet::{Circle, LatLng, Map, MouseEvent, TileLayer};
 use wasm_bindgen::{prelude::*, JsCast};
 use web_sys::{Element, HtmlElement, Node};
 use yew::{html::ImplicitClone, prelude::*};
 
 use flyconomy_contracts_client::Attraction;
 
-pub enum Msg {}
+pub enum Msg {
+    MapClicked(LatLng),
+}
 
 pub struct MapComponent {
     map: Map,
@@ -25,6 +28,7 @@ impl ImplicitClone for City {}
 #[derive(PartialEq, Properties, Clone)]
 pub struct Props {
     pub attraction: Attraction,
+    pub on_click: Option<Callback<Option<LatLng>>>,
 }
 
 impl MapComponent {
@@ -47,11 +51,31 @@ impl Component for MapComponent {
         let leaflet_map = Map::new_with_element(&container, &JsValue::NULL);
         let lat = Point(props.attraction.lat, props.attraction.lon);
 
+        let message = ctx.link().callback(Msg::MapClicked);
+
+        let cb: Closure<dyn FnMut(MouseEvent)> = Closure::wrap(Box::new(move |e: MouseEvent| {
+            message.emit(e.latlng());
+        }));
+
+        leaflet_map.on("click", &Closure::into_js_value(cb));
+
         Self {
             map: leaflet_map,
             lat,
             container,
         }
+    }
+
+    fn update(&mut self, ctx: &Context<Self>, msg: Self::Message) -> bool {
+        match msg {
+            Msg::MapClicked(latlng) => {
+                console!(format!("Map clicked at {:?}", latlng));
+                if let Some(cb) = &ctx.props().on_click {
+                    cb.emit(Some(latlng));
+                }
+            }
+        }
+        true
     }
 
     fn rendered(&mut self, _ctx: &Context<Self>, first_render: bool) {
@@ -68,8 +92,12 @@ impl Component for MapComponent {
 
         if self.lat != lat {
             self.lat = lat;
-            self.map.setView(&LatLng::new(self.lat.0, self.lat.1), 14.0);
+            self.map.flyTo(&LatLng::new(self.lat.0, self.lat.1), 14.0);
             Circle::new(&LatLng::new(self.lat.0, self.lat.1)).addTo(&mut self.map);
+            match ctx.props().on_click {
+                Some(ref cb) => cb.emit(None),
+                None => {}
+            }
         }
 
         true
