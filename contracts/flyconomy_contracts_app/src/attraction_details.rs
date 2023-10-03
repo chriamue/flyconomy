@@ -89,7 +89,7 @@ impl Component for AttractionDetails {
                 <p>{ format!("Latitude: {}", attraction.lat) }</p>
                 <p>{ format!("Longitude: {}", attraction.lon) }</p>
                 <p>
-                    <textarea oninput={on_description_input} value={self.description.clone()}></textarea>
+                    <input oninput={on_description_input} value={self.description.clone()} />
                 </p>
                 { selected_latlng }
                 <button onclick={ctx.link().callback(move |_| Msg::Update)}>{"Update"}</button>

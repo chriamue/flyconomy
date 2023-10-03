@@ -23,7 +23,7 @@ pub const DEFAULT_NODE_URL: &str = "wss://sepolia.infura.io/ws/v3/ddb5feac7d6e4e
 #[cfg(target_arch = "wasm32")]
 pub const DEFAULT_NODE_URL: &str = "https://sepolia.infura.io/v3/ddb5feac7d6e4ee8b45fdc2ff9355c54";
 
-pub const DEFAULT_CONTRACT_ADDRESS: &str = "0x6338b648a9156827e3423A33cb2d32b09076906b";
+pub const DEFAULT_CONTRACT_ADDRESS: &str = "0xD8E6220f98d8155dE5bDe55d047740739a36C439";
 
 pub async fn create_contract<T: Transport>(
     contract_address: &str,
@@ -244,6 +244,10 @@ impl <T: Transport> AttractionContract for Web3Contract<T> {
                 "mint",
                 (
                     from,
+                    attraction_name,
+                    attraction_description,
+                    attraction_lat,
+                    attraction_lon,
                 ),
                 from,
                 web3::contract::Options::default(),
