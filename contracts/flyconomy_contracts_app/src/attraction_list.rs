@@ -53,11 +53,9 @@ impl Component for AttractionList {
             Msg::GetAttractions => {
                 ctx.link().send_future(async move {
                     let result: Result<Vec<Attraction>, Box<dyn std::error::Error>> = async {
-                        let contract = Web3Contract::new_http(
-                            DEFAULT_NODE_URL,
-                            DEFAULT_CONTRACT_ADDRESS,
-                        )
-                        .await?;
+                        let contract =
+                            Web3Contract::new_http(DEFAULT_NODE_URL, DEFAULT_CONTRACT_ADDRESS)
+                                .await?;
                         let attractions = contract.get_all_locations().await?;
                         let attractions: Vec<Attraction> = attractions
                             .into_iter()

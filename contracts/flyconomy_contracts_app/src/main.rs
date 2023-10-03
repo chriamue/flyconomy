@@ -6,11 +6,13 @@ use yew::prelude::*;
 mod attraction_details;
 mod attraction_list;
 mod map_component;
+mod mint_attraction;
 mod web3;
 
 use attraction_details::AttractionDetails;
 use attraction_list::AttractionList;
 use map_component::MapComponent;
+use mint_attraction::MintAttraction;
 
 enum Msg {
     SelectedAttraction(Attraction),
@@ -90,6 +92,7 @@ impl Component for App {
             <>
                 {map_component}
                 {attraction_details}
+                <MintAttraction />
                 <AttractionList select_attraction={select_attraction_cb} />
             </>
         }

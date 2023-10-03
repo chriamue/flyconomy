@@ -226,4 +226,29 @@ impl <T: Transport> AttractionContract for Web3Contract<T> {
             .await?;
         Ok(())
     }
+
+    async fn mint(
+        &self, attraction: Attraction
+    ) -> Result<(), Box<dyn std::error::Error>> {
+        let attraction_name = attraction.name;
+        let attraction_description = attraction.description;
+        let attraction_lat = (attraction.lat * PRECITION) as i32;
+        let attraction_lon = (attraction.lon * PRECITION) as i32;
+
+        let addrs = self.web3.eth().request_accounts().await?;
+        let from = addrs[0];
+
+        let _result = self
+            .contract
+            .call(
+                "mint",
+                (
+                    from,
+                ),
+                from,
+                web3::contract::Options::default(),
+            )
+            .await?;
+        Ok(())
+    }
 }

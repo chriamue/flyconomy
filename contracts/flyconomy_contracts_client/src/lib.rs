@@ -18,4 +18,7 @@ pub trait AttractionContract {
     async fn update(
         &self, attraction: Attraction
     ) -> Result<(), Box<dyn std::error::Error>>;
+    async fn mint(
+        &self, attraction: Attraction
+    ) -> Result<(), Box<dyn std::error::Error>>;
 }

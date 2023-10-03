@@ -8,3 +8,10 @@ pub async fn update(attraction: Attraction) -> Result<(), Box<dyn std::error::Er
     contract.update(attraction).await?;
     Ok(())
 }
+
+pub async fn mint(attraction: Attraction) -> Result<(), Box<dyn std::error::Error>> {
+    let contract = Web3Contract::new_eip1193(DEFAULT_CONTRACT_ADDRESS).await?;
+
+    contract.mint(attraction).await?;
+    Ok(())
+}
