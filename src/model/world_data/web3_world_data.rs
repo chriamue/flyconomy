@@ -41,7 +41,7 @@ impl Web3WorldData {
                     }
                     #[cfg(target_arch = "wasm32")]
                     {
-                        Web3Contract::new_html(DEFAULT_NODE_URL, DEFAULT_CONTRACT_ADDRESS).await?
+                        Web3Contract::new_http(DEFAULT_NODE_URL, DEFAULT_CONTRACT_ADDRESS).await?
                     }
                 };
                 let attractions = contract.get_all_locations().await?;
