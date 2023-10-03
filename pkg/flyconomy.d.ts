@@ -7,6 +7,17 @@ export function start(): void;
 * @param {string} replay_string
 */
 export function start_from_replay_string(replay_string: string): void;
+/**
+*/
+export class RequestArguments {
+  free(): void;
+/**
+*/
+  readonly method: string;
+/**
+*/
+  readonly params: Array<any>;
+}
 
 export type InitInput = RequestInfo | URL | Response | BufferSource | WebAssembly.Module;
 
@@ -14,6 +25,9 @@ export interface InitOutput {
   readonly memory: WebAssembly.Memory;
   readonly start: () => void;
   readonly start_from_replay_string: (a: number, b: number) => void;
+  readonly __wbg_requestarguments_free: (a: number) => void;
+  readonly requestarguments_method: (a: number, b: number) => void;
+  readonly requestarguments_params: (a: number) => number;
   readonly wgpu_compute_pass_set_pipeline: (a: number, b: number) => void;
   readonly wgpu_compute_pass_set_bind_group: (a: number, b: number, c: number, d: number, e: number) => void;
   readonly wgpu_compute_pass_set_push_constant: (a: number, b: number, c: number, d: number) => void;
@@ -68,6 +82,7 @@ export interface InitOutput {
   readonly wasm_bindgen__convert__closures__invoke0_mut__h6a4a61daa82d9d21: (a: number, b: number) => void;
   readonly _dyn_core__ops__function__FnMut__A____Output___R_as_wasm_bindgen__closure__WasmClosure___describe__invoke__hb149166cadcf5c91: (a: number, b: number, c: number) => void;
   readonly _dyn_core__ops__function__FnMut__A____Output___R_as_wasm_bindgen__closure__WasmClosure___describe__invoke__h643bc827ac7bd9a6: (a: number, b: number, c: number) => void;
+  readonly __wbindgen_add_to_stack_pointer: (a: number) => number;
   readonly __wbindgen_free: (a: number, b: number, c: number) => void;
   readonly __wbindgen_exn_store: (a: number) => void;
 }
