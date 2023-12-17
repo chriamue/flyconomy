@@ -77,6 +77,7 @@ fn spawn_hud_item(
                 item_component,
             ));
             // Icon
+            let icon_path = icon_path.to_string();
             parent.spawn(ImageBundle {
                 style: HudStyle::image(),
                 image: asset_server.load(icon_path).into(),

@@ -37,7 +37,8 @@ impl Web3WorldData {
                 let contract = {
                     #[cfg(not(target_arch = "wasm32"))]
                     {
-                        Web3Contract::new_websocket(DEFAULT_NODE_URL, DEFAULT_CONTRACT_ADDRESS).await?
+                        Web3Contract::new_websocket(DEFAULT_NODE_URL, DEFAULT_CONTRACT_ADDRESS)
+                            .await?
                     }
                     #[cfg(target_arch = "wasm32")]
                     {

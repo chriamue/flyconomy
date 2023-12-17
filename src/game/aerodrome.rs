@@ -6,10 +6,7 @@ use bevy::prelude::{
 };
 use bevy_eventlistener::callbacks::ListenerInput;
 use bevy_mod_picking::prelude::{On, Pointer};
-use bevy_mod_picking::{
-    prelude::{Click, RaycastPickTarget},
-    PickableBundle,
-};
+use bevy_mod_picking::{prelude::Click, PickableBundle};
 
 use crate::{
     game::{earth3d, projection::wgs84_to_xyz},
@@ -99,7 +96,6 @@ fn setup(
                         ..Default::default()
                     },
                     PickableBundle::default(),
-                    RaycastPickTarget::default(),
                     On::<Pointer<Click>>::send_event::<AerodromeSelectedEvent>(),
                 ))
                 .insert(AerodromeComponent(aerodrome.clone()));
@@ -122,7 +118,7 @@ fn handle_aerodrome_selected_event(
     aerodrome_query: Query<(Entity, &AerodromeComponent)>,
     mut ev_selected_aerodrome_change: EventWriter<SelectedAerodromeChangeEvent>,
 ) {
-    for select_event in event.iter() {
+    for select_event in event.read() {
         if let Ok((_entity, aerodrome_component)) = aerodrome_query.get(select_event.0) {
             ev_selected_aerodrome_change
                 .send(SelectedAerodromeChangeEvent(aerodrome_component.0.clone()));
@@ -138,7 +134,7 @@ fn handle_selected_aerodrome_change_event(
     mesh_query: Query<&Handle<StandardMaterial>, With<Handle<StandardMaterial>>>,
     mut transform_query: Query<&mut Transform>,
 ) {
-    for event in event.iter() {
+    for event in event.read() {
         let aerodrome = &event.0;
 
         if let Some(selected_aerodrome) = selected_aerodrome.aerodrome.as_ref() {

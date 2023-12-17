@@ -7,10 +7,7 @@ use bevy::prelude::{
 use bevy_eventlistener::callbacks::ListenerInput;
 use bevy_eventlistener::prelude::On;
 use bevy_mod_picking::prelude::Pointer;
-use bevy_mod_picking::{
-    prelude::{Click, RaycastPickTarget},
-    PickableBundle,
-};
+use bevy_mod_picking::{prelude::Click, PickableBundle};
 
 use crate::{
     game::{earth3d, projection::wgs84_to_xyz},
@@ -92,7 +89,6 @@ fn setup(
                         ..Default::default()
                     },
                     PickableBundle::default(),
-                    RaycastPickTarget::default(),
                     On::<Pointer<Click>>::send_event::<WorldHeritageSiteSelectedEvent>(),
                 ))
                 .insert(WorldHeritageSiteComponent(site.clone()));
@@ -115,7 +111,7 @@ fn handle_world_heritage_site_selected_event(
     site_query: Query<(Entity, &WorldHeritageSiteComponent)>,
     mut ev_selected_site_change: EventWriter<SelectedWorldHeritageSiteChangeEvent>,
 ) {
-    for select_event in event.iter() {
+    for select_event in event.read() {
         if let Ok((_entity, site_component)) = site_query.get(select_event.0) {
             ev_selected_site_change.send(SelectedWorldHeritageSiteChangeEvent(
                 site_component.0.clone(),
@@ -132,7 +128,7 @@ fn handle_selected_world_heritage_site_change_event(
     mesh_query: Query<&Handle<StandardMaterial>, With<Handle<StandardMaterial>>>,
     mut transform_query: Query<&mut Transform>,
 ) {
-    for event in event.iter() {
+    for event in event.read() {
         let site = &event.0;
 
         if let Some(selected_site) = selected_site.site.as_ref() {

@@ -62,6 +62,7 @@ fn spawn_control_button(
             ..Default::default()
         })
         .with_children(|parent| {
+            let icon_path = icon_path.to_string();
             parent.spawn(ImageBundle {
                 style: SimulationControlStyle::image(),
                 image: asset_server.load(icon_path).into(),

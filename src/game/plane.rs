@@ -1,8 +1,8 @@
 use bevy::prelude::{
-    App, AssetServer, BuildChildren, ChildBuilder, Commands, Component, ComputedVisibility,
-    DespawnRecursiveExt, Entity, GlobalTransform, Plugin, Quat, Query, Res, Transform, Update,
-    Vec3, Visibility,
+    App, AssetServer, BuildChildren, ChildBuilder, Commands, Component, DespawnRecursiveExt,
+    Entity, GlobalTransform, Plugin, Quat, Query, Res, Transform, Update, Vec3, Visibility,
 };
+use bevy::render::view::InheritedVisibility;
 use bevy::scene::SceneBundle;
 use bevy_obj::ObjPlugin;
 use std::collections::HashMap;
@@ -72,8 +72,8 @@ pub fn plane_system(
                         .spawn((
                             transform,
                             GlobalTransform::default(),
-                            ComputedVisibility::default(),
                             Visibility::Inherited,
+                            InheritedVisibility::default(),
                             FlightVisual {
                                 flight_id: flight.flight_id,
                             },

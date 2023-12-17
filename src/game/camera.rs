@@ -1,7 +1,6 @@
 use std::f32::consts::TAU;
 
 use bevy::{app::PluginGroupBuilder, core_pipeline::bloom::BloomSettings, prelude::*};
-use bevy_mod_picking::prelude::RaycastPickCamera;
 use bevy_panorbit_camera::{PanOrbitCamera, PanOrbitCameraPlugin};
 
 pub struct CameraPlugin;
@@ -36,7 +35,6 @@ pub fn setup_camera(mut commands: Commands) {
 
             ..default()
         },
-        RaycastPickCamera::default(),
     ));
     #[cfg(not(target_arch = "wasm32"))]
     camera.insert(BloomSettings {

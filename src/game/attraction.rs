@@ -7,10 +7,7 @@ use bevy::prelude::{
 use bevy_eventlistener::callbacks::ListenerInput;
 use bevy_eventlistener::prelude::On;
 use bevy_mod_picking::prelude::Pointer;
-use bevy_mod_picking::{
-    prelude::{Click, RaycastPickTarget},
-    PickableBundle,
-};
+use bevy_mod_picking::{prelude::Click, PickableBundle};
 
 use crate::{
     game::{earth3d, projection::wgs84_to_xyz},
@@ -102,7 +99,6 @@ fn setup(
                         ..Default::default()
                     },
                     PickableBundle::default(),
-                    RaycastPickTarget::default(),
                     On::<Pointer<Click>>::send_event::<AttractionSelectedEvent>(),
                 ))
                 .insert(AttractionComponent(attraction.clone()));
@@ -126,7 +122,7 @@ fn handle_attraction_selected_event(
     attraction_query: Query<(Entity, &AttractionComponent)>,
     mut ev_selected_attraction_change: EventWriter<SelectedAttractionChangeEvent>,
 ) {
-    for select_event in event.iter() {
+    for select_event in event.read() {
         if let Ok((_entity, attraction_component)) = attraction_query.get(select_event.0) {
             ev_selected_attraction_change.send(SelectedAttractionChangeEvent(
                 attraction_component.0.clone(),
@@ -143,7 +139,7 @@ fn handle_selected_attraction_change_event(
     mesh_query: Query<&Handle<StandardMaterial>, With<Handle<StandardMaterial>>>,
     mut transform_query: Query<&mut Transform>,
 ) {
-    for event in event.iter() {
+    for event in event.read() {
         let attraction = &event.0;
 
         if let Some(selected_attraction) = selected_attraction.attraction.as_ref() {

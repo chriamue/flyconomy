@@ -1,5 +1,6 @@
 use bevy::prelude::Res;
 use bevy_egui::egui;
+use egui_plot::{Line, Plot};
 
 use crate::{
     game::GameResource,
@@ -43,17 +44,18 @@ pub fn cash_history(ui: &mut egui::Ui, game_resource: &Res<GameResource>) {
         })
         .collect();
 
-    let cash_history_line = egui::plot::Line::new(cash_history_for_plot);
+    let cash_history_line = Line::new(cash_history_for_plot);
 
-    let cash_history_plot = egui::plot::Plot::new("Cash History")
-        .view_aspect(2.0)
-        .label_formatter(|name, value| {
-            if !name.is_empty() {
-                format!("{}: {:.*}%", name, 1, value.y)
-            } else {
-                "".to_owned()
-            }
-        });
+    let cash_history_plot =
+        Plot::new("Cash History")
+            .view_aspect(2.0)
+            .label_formatter(|name, value| {
+                if !name.is_empty() {
+                    format!("{}: {:.*}%", name, 1, value.y)
+                } else {
+                    "".to_owned()
+                }
+            });
     cash_history_plot.show(ui, |ui| {
         ui.line(cash_history_line);
     });
@@ -71,9 +73,9 @@ pub fn total_flight_distance(ui: &mut egui::Ui, game_resource: &Res<GameResource
         })
         .collect();
 
-    let flight_distance_history_line = egui::plot::Line::new(flight_distance_history_for_plot);
+    let flight_distance_history_line = Line::new(flight_distance_history_for_plot);
 
-    let flight_distance_history_plot = egui::plot::Plot::new("Flight Distance History")
+    let flight_distance_history_plot = Plot::new("Flight Distance History")
         .view_aspect(2.0)
         .label_formatter(|name, value| {
             if !name.is_empty() {
@@ -99,19 +101,17 @@ pub fn transported_passengers(ui: &mut egui::Ui, game_resource: &Res<GameResourc
         })
         .collect();
 
-    let transported_passengers_history_line =
-        egui::plot::Line::new(transported_passengers_history_for_plot);
+    let transported_passengers_history_line = Line::new(transported_passengers_history_for_plot);
 
-    let transported_passengers_history_plot =
-        egui::plot::Plot::new("Transported Passengers History")
-            .view_aspect(2.0)
-            .label_formatter(|name, value| {
-                if !name.is_empty() {
-                    format!("{}: {:.*} passengers", name, 1, value.y)
-                } else {
-                    "".to_owned()
-                }
-            });
+    let transported_passengers_history_plot = Plot::new("Transported Passengers History")
+        .view_aspect(2.0)
+        .label_formatter(|name, value| {
+            if !name.is_empty() {
+                format!("{}: {:.*} passengers", name, 1, value.y)
+            } else {
+                "".to_owned()
+            }
+        });
     transported_passengers_history_plot.show(ui, |ui| {
         ui.line(transported_passengers_history_line);
     });
@@ -129,9 +129,9 @@ pub fn average_profit_per_flight(ui: &mut egui::Ui, game_resource: &Res<GameReso
         })
         .collect();
 
-    let average_profit_history_line = egui::plot::Line::new(average_profit_history_for_plot);
+    let average_profit_history_line = Line::new(average_profit_history_for_plot);
 
-    let average_profit_history_plot = egui::plot::Plot::new("Average Profit Per Flight")
+    let average_profit_history_plot = Plot::new("Average Profit Per Flight")
         .view_aspect(2.0)
         .label_formatter(|name, value| {
             if !name.is_empty() {
