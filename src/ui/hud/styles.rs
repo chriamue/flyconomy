@@ -6,10 +6,11 @@ impl HudStyle {
     pub fn style() -> Style {
         Style {
             display: Display::Flex,
+            justify_self: JustifySelf::End,
             flex_direction: FlexDirection::Row,
             justify_content: JustifyContent::Start,
             align_items: AlignItems::Center,
-            width: Val::Auto,
+            width: Val::Percent(60.0),
             height: Val::Percent(15.0),
             margin: UiRect::new(Val::Px(4.0), Val::Px(4.0), Val::Px(4.0), Val::Px(4.0)),
             ..Style::DEFAULT
@@ -22,7 +23,7 @@ impl HudStyle {
             flex_direction: FlexDirection::Row,
             justify_content: JustifyContent::Center,
             align_items: AlignItems::Center,
-            margin: UiRect::new(Val::Px(16.0), Val::Px(8.0), Val::Px(0.0), Val::Px(0.0)),
+            margin: UiRect::new(Val::Px(8.0), Val::Px(8.0), Val::Px(0.0), Val::Px(0.0)),
             ..Style::DEFAULT
         }
     }

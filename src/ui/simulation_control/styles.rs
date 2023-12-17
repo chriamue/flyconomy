@@ -6,6 +6,7 @@ impl SimulationControlStyle {
     pub fn style() -> Style {
         Style {
             display: Display::Flex,
+            align_self: AlignSelf::FlexStart,
             flex_direction: FlexDirection::Row,
             justify_content: JustifyContent::SpaceBetween,
             align_items: AlignItems::Center,
