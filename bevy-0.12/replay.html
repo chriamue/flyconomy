@@ -1,0 +1,37 @@
+<!DOCTYPE html>
+<html lang="en">
+  <head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Flyconomy</title>
+    <link rel="stylesheet" href="index.css">
+  </head>
+  <body>
+    <div id="app" style="width: 90%; height: 90%">
+      <canvas id="bevy"></canvas>
+    </div>
+    <input type="file" id="upload" accept=".yaml" onchange="uploadFile(event)">
+    <script type="module">
+      import init, { start, start_from_replay_string } from "./pkg/flyconomy.js";
+
+      init().then(async () => {
+        try {
+          window.start = start;
+          window.start_from_replay_string = start_from_replay_string;
+        } catch (e) {
+          console.error(e);
+        }
+      });
+
+      window.uploadFile = function(event) {
+        const input = event.target;
+        const reader = new FileReader();
+        reader.onload = function() {
+          const text = reader.result;
+          window.start_from_replay_string(text);
+        };
+        reader.readAsText(input.files[0]);
+      };
+    </script>
+  </body>
+</html>
