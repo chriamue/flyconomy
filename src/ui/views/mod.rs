@@ -10,7 +10,7 @@ pub struct ViewsPlugin;
 
 impl Plugin for ViewsPlugin {
     fn build(&self, app: &mut App) {
-        app.add_state::<UiView>();
+        app.init_state::<UiView>();
 
         app.add_plugins(aerodromes_view::AerodromesUiPlugin);
         app.add_plugins(analytics_view::AnalyticsViewPlugin);

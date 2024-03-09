@@ -98,7 +98,7 @@ pub fn setup_game(app: &mut App, game_resource: GameResource) {
         .add_plugins(FrameTimeDiagnosticsPlugin::default())
         .add_plugins(LogDiagnosticsPlugin::default())
         .add_plugins(DefaultPickingPlugins)
-        .add_state::<GameState>()
+        .init_state::<GameState>()
         .insert_resource(game_resource)
         .insert_resource(ConfigResource::default())
         .add_systems(Startup, (setup_lights, load_config_assets))

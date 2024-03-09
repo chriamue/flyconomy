@@ -6,8 +6,7 @@ use serde_json::Value;
 
 use crate::model::Aerodrome;
 
-#[derive(Serialize, Deserialize, Debug, bevy::reflect::TypeUuid, Clone)]
-#[uuid = "45d4e0f3-c25e-4b19-bfb4-ff278fbad7b0"]
+#[derive(Serialize, Deserialize, Debug, Clone)]
 pub struct AerodromeConfig(pub Value);
 
 pub fn parse_airport_csv(input: &str) -> Vec<Aerodrome> {

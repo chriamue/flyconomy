@@ -21,7 +21,6 @@ pub fn start() {
                 primary_window: Some(Window {
                     title: "Flyconomy".into(),
                     resolution: (1280., 720.).into(),
-                    fit_canvas_to_parent: true,
                     prevent_default_event_handling: true,
                     canvas: Some("#bevy".to_string()),
                     ..default()
@@ -47,7 +46,6 @@ pub fn start_from_replay(replay: Replay) {
                 primary_window: Some(Window {
                     title: "Flyconomy".into(),
                     resolution: (1280., 720.).into(),
-                    fit_canvas_to_parent: true,
                     prevent_default_event_handling: true,
                     canvas: Some("#bevy".to_string()),
                     ..default()

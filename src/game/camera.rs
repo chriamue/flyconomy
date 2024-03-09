@@ -45,30 +45,30 @@ pub fn setup_camera(mut commands: Commands) {
 
 fn keyboard_controls(
     time: Res<Time>,
-    key_input: Res<Input<KeyCode>>,
+    key_input: Res<ButtonInput<KeyCode>>,
     mut pan_orbit_query: Query<(&mut PanOrbitCamera, &mut Transform)>,
 ) {
     for (mut pan_orbit, _transform) in pan_orbit_query.iter_mut() {
-        if key_input.pressed(KeyCode::Right) {
+        if key_input.pressed(KeyCode::ArrowRight) {
             pan_orbit.target_alpha += 50f32.to_radians() * time.delta_seconds();
         }
-        if key_input.pressed(KeyCode::Left) {
+        if key_input.pressed(KeyCode::ArrowLeft) {
             pan_orbit.target_alpha -= 50f32.to_radians() * time.delta_seconds();
         }
-        if key_input.pressed(KeyCode::Up) {
+        if key_input.pressed(KeyCode::ArrowUp) {
             pan_orbit.target_beta += 50f32.to_radians() * time.delta_seconds();
         }
-        if key_input.pressed(KeyCode::Down) {
+        if key_input.pressed(KeyCode::ArrowDown) {
             pan_orbit.target_beta -= 50f32.to_radians() * time.delta_seconds();
         }
 
         // Zoom with Z and X
-        if key_input.pressed(KeyCode::Z) {
+        if key_input.pressed(KeyCode::KeyZ) {
             pan_orbit.radius = pan_orbit
                 .radius
                 .map(|radius| radius - 1.0 * time.delta_seconds());
         }
-        if key_input.pressed(KeyCode::X) {
+        if key_input.pressed(KeyCode::KeyX) {
             pan_orbit.radius = pan_orbit
                 .radius
                 .map(|radius| radius + 1.0 * time.delta_seconds());

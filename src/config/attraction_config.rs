@@ -4,8 +4,7 @@ use serde_json::Value;
 
 use crate::model::Attraction;
 
-#[derive(Serialize, Deserialize, Debug, bevy::reflect::TypeUuid, Clone)]
-#[uuid = "45d4e0f3-c25e-4b19-bfb4-ff378fbad7b3"]
+#[derive(Serialize, Deserialize, Debug, Clone)]
 pub struct AttractionConfig(pub Value);
 
 pub fn parse_attractions_csv(input: &str) -> Vec<Attraction> {

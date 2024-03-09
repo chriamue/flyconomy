@@ -10,14 +10,12 @@ pub use aerodrome_config::{load_airports, AerodromeConfig};
 pub use attraction_config::parse_attractions_csv;
 pub use world_heritage_site_config::parse_world_heritage_site_csv;
 
-#[derive(Serialize, Deserialize, Debug, bevy::reflect::TypeUuid, Clone)]
-#[uuid = "0f597d24-3263-4083-ace3-f971d2a820b7"]
+#[derive(Serialize, Deserialize, Debug, Clone)]
 pub struct PlanesConfig {
     pub planes: Vec<PlaneType>,
 }
 
-#[derive(Serialize, Deserialize, Debug, bevy::reflect::TypeUuid, Clone)]
-#[uuid = "0f597d24-3263-4083-ace3-f971d2a820b8"]
+#[derive(Serialize, Deserialize, Debug, Clone)]
 pub struct LevelConfig {
     pub name: String,
     pub description: String,
