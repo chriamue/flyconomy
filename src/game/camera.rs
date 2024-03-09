@@ -32,7 +32,6 @@ pub fn setup_camera(mut commands: Commands) {
             zoom_sensitivity: 0.15,
             pan_sensitivity: 0.2,
             orbit_sensitivity: 0.2,
-
             ..default()
         },
     ));

@@ -141,13 +141,13 @@ fn spin(time: Res<Time>, mut query: Query<(&mut Transform, &mut Spin)>) {
 fn setup_lights(mut commands: Commands) {
     commands.insert_resource(AmbientLight {
         color: Color::WHITE,
-        brightness: 0.3,
+        brightness: 160.0,
     });
     commands
         .spawn(PointLightBundle {
             transform: Transform::from_xyz(5.0, 0.5, 5.0),
             point_light: PointLight {
-                intensity: 2000.0,
+                intensity: 2_000_000.0,
                 ..Default::default()
             },
             ..Default::default()
