@@ -57,7 +57,7 @@ csv = "1.3.0"
 geo = "0.28"
 log = "0.4.21"
 rayon = { version = "1.9.0", optional = true }
-rurel = { git = "https://github.com/milanboers/rurel", version = "0.5.0", features = [
+rurel = { git = "https://github.com/milanboers/rurel", version = "0.6.0", features = [
     "dqn",
 ], optional = true }
 serde = { version = "1.0", features = ["derive"] }
