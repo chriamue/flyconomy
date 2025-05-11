@@ -1,6 +1,6 @@
 [package]
 name = "flyconomy"
-version = "0.1.0"
+version = "0.1.1"
 edition = "2021"
 description = "A simple economic simulation game about managing an airline with real-world data."
 authors = ["Christian <chriamue@gmail.com>"]
