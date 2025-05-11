@@ -1,6 +1,6 @@
 [package]
 name = "flyconomy"
-version = "0.1.2"
+version = "0.1.3"
 edition = "2021"
 description = "A simple economic simulation game about managing an airline with real-world data."
 authors = ["Christian <chriamue@gmail.com>"]
@@ -79,6 +79,8 @@ web-sys = { version = "0.3", features = [
     'HtmlAnchorElement',
 ] }
 js-sys = "0.3"
+getrandom = { version = "0.3", features = ["wasm_js"] }
+uuid = { version = "1.16.0", features = ["v4", "rng-getrandom", "serde"] }
 
 [target.'cfg(not(target_arch = "wasm32"))'.dev-dependencies]
 approx = "0.5"

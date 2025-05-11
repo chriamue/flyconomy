@@ -9,6 +9,7 @@ pub struct Opt {
     replay: Option<std::path::PathBuf>,
 }
 
+#[cfg(not(target_arch = "wasm32"))]
 fn main() {
     let opt = Opt::from_args();
 
@@ -18,4 +19,9 @@ fn main() {
     } else {
         flyconomy::start();
     }
+}
+
+#[cfg(target_arch = "wasm32")]
+fn main() {
+    flyconomy::start();
 }
